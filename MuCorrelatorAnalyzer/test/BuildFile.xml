@@ -1,0 +1,83 @@
+<use   name="root"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<!-- <use   name="Utilities/Timing"/> -->
+<use   name="DataFormats/RPCDigi"/>
+<use   name="SimDataFormats/Track"/>
+<use   name="SimDataFormats/CrossingFrame"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/RPCGeometry"/>
+<use   name="Geometry/DTGeometry"/>
+<use   name="Geometry/CSCGeometry"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="L1Trigger/RPCTrigger"/>
+<use   name="L1Trigger/L1TMuonBayes"/>
+<use   name="hepmc"/>
+<use   name="heppdt"/>
+
+<use   name="L1Trigger/TrackFindingTracklet"/>
+
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Utilities"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="Geometry/CommonTopologies"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/SiPixelDigi"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="TrackingTools/TrackAssociator"/>
+<use   name="PhysicsTools/CandUtils"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="SimDataFormats/Vertex"/>
+<use   name="SimDataFormats/TrackingHit"/>
+<use   name="TrackingTools/Records"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="TrackingTools/TrajectoryParametrization"/>
+<use   name="RecoTracker/TrackProducer"/>
+<use   name="clhep"/>
+<use   name="xerces-c"/>
+<use   name="boost"/>
+<use   name="rootrflx"/>
+<use   name="DataFormats/L1TrackTrigger"/>
+
+    <use   name="Geometry/TrackerNumberingBuilder"/>
+    <use   name="CondFormats/Alignment"/>
+    <use   name="DataFormats/CaloTowers"/>    
+    <use   name="Geometry/CaloTopology"/>    
+    <use   name="Geometry/CaloGeometry"/>
+    <use   name="FastSimulation/Particle"/>
+    <use   name="FastSimulation/BaseParticlePropagator"/>
+    <use   name="SimTracker/TrackerHitAssociation"/>
+    <use   name="SimTracker/TrackTriggerAssociation"/>
+    <use   name="DataFormats/TrackerRecHit2D"/>
+    <use   name="SimDataFormats/TrackingAnalysis"/>
+    <use   name="RecoLocalTracker/SiPixelRecHits"/>
+    <use   name="PhysicsTools/UtilAlgos"/>
+    <use   name="FWCore/ServiceRegistry"/>
+    <use   name="RecoTauTag/TauTagTools"/>
+    <use   name="RecoTracker/TkSeedGenerator"/>
+    <use   name="CommonTools/UtilAlgos"/>
+    <use   name="DataFormats/Phase2TrackerDigi"/>
+
+<!-- <library   file="OmtfTTAnalyzer4.cc" name="OmtfTTAnalyzer"/> -->
+<library   file="MuCorrelatorAnalyzer7.cc" name="MuCorrelatorAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<!-- <library   file="MuCorrelatorTimingAnalyzer1.cc" name="MuCorrelatorTimingAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library> -->
+
+
