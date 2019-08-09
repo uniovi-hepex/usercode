@@ -259,7 +259,7 @@ std::string toString(const l1t::BayesMuCorrelatorTrack&  muCand) {
   return ostr.str();
 }
 
-auto printTrackigParticleShort(edm::Ptr< TrackingParticle >& tpPtr) {
+auto printTrackigParticleShort(const edm::Ptr< TrackingParticle >& tpPtr) {
   std::ostringstream ostr;
   ostr<< "Tracking particle  pt: " <<setw(7)<< tpPtr->pt() <<" charge: "<<setw(2)<<tpPtr->charge()
               << " eta: " <<setw(7)<< tpPtr->eta()
@@ -271,7 +271,7 @@ auto printTrackigParticleShort(edm::Ptr< TrackingParticle >& tpPtr) {
   return ostr.str();
 };
 
-auto printTrackigParticleShort(edm::Ptr< TrackingParticle >& tpPtr, const edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >& MCTruthTTTrackHandle) {
+auto printTrackigParticleShort(const edm::Ptr< TrackingParticle >& tpPtr, const edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >& MCTruthTTTrackHandle) {
   std::ostringstream ostr;
   ostr<< "Tracking particle  pt: " <<setw(7)<< tpPtr->pt() <<" charge: "<<setw(2)<<tpPtr->charge()
               << " eta: " <<setw(7)<< tpPtr->eta()
@@ -666,13 +666,15 @@ class MuCandsMatchingAnalyzer: public AnalyserBase {
 public:
   class MatchingCategory {
   public:
+
+    virtual ~MatchingCategory() {};
     std::string name;
 
     TH1D* muCandPt = nullptr;
     TH1D* muCandEta = nullptr;
     //TH1D* muCandPhi = nullptr;
 
-    TH2D* muCandPt_vertexRho = nullptr;
+    TH2D* muCandPt_vertexRho = nullptr; //rho is sqrt(x^2 + y^2)
 
 
     MatchingCategory(std::string name, TFileDirectory& subDir, std::shared_ptr<TriggerAlgo>& triggerAlgo): name(name) {
@@ -684,10 +686,10 @@ public:
       muCandEta = subDir.make<TH1D>( ("muCandEta_" + name).c_str(), ("muCandEta pt > " + std::to_string( (int)(triggerAlgo->ptCut) ) + " GeV " + name + ";  eta; #events").c_str(), etaBins, -2.4, 2.4);
       //muCandPhi = subDir.make<TH1D>("muCandPhi", "muCandPhi; phi; #events", phiBins, -M_PI, M_PI);
 
-      muCandPt_vertexRho = subDir.make<TH2D>( ("muCandPt_vertexRho_" + name).c_str(), ("muCandPt_vertexRho_" + name + "; ttTrack pt [GeV]; #rho [cm]").c_str(), 20, 0., 100., 20, 0., 200.); //fixme is rho in cm?
+      muCandPt_vertexRho = subDir.make<TH2D>( ("muCandPt_vertexRho_" + name).c_str(), ("muCandPt_vertexRho_" + name + "; ttTrack pt [GeV]; #rho=#sqrt{x^{2} + y^{2} } [cm]").c_str(), 20, 0., 100., 20, 0., 200.); //fixme is rho in cm?
     }
 
-    void fillHistos(const l1t::BayesMuCorrelatorTrack& l1MuCand, edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
+    virtual void fillHistos(const l1t::BayesMuCorrelatorTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
       muCandPt->Fill(l1MuCand.getPt());
 
       if( passesPtCut) {
@@ -700,11 +702,33 @@ public:
     }
   };
 
+  class MatchingCategoryDecayedToMuon: public MatchingCategory {
+  public:
+    virtual ~MatchingCategoryDecayedToMuon() {};
+
+    TH2D* muCandPt_decayVertexRho = nullptr;
+
+    MatchingCategoryDecayedToMuon(std::string name, TFileDirectory& subDir, std::shared_ptr<TriggerAlgo>& triggerAlgo): MatchingCategory(name, subDir, triggerAlgo) {
+      muCandPt_decayVertexRho = subDir.make<TH2D>( ("muCandPt_decayVertexRho_" + name).c_str(), ("muCandPt_decayVertexRho_" + name + "; ttTrack pt [GeV]; #rho=#sqrt{x^{2} + y^{2} } [cm]").c_str(), 20, 0., 100., 20, 0., 200.); //fixme is rho in cm?
+    }
+
+    virtual void fillHistos(const l1t::BayesMuCorrelatorTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
+      MatchingCategory::fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
+
+      muCandPt_decayVertexRho->Fill(l1MuCand.getPt(), tpMatchedToL1MuCand->decayVertices()[0]->position().rho());
+    }
+  };
+
 
   std::unique_ptr<MatchingCategory> muons;
   std::unique_ptr<MatchingCategory> pions;
+  std::unique_ptr<MatchingCategoryDecayedToMuon> pionsDecayedToMu;
+  std::unique_ptr<MatchingCategory> pionsNotDecayedToMu;
   std::unique_ptr<MatchingCategory> kaons;
+  std::unique_ptr<MatchingCategoryDecayedToMuon> kaonsDecayedToMu;
+  std::unique_ptr<MatchingCategory> kaonsNotDecayedToMu;
   std::unique_ptr<MatchingCategory> otherParts;
+  std::unique_ptr<MatchingCategory> veryLooseMuons;
   std::unique_ptr<MatchingCategory> fakes;
 
   TH1D* muCandPt = nullptr;
@@ -719,18 +743,55 @@ public:
     muCandEta = subDir.make<TH1D>( ("muCandEta"), ("muCandEta;  eta; #events"), etaBins, -2.4, 2.4);
 
     muons = std::make_unique<MatchingCategory>("muons", subDir, triggerAlgo);
+
     pions = std::make_unique<MatchingCategory>("pions", subDir, triggerAlgo);
+    pionsDecayedToMu = std::make_unique<MatchingCategoryDecayedToMuon>("pionsDecayedToMu", subDir, triggerAlgo);
+    pionsNotDecayedToMu = std::make_unique<MatchingCategory>("pionsNotDecayedToMu", subDir, triggerAlgo);
+
     kaons = std::make_unique<MatchingCategory>("kaons", subDir, triggerAlgo);
+    kaonsDecayedToMu = std::make_unique<MatchingCategoryDecayedToMuon>("kaonsDecayedToMu", subDir, triggerAlgo);
+    kaonsNotDecayedToMu = std::make_unique<MatchingCategory>("kaonsNotDecayedToMu", subDir, triggerAlgo);
+
     otherParts = std::make_unique<MatchingCategory>("otherParts", subDir, triggerAlgo);
+
+    veryLooseMuons = std::make_unique<MatchingCategory>("veryLooseMuons", subDir, triggerAlgo);
     fakes = std::make_unique<MatchingCategory>("fakes", subDir, triggerAlgo);
   }
 
   virtual ~MuCandsMatchingAnalyzer() {}
 
-  void fillHistos(const edm::Event& event, const edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >& MCTruthTTTrackHandle, const l1t::BayesMuCorrelatorTrack& l1MuCand);
+  void fillHistos(const edm::Event& event, const edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >& MCTruthTTTrackHandle,
+      const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles, const l1t::BayesMuCorrelatorTrack& l1MuCand);
 };
 
-void MuCandsMatchingAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >& MCTruthTTTrackHandle, const l1t::BayesMuCorrelatorTrack& l1MuCand) {
+bool decaysToMuon(edm::Ptr< TrackingParticle >& tpPtr) { //, const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles
+  if (tpPtr->decayVertices().size() == 1) {
+    auto& decayVert = tpPtr->decayVertices()[0];
+
+    LogTrace("l1tMuBayesEventPrint")<<std::endl;
+    LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" "<<printTrackigParticleShort(tpPtr);
+    LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" decayVertex r "<<decayVert->position().r()<<" phi "<<decayVert->position().phi()<<" z "<<decayVert->position().z()<<" rho "<<decayVert->position().rho()<<std::endl;
+
+    for(auto& daughterTrack : decayVert->daughterTracks() ) {
+      LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" daughterTrack: pdgId "<<daughterTrack->pdgId()
+        << " vertex: r "<<daughterTrack->vertex().r()<<" phi "<<daughterTrack->vertex().phi()<<" x "<<daughterTrack->vertex().x()<<" y "<<daughterTrack->vertex().y()<<" z "<<daughterTrack->vertex().z()
+        <<" rho "<<daughterTrack->vertex().rho()<<" pt "<<daughterTrack->pt()<<std::endl;
+
+      if( abs(daughterTrack->pdgId()) == 13) { //looks that neutrino is not present in the daughterTrack - since it has no track
+        return true;
+      }
+    }
+
+    /*    for(auto& muonTrackingParticle : muonTrackingParticles) {
+
+    }*/
+  }
+  return false;
+}
+
+
+void MuCandsMatchingAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >& MCTruthTTTrackHandle,
+    const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles, const l1t::BayesMuCorrelatorTrack& l1MuCand) {
   if(triggerAlgo->accept(l1MuCand) == false)
     return;
 
@@ -763,9 +824,19 @@ void MuCandsMatchingAnalyzer::fillHistos(const edm::Event& event, const edm::Han
     }
     else if(abs(tpMatchedToL1MuCand->pdgId()) == 211) {
       pions->fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
+      if(decaysToMuon(tpMatchedToL1MuCand)) {
+        pionsDecayedToMu->fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
+      }
+      else
+        pionsNotDecayedToMu->fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
     }
     else if(abs(tpMatchedToL1MuCand->pdgId()) == 321) {
       kaons->fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
+      if(decaysToMuon(tpMatchedToL1MuCand)) {
+        kaonsDecayedToMu->fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
+      }
+      else
+        kaonsNotDecayedToMu->fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
     }
     else {
       otherParts->fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
@@ -775,7 +846,27 @@ void MuCandsMatchingAnalyzer::fillHistos(const edm::Event& event, const edm::Han
     //chi2DofGenuineTTTrackMuCand->Fill(chi2dof);
   }
   else {
-    fakes->fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
+    bool isVeryLoose = false;
+    for(auto& muonTrackingPart : muonTrackingParticles) {
+      //here we have ttTracks tagged as muon by correlator that have no matching genuine/loose genuine tracking particle
+      //so we go over all muonTrackingParticles and check if muonTrackingParticle has given ttTrack matched,
+      //here, "match" means ttTracks that can be associated to a TrackingParticle with at least one hit of at least one of its clusters - so it is very loose match
+      std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > matchedTracks = MCTruthTTTrackHandle->findTTTrackPtrs(muonTrackingPart);
+      for(auto& matchedTTTrack : matchedTracks) {
+        if(matchedTTTrack == ttTrackPtr) {
+          veryLooseMuons->fillHistos(l1MuCand, muonTrackingPart, passesPtCut);
+          isVeryLoose = true;
+
+          LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" veryLooseMuon "<<printTrackigParticleShort(muonTrackingPart);
+          break;
+        }
+      }
+      if(isVeryLoose)
+        break;
+    }
+
+    if(!isVeryLoose)
+      fakes->fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
   }
 }
 
@@ -1015,14 +1106,14 @@ void MuCorrelatorAnalyzer::beginJob()
 
   std::shared_ptr<TriggerAlgo> singleMuAlgoPdfSumSoftCuts = std::make_shared<SingleMuAlgoPdfSumSoftCuts>(20);
 
-  std::shared_ptr<TriggerAlgo> singleMuAlgoHardCuts = std::make_shared<SingleMuAlgoHardCuts>(20);
+  //std::shared_ptr<TriggerAlgo> singleMuAlgoHardCuts = std::make_shared<SingleMuAlgoHardCuts>(20);
 
   std::shared_ptr<TriggerAlgo> hscpAlgo20 = std::make_shared<HscpAlgo>(20);
   std::shared_ptr<TriggerAlgo> hscpAlgo30 = std::make_shared<HscpAlgo>(30);
 
   std::shared_ptr<TriggerAlgo> hscpAlgoHardCuts20 = std::make_shared<HscpAlgoHardCuts>(20);
   std::shared_ptr<TriggerAlgo> hscpAlgoSoftCuts20 = std::make_shared<HscpAlgoSoftCuts>(20);
-  std::shared_ptr<TriggerAlgo> hscpAlgoPdfSumCuts20 = std::make_shared<HscpAlgoPdfSumCuts>(20);
+  //std::shared_ptr<TriggerAlgo> hscpAlgoPdfSumCuts20 = std::make_shared<HscpAlgoPdfSumCuts>(20);
 
 
 
@@ -1033,7 +1124,7 @@ void MuCorrelatorAnalyzer::beginJob()
 
     rateAnalysers.emplace_back(singleMuAlgoPdfSumSoftCuts, fs);
 
-    rateAnalysers.emplace_back(singleMuAlgoHardCuts, fs);
+    //rateAnalysers.emplace_back(singleMuAlgoHardCuts, fs);
 
     rateAnalysers.emplace_back(hscpAlgo20, fs);
 
@@ -1041,7 +1132,7 @@ void MuCorrelatorAnalyzer::beginJob()
 
     rateAnalysers.emplace_back(hscpAlgoHardCuts20, fs);
     rateAnalysers.emplace_back(hscpAlgoSoftCuts20, fs);
-    rateAnalysers.emplace_back(hscpAlgoPdfSumCuts20, fs);
+    //rateAnalysers.emplace_back(hscpAlgoPdfSumCuts20, fs);
   }
   else if(analysisType == "efficiency") {
     efficiencyAnalysers.emplace_back(singleMuAlgo, fs);
@@ -1057,7 +1148,7 @@ void MuCorrelatorAnalyzer::beginJob()
     efficiencyAnalysers.emplace_back(singleMuAlgoPtCut3, fs);
     efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut3, fs);
 
-    efficiencyAnalysers.emplace_back(singleMuAlgoHardCuts, fs);
+    //efficiencyAnalysers.emplace_back(singleMuAlgoHardCuts, fs);
 
     efficiencyAnalysers.emplace_back(hscpAlgo20, fs);
 
@@ -1065,7 +1156,7 @@ void MuCorrelatorAnalyzer::beginJob()
 
     efficiencyAnalysers.emplace_back(hscpAlgoHardCuts20, fs);
     efficiencyAnalysers.emplace_back(hscpAlgoSoftCuts20, fs);
-    efficiencyAnalysers.emplace_back(hscpAlgoPdfSumCuts20, fs);
+    //efficiencyAnalysers.emplace_back(hscpAlgoPdfSumCuts20, fs);
   }
   else if(analysisType == "withTrackPart") {
     efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(singleMuAlgo, fs);
@@ -1073,7 +1164,7 @@ void MuCorrelatorAnalyzer::beginJob()
     efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgo30, fs);
     efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoHardCuts20, fs);
     efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoSoftCuts20, fs);
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoPdfSumCuts20, fs);
+    //efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoPdfSumCuts20, fs);
 
   }
 
@@ -1081,7 +1172,7 @@ void MuCorrelatorAnalyzer::beginJob()
   muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgo, fs));
   muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgoSoftCuts, fs));
   muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgoPdfSumSoftCuts, fs));
-  muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgoHardCuts, fs));
+  //muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgoHardCuts, fs));
   //muCandsMatchingAnalyzers.emplace_back(hscpAlgo20, fs);
 
 
@@ -1157,7 +1248,7 @@ void MuCorrelatorAnalyzer::beginJob()
 
   ptGenPtTTMuonEvPu = fs->make<TH2I>("ptGenPtTTMuonEvPu", "ptGenPtTTMuonEvPu; gen pT [GeV]; ttTrack pT [GeV]; #", 100, 0, 100, 100, 0, 100);
 
-  ptGenDeltaPtTTMuon = fs->make<TH2I>("ptGenDeltaPtTTMuon", "ptGenDeltaPtTTMuon; gen pT [GeV]; (gen pT - ttTrack pT) [GeV]; #", 100, 0, 100, 100, -5, 5);
+  ptGenDeltaPtTTMuon = fs->make<TH2I>("ptGenDeltaPtTTMuon", "ptGenDeltaPtTTMuon; gen pT [GeV]; (gen pT - ttTrack pT)/(gen pT) [GeV]; #", 100, 0, 100, 100, -.5, .5);
   ptGenDeltaPhiTTMuon = fs->make<TH2I>("ptGenDeltaPhiTTMuon", "ptGenDeltaPhiTTMuon; gen pT [GeV]; (gen phi - ttTrack phi); #", 100, 0, 100,  100, -0.5, 0.5);
   ptGenDeltaEtaTTMuon = fs->make<TH2I>("ptGenDeltaEtaTTMuon", "ptGenDeltaEtaTTMuon; gen pT [GeV]; (gen eta - ttTrack eta); #", 100, 0, 100,  100, -0.1, 0.1);
 
@@ -1263,7 +1354,8 @@ void analyseMuonTrackingParticles(edm::Ptr< TrackingParticle >& tpPtr, const std
   tpPtr->parentVertex();
   tpPtr->vertex();
 
-  if(tpPtr->eventId().event() != 0 ) {
+  if(tpPtr->eventId().event() != 0 )
+  {
     if ( (abs(tpPtr->pdgId()) == 211 && tpPtr->decayVertices().size() > 0 && tpPtr->pt() > 4) || (abs(tpPtr->pdgId()) == 13 && tpPtr->pt() > 3) ) { //13
       //if(tpPtr->pt() > 4)
       {
@@ -1294,7 +1386,7 @@ void MuCorrelatorAnalyzer::analyze(
     const edm::Event& event, const edm::EventSetup& es)
 {
   //const unsigned int omtflayersCnt = muCorrConfig.nLayers();
-  LogTrace("l1tMuBayesEventPrint") << "\nOmtfTTAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" new event "<<event.id()<< endl;
+  LogTrace("l1tMuBayesEventPrint") << "\n\nMuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" new event "<<event.id()<<" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"<< endl;
 
   edm::Handle<edm::SimTrackContainer> simTraksHandle;
   event.getByToken(simTrackToken, simTraksHandle);
@@ -1386,6 +1478,8 @@ void MuCorrelatorAnalyzer::analyze(
   edm::Ptr< TrackingParticle > bestMuInBx1;
   edm::Ptr< TrackingParticle > bestMuInBx2;
 
+  std::vector<edm::Ptr< TrackingParticle > > muonTrackingParticles;
+
   for (unsigned int iTP = 0; iTP < trackingParticleHandle->size(); ++iTP) {
     edm::Ptr< TrackingParticle > tpPtr(trackingParticleHandle, iTP);
 
@@ -1437,6 +1531,8 @@ void MuCorrelatorAnalyzer::analyze(
 
     if(tpPtr->eventId().bunchCrossing() != 0)
       continue;
+
+    muonTrackingParticles.emplace_back(tpPtr);
 
     // ----------------------------------------------------------------------------------------------
     // get d0/z0 propagated back to the IP
@@ -1503,7 +1599,7 @@ void MuCorrelatorAnalyzer::analyze(
       return ostr.str();
     };
 
-    LogTrace("l1tMuBayesEventPrint")<<"\n\n"<<printTrackigParticle();
+    LogTrace("l1tMuBayesEventPrint")<<"\n\n"<<"L:"<<__LINE__<<" "<<printTrackigParticle();
 
     // ----------------------------------------------------------------------------------------------
     // only consider TPs associated with >= 1 cluster, or >= X stubs, or have stubs in >= X layers (configurable options)
@@ -1562,20 +1658,31 @@ void MuCorrelatorAnalyzer::analyze(
        *
        * but if it is genuine then ALL stubs of the ttTrack must be generated by one tracking particle, see MCTruthTTTrackHandle->isGenuine
        */
+
+/*      int matchingQuality = 0;
+      if(tmp_trk_genuine)
+        matchingQuality = 2;
+      else if(tmp_trk_loosegenuine)
+        matchingQuality = 1;
+      else
+        matchingQuality = 0;*/
+
+
       if (LooseMatch && !tmp_trk_loosegenuine)
         continue;
       if (!LooseMatch && !tmp_trk_genuine)
         continue;
 
+
       edm::Ptr< TrackingParticle > tpOfMatchedTTTrack = MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTTTrack);
-      LogTrace("l1tMuBayesEventPrint")<<printTTTRack(matchedTTTrack, tmp_trk_genuine, tmp_trk_loosegenuine);
+      LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" "<<printTTTRack(matchedTTTrack, tmp_trk_genuine, tmp_trk_loosegenuine);
 
       // ----------------------------------------------------------------------------------------------
       // number of stubs in this matchedTTTrack
       int ttTrackNstub = matchedTTTrack->getStubRefs().size();
 
       if (ttTrackNstub < L1Tk_minNStub) {
-        LogTrace("l1tMuBayesEventPrint") << "ttTrackNstub < "<<L1Tk_minNStub<<" - skipping this ttTrack" << endl;
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << "t tTrackNstub < "<<L1Tk_minNStub<<" - skipping this ttTrack" << endl;
         continue;
       }
 
@@ -1588,16 +1695,18 @@ void MuCorrelatorAnalyzer::analyze(
 
       // ensure that track is uniquely matched to the TP we are looking at!
       if (tpOfMatchedTTTrack.isNull()) { //if the ttTrack is at least loose genuine this cannot happened
-        edm::LogImportant("l1tMuBayesEventPrint") << "ttTrack matched to tracking particle is NOT matched to any tracking particle  (i.e. is not genuine nor loose) - not possible!!!!!!!!!!! " << endl;
+        edm::LogImportant("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << " ttTrack matched to tracking particle is NOT matched to any tracking particle  (i.e. is not genuine nor loose) - not possible!!!!!!!!!!! " << endl;
       }
       else if(tpPtr != tpOfMatchedTTTrack) {//is this possible at all? - yes if the ttTrack was matched to another particle, but with the current has one cluster in common (possible is loose genuine)
-        LogTrace("l1tMuBayesEventPrint")<<"\ntpPtr != tpOfMatchedTTTrack !!!!!!!!!!!!";
-        LogTrace("l1tMuBayesEventPrint")<<"current tracking particle";
-        LogTrace("l1tMuBayesEventPrint")<<printTrackigParticleShort(tpPtr);
+        LogTrace("l1tMuBayesEventPrint")<<std::endl;
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" tpPtr != tpOfMatchedTTTrack !!!!!!!!!!!!";
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" current tracking particle";
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" "<<printTrackigParticleShort(tpPtr);
 
-        LogTrace("l1tMuBayesEventPrint")<<printTTTRack(matchedTTTrack, tmp_trk_genuine, tmp_trk_loosegenuine);
-        LogTrace("l1tMuBayesEventPrint")<<"tpOfMatchedTTTrack";
-        LogTrace("l1tMuBayesEventPrint")<<printTrackigParticleShort(tpOfMatchedTTTrack);
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" "<<printTTTRack(matchedTTTrack, tmp_trk_genuine, tmp_trk_loosegenuine);
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" tpOfMatchedTTTrack";
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" "<<printTrackigParticleShort(tpOfMatchedTTTrack);
+        LogTrace("l1tMuBayesEventPrint")<<std::endl;
       }
       else {//the ttTrack is uniquely  matched to the current tracking particle
         //so we assume that the matched ttTrack (and thus omtf track) is at least loose genuine
@@ -1610,13 +1719,13 @@ void MuCorrelatorAnalyzer::analyze(
         //finding omtf candidate corresponding to the matchedTTTrack
         //LogTrace("l1tMuBayesEventPrint")<<" omtfCands->size "<<omtfCands->size(bxNumber)<<endl;
 
-        //we one should find one candidate with max pt and use it for filling the histograms
+        //we should find one candidate with max pt and use it for filling the histograms
         for(auto itL1MuCand = muCorrTracks->begin(bxNumber); itL1MuCand != muCorrTracks->end(bxNumber); ++itL1MuCand) {
           auto& muCandTtTrackPtr = itL1MuCand->getTtTrackPtr();
           //edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > omtfTtTrackPtr(TTTrackHandle, omtfTTTrackIndex);
 
           if(muCandTtTrackPtr.isNonnull() && muCandTtTrackPtr.get() == matchedTTTrack.get() ) { //it should be only one omtfTrack for given ttTRack
-            LogTrace("l1tMuBayesEventPrint")<<toString(*itL1MuCand)<<endl;
+            LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<toString(*itL1MuCand)<<endl;
 
             for(auto& effAnalys : efficiencyAnalysers)
               effAnalys.takeCanidate(itL1MuCand);
@@ -1629,9 +1738,9 @@ void MuCorrelatorAnalyzer::analyze(
     }// end loop over matched ttTracks
 
     // ----------------------------------------------------------------------------------------------
-    if (nMatch > 1)
-      edm::LogImportant("l1tMuBayesEventPrint") << "WARNING *** 2 or more (loose) genuine ttTrack match to tracking particle !!!!!" << endl;
-
+    if (nMatch > 1) {
+      edm::LogImportant("l1tMuBayesEventPrint") << "WARNING *** 2 or more (loose) genuine ttTrack match to tracking particle !!!!! "<<printTrackigParticleShort(tpPtr) << endl;
+    }
     if (nMatch > 0) {
       float matchTTTrackPt   = bestMatchedTTTrack->getMomentum(L1Tk_nPar).perp();
       float matchTTTrackEta  = bestMatchedTTTrack->getMomentum(L1Tk_nPar).eta();
@@ -1660,7 +1769,7 @@ void MuCorrelatorAnalyzer::analyze(
         ptGenPtTTMuonEvPu->Fill(tpPtr->pt(), matchTTTrackPt);
       }
 
-      ptGenDeltaPtTTMuon->Fill(tpPtr->pt(), tpPtr->pt() - matchTTTrackPt);
+      ptGenDeltaPtTTMuon->Fill(tpPtr->pt(), (tpPtr->pt() - matchTTTrackPt) / tpPtr->pt());
       ptGenDeltaPhiTTMuon->Fill(tpPtr->pt(), tpPtr->phi() - matchTTTrackPhi);
       ptGenDeltaEtaTTMuon->Fill(tpPtr->pt(), tpPtr->eta() - matchTTTrackEta);
 
@@ -1679,9 +1788,9 @@ void MuCorrelatorAnalyzer::analyze(
 
       double tpMinPt = 5;
       if (tpPtr->pt() > tpMinPt) {
-        LogTrace("l1tMuBayesEventPrint") << "\nno ttTrack matched to tracking particle:";
-        LogTrace("l1tMuBayesEventPrint")<<printTrackigParticle();
-        LogTrace("l1tMuBayesEventPrint")<<"Printing all ttTracks around tracking particle" << endl;
+        LogTrace("l1tMuBayesEventPrint") <<"\n"<<"L:"<<__LINE__<<" no ttTrack matched to tracking particle:";
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" "<<printTrackigParticle();
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" Printing all ttTracks around tracking particle" << endl;
 
         //looking for ttTrack not matched by the MCTruthTTTrackHandle
         int l1TrackIndx = 0;
@@ -1713,7 +1822,7 @@ void MuCorrelatorAnalyzer::analyze(
 
             //if (DebugMode )
             {//&& abs(my_tp->pdgId()) == 13
-              LogTrace("l1tMuBayesEventPrint") << "L1 track, pt: " << ttTrkPt //<<" RInv "<<l1track_ptr->getRInv()
+              LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << " L1 track, pt: " << ttTrkPt //<<" RInv "<<l1track_ptr->getRInv()
                   << " eta: " << ttTrkEta << " phi: " << ttTrkPhi
                   << " z0: " << tmp_trk_z0 << " chi2: " << tmp_trk_chi2 << " nstub: " << tmp_trk_nstub<<", "
                   <<(tmp_trk_genuine ? "genuine, " : "")
@@ -1722,8 +1831,8 @@ void MuCorrelatorAnalyzer::analyze(
                   <<(tmp_trk_combinatoric ? "combinatoric, " : "");
 
               if( !my_tp.isNull() ) {
-                LogTrace("l1tMuBayesEventPrint") <<" is matched to tracking particle: ";
-                LogTrace("l1tMuBayesEventPrint")<< "Tracking particle,    pt: " <<setw(7)<< my_tp->pt() << " eta: " <<setw(7)<< my_tp->eta() << " phi: " <<setw(7)<< my_tp->phi()
+                LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__ <<" is matched to tracking particle: ";
+                LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<< " Tracking particle,    pt: " <<setw(7)<< my_tp->pt() << " eta: " <<setw(7)<< my_tp->eta() << " phi: " <<setw(7)<< my_tp->phi()
                                       << " pdgid: " <<setw(7)<< my_tp->pdgId() << " eventID: " <<setw(7)<< my_tp->eventId().event()
                                       << " ttTracks Cnt " << MCTruthTTTrackHandle->findTTTrackPtrs(my_tp).size()
                                       <<" bx: "<<my_tp->eventId().bunchCrossing()<<" address "<<my_tp.get()
@@ -1731,7 +1840,7 @@ void MuCorrelatorAnalyzer::analyze(
                                       <<" "<<(my_tp == tpPtr ? " my_tp == tp_ptr " : "my_tp != tp_ptr")<< endl;
               }
               else {
-                LogTrace("l1tMuBayesEventPrint")<<" no matching tracking particle"<<endl;
+                LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" no matching tracking particle"<<endl;
               }
               LogTrace("l1tMuBayesEventPrint")<<"";
             }
@@ -1780,7 +1889,7 @@ void MuCorrelatorAnalyzer::analyze(
       rateAnalyser.takeCanidate(itL1MuCand);
 
     for(auto& muCandsMatchingAnalyzer : muCandsMatchingAnalyzers)
-      muCandsMatchingAnalyzer->fillHistos(event, MCTruthTTTrackHandle, *itL1MuCand);
+      muCandsMatchingAnalyzer->fillHistos(event, MCTruthTTTrackHandle, muonTrackingParticles, *itL1MuCand);
   }
 
   if(bestMuInBx1.isNonnull())
