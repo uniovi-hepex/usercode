@@ -328,6 +328,9 @@ protected:
 
 void AnalyserBase::takeCanidate(const l1t::BayesMuCorrTrackBxCollection::const_iterator& itL1MuCand) {
   if(ptOfBestL1MuCand < itL1MuCand->getPt() ) {
+    if(ptOfBestL1MuCand > 0)
+      edm::LogImportant("l1tMuBayesEventPrint") <<"L:"<<__LINE__<<" AnalyserBase::takeCanidate: another track already exists with pt "<<ptOfBestL1MuCand<<" new track has pt "<<itL1MuCand->getPt() <<std::endl  ;
+
     if(triggerAlgo->accept(*itL1MuCand) ) {
       ptOfBestL1MuCand = itL1MuCand->getPt();
       bestL1MuCand = &(*itL1MuCand);
@@ -614,8 +617,8 @@ void RateAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrac
           bool tmp_trk_loosegenuine = MCTruthTTTrackHandle->isLooselyGenuine(ttTrackPtr);
           edm::LogImportant("l1tMuBayesEventPrint") << printTTTRack(ttTrackPtr, tmp_trk_genuine, tmp_trk_loosegenuine, L1Tk_nPar);
           if(!tpMatchedToBestL1MuCand.isNull() ) {
-            edm::LogImportant("l1tMuBayesEventPrint") << "TP matched to muCand:";
-            edm::LogImportant("l1tMuBayesEventPrint") << printTrackigParticleShort(tpMatchedToBestL1MuCand, MCTruthTTTrackHandle); //<<"Line: "<<__LINE__<<". "
+            edm::LogImportant("l1tMuBayesEventPrint") <<"L:"<<__LINE__<< "TP matched to muCand:";
+            edm::LogImportant("l1tMuBayesEventPrint") <<"L:"<<__LINE__<<" "<< printTrackigParticleShort(tpMatchedToBestL1MuCand, MCTruthTTTrackHandle); //<<"Line: "<<__LINE__<<". "
           }
         }
       }
@@ -921,6 +924,9 @@ private:
   double TP_minPt;      // save TPs with pt > minPt
   double TP_maxEta;     // save TPs with |eta| < maxEta
   double TP_maxZ0;      // save TPs with |z0| < maxZ0
+
+  double TP_maxRho = 30; //[cm] maximum muon vertex rho - to not include in the efficiency analysis the muons from pions, which are not well matched to ttTracks. increase for not pointin muon analysis
+
   int L1Tk_minNStub;    // require L1 tracks to have >= minNStub (this is mostly for tracklet purposes)
 
   int muCandQualityCut = 12;
@@ -982,6 +988,9 @@ private:
   TH1D* ttMuonEta = nullptr;
   TH1D* ttMuonEta_ptGen20GeV_ptTT18Gev = nullptr;
   TH1D* ttMuonPhi = nullptr;
+
+  TH1D* ttMuonVeryLoosePt = nullptr;
+  TH1D* ttMuonVeryLooseEta_ptGen20GeV_ptTT18Gev = nullptr;
 
   TH2I* ptGenPtTTMuon = nullptr;
 
@@ -1048,6 +1057,7 @@ MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
   TP_minPt         = parameterSet.getParameter< double >("TP_minPt");
   TP_maxEta        = parameterSet.getParameter< double >("TP_maxEta");
   TP_maxZ0         = parameterSet.getParameter< double >("TP_maxZ0");
+  TP_maxRho        = parameterSet.getParameter< double >("TP_maxRho");
   L1TrackInputTag      = parameterSet.getParameter<edm::InputTag>("L1TrackInputTag");
   MCTruthTrackInputTag = parameterSet.getParameter<edm::InputTag>("MCTruthTrackInputTag");
   L1Tk_minNStub    = parameterSet.getParameter< int >("L1Tk_minNStub");
@@ -1225,6 +1235,9 @@ void MuCorrelatorAnalyzer::beginJob()
   ttMuonEta = fs->make<TH1D>("ttMuonEta", "ttMuonEta; eta; #events", etaBins, -2.4, 2.4);
   ttMuonEta_ptGen20GeV_ptTT18Gev = fs->make<TH1D>("ttMuonEta_ptGen20GeV_ptTT18Gev", "ttMuonEta_ptGen20GeV_ptTT18GeV; eta; #events", etaBins, -2.4, 2.4);
   ttMuonPhi = fs->make<TH1D>("ttMuonPhi", "ttMuonPhi; phi; #events", phiBins, -M_PI, M_PI);
+
+  ttMuonVeryLoosePt = fs->make<TH1D>("ttMuonVeryLoosePt", "ttMuonVeryLoosePt; gen pT [GeV]; #events", ptBins, 0., 500.);
+  ttMuonVeryLooseEta_ptGen20GeV_ptTT18Gev = fs->make<TH1D>("ttMuonVeryLooseEta_ptGen20GeV_ptTT18Gev", "ttMuonVeryLooseEta_ptGen20GeV_ptTT18Gev; eta; #events", etaBins, -2.4, 2.4);
 
   ttTracksPt = fs->make<TH1D>("ttTracksPt", "ttTracksPt; ttTrack pT [GeV]; #events", ptBins, 0., 500.);;
 
@@ -1511,6 +1524,9 @@ void MuCorrelatorAnalyzer::analyze(
     else
       continue;
 
+    if(tpPtr->vertex().rho() > TP_maxRho)
+      continue;
+
     hscpAnalysis(event, tpPtr, muCorrTracksHandle);
 
     if (abs(tpPtr->pdgId()) == 1000015) {
@@ -1697,7 +1713,7 @@ void MuCorrelatorAnalyzer::analyze(
       if (tpOfMatchedTTTrack.isNull()) { //if the ttTrack is at least loose genuine this cannot happened
         edm::LogImportant("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << " ttTrack matched to tracking particle is NOT matched to any tracking particle  (i.e. is not genuine nor loose) - not possible!!!!!!!!!!! " << endl;
       }
-      else if(tpPtr != tpOfMatchedTTTrack) {//is this possible at all? - yes if the ttTrack was matched to another particle, but with the current has one cluster in common (possible is loose genuine)
+      else if(tpPtr != tpOfMatchedTTTrack) {//is this possible at all? - yes if the ttTrack was matched to another particle, but with the current has one cluster in common (possible if loose genuine)
         LogTrace("l1tMuBayesEventPrint")<<std::endl;
         LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" tpPtr != tpOfMatchedTTTrack !!!!!!!!!!!!";
         LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" current tracking particle";
@@ -1790,7 +1806,25 @@ void MuCorrelatorAnalyzer::analyze(
       if (tpPtr->pt() > tpMinPt) {
         LogTrace("l1tMuBayesEventPrint") <<"\n"<<"L:"<<__LINE__<<" no ttTrack matched to tracking particle:";
         LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" "<<printTrackigParticle();
-        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" Printing all ttTracks around tracking particle" << endl;
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" Printing all ttTracks matching this tracking particle" << endl;
+
+        for(auto& matchedTTTrack : matchedTracks) {
+          LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" "<<printTTTRack(matchedTTTrack, false, false) << endl;
+          if( abs(matchedTTTrack->getMomentum(L1Tk_nPar).phi() - tpPtr->phi()) < 0.01 &&
+              abs(matchedTTTrack->getMomentum(L1Tk_nPar).eta() - tpPtr->eta()) < 0.01 &&
+              abs( (matchedTTTrack->getMomentum(L1Tk_nPar).perp() - tpPtr->pt() ) / tpPtr->pt()) < 0.1)
+          {
+            if(MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTTTrack).isNull() ) { //we require that this ttTrack is not well matched to other particle
+              ttMuonVeryLoosePt->Fill(tpPtr->pt());
+              if(tpPtr->pt() > 20 && matchedTTTrack->getMomentum(L1Tk_nPar).perp() >= 18 ) {
+                ttMuonVeryLooseEta_ptGen20GeV_ptTT18Gev->Fill(tpPtr->eta());
+              }
+              LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" selected as VeryLoose"<< endl;
+            }
+          }
+        }
+/*
+        LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" Printing all ttTracks around this tracking particle" << endl;
 
         //looking for ttTrack not matched by the MCTruthTTTrackHandle
         int l1TrackIndx = 0;
@@ -1846,6 +1880,7 @@ void MuCorrelatorAnalyzer::analyze(
             }
           }
         }
+        */
       }
     }
   } //end loop tracking particles
