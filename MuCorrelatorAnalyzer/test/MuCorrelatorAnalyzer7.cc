@@ -106,6 +106,18 @@ public:
   }
 };
 
+class AllTTTRacksBarrel: public TriggerAlgo {
+public:
+  AllTTTRacksBarrel(double ptCut): TriggerAlgo("AllTTTRacksBarrel" + std::to_string((int)ptCut), ptCut) {};
+  virtual ~AllTTTRacksBarrel() {};
+
+  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+    if(abs(muCorrelatorTrack.getEta() ) < 0.85)
+      return true;
+    return false;
+  }
+};
+
 class SingleMuAlgo: public TriggerAlgo {
 public:
   SingleMuAlgo(double ptCut): TriggerAlgo("SingleMuAlgo" + std::to_string((int)ptCut), ptCut) {};
@@ -139,10 +151,13 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
         muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1100) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1400) ||
+        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
+          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
            muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
-        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2Red(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() )
+        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
+            ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+              muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
+           muCorrelatorTrack.getTtTrackPtr().isNull() )
     )
       return true;
     return false;
@@ -157,8 +172,8 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
         muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1100) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1400) ||
+        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
+          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
            muCorrelatorTrack.getFiredLayerBits().count() >= 4) //&&
         //( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2Red(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() )
     )
@@ -178,8 +193,11 @@ public:
         ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1300) ||
           (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1900) ||
            muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
-        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2Red(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull()  )//todo probably in firmware exactly like that will be not possible, rather cut of chi2 depending on the nStubs
-    )
+           ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
+               ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+                 muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
+              muCorrelatorTrack.getTtTrackPtr().isNull() )
+       )
       return true;
     return false;
   }
@@ -207,8 +225,11 @@ public:
         muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
         ( (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1800 && muCorrelatorTrack.getBetaLikelihood() >= 9) ||
           (muCorrelatorTrack.getFiredLayerBits().count() == 4 && muCorrelatorTrack.pdfSum() > 2000 && muCorrelatorTrack.getBetaLikelihood() >= 10) ||
-           muCorrelatorTrack.getFiredLayerBits().count() >= 5  ) &&
-        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2Red(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() )
+         muCorrelatorTrack.getFiredLayerBits().count() >= 5  ) &&
+         ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
+             ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+               muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
+            muCorrelatorTrack.getTtTrackPtr().isNull() )
       )
     {
       return true;
@@ -229,7 +250,10 @@ public:
           (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1700 && muCorrelatorTrack.getBetaLikelihood() >= 7) ||
           (muCorrelatorTrack.getFiredLayerBits().count() == 4 && muCorrelatorTrack.pdfSum() > 2200 && muCorrelatorTrack.getBetaLikelihood() >= 9) ||
            muCorrelatorTrack.getFiredLayerBits().count() >= 5) &&
-        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2Red(L1Tk_nPar) < 200  ) || muCorrelatorTrack.getTtTrackPtr().isNull() ) //todo probably in firmware exactly like that will be not possible, rather cut of chi2 depending on the nStubs
+       ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
+           ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+             muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
+          muCorrelatorTrack.getTtTrackPtr().isNull() )
       )
     {
       return true;
@@ -250,7 +274,10 @@ public:
           (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1700) || // && muCorrelatorTrack.getBetaLikelihood() >= 7
           (muCorrelatorTrack.getFiredLayerBits().count() == 4 && muCorrelatorTrack.pdfSum() > 2200) || // && muCorrelatorTrack.getBetaLikelihood() >= 9
            muCorrelatorTrack.getFiredLayerBits().count() >= 5) &&
-        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2Red(L1Tk_nPar) < 200  ) || muCorrelatorTrack.getTtTrackPtr().isNull() ) //todo probably in firmware exactly like that will be not possible, rather cut of chi2 depending on the nStubs
+       ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
+           ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+             muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
+          muCorrelatorTrack.getTtTrackPtr().isNull() )
       )
     {
       return true;
@@ -716,21 +743,21 @@ public:
 
       candPt = subDir.make<TH1D>( ("candPt_" + name).c_str(), ("candPt_" + name + "; ttTrack pt [GeV]; #events").c_str(), ptBins, 0., 500.);
 
-      std::string ptCutStr = "candEta pt > " + std::to_string( (int)(triggerAlgo->ptCut) ) + " GeV ";
+      std::string ptCutStr = " pt > " + std::to_string( (int)(triggerAlgo->ptCut) ) + " GeV ";
 
-      candEta = subDir.make<TH1D>( ("candEta_" + name).c_str(), (ptCutStr + name + ";  eta; #events").c_str(), etaBins, -2.4, 2.4);
+      candEta = subDir.make<TH1D>( ("candEta_" + name).c_str(), ("candEta " + ptCutStr + name + ";  eta; #events").c_str(), etaBins, -2.4, 2.4);
       //candPhi = subDir.make<TH1D>("candPhi", "candPhi; phi; #events", phiBins, -M_PI, M_PI);
 
       candPt_vertexRho = subDir.make<TH2I>( ("candPt_vertexRho_" + name).c_str(), ("candPt_vertexRho_" + name + "; ttTrack pt [GeV]; #rho=#sqrt{x^{2} + y^{2} } [cm]").c_str(), 20, 0., 100., 20, 0., 200.); //fixme is rho in cm?
 
-      pdfSumNFiredLayers = subDir.make<TH2I>( ("pdfSumNFiredLayers_" + name).c_str(), ("pdfSumNFiredLayers "+ ptCutStr + "; pdfSum; NFiredLayers; #").c_str(), 100, 0, 10000, 19, -0.5, 18.5);
+      pdfSumNFiredLayers = subDir.make<TH2I>( ("pdfSumNFiredLayers_" + name).c_str(), ("pdfSumNFiredLayers "+ name + ptCutStr + "; pdfSum; NFiredLayers; #").c_str(), 100, 0, 10000, 19, -0.5, 18.5);
 
-      candPtFiredMuonLayers = subDir.make<TH2I>( ("candPtFiredMuonLayers_" + name).c_str(), ("candPtFiredMuonLayers; ttTrack pt [GeV]; muon layer; #"), 50, 0, 100, 19, -0.5, 18.5);
+      candPtFiredMuonLayers = subDir.make<TH2I>( ("candPtFiredMuonLayers_" + name).c_str(), ("candPtFiredMuonLayers " + name + "; ttTrack pt [GeV]; muon layer; #").c_str(), 50, 0, 100, 23, -0.5, 22.5);
 
-      chi2NStubs = subDir.make<TH2I>( ("chi2NStubs_" + name).c_str(), ("chi2NStubs "+ ptCutStr + "; chi2; #nStubs").c_str(), 10, 0., 300., 8, .5, 8.5);
+      chi2NStubs = subDir.make<TH2I>( ("chi2NStubs_" + name).c_str(), ("chi2NStubs "+ name + ptCutStr + "; chi2; #nStubs").c_str(), 30, 0., 300., 8, .5, 8.5);
 
-      ptGenDeltaPt = subDir.make<TH2I>( ("ptGenDeltaPt_" + name).c_str(), "ptGenDeltaPt; gen pT [GeV]; (gen pT - ttTrack pT)/(gen pT) [GeV]; #", 50, 0, 100, 100, -.5, .5);
-      ptGenDeltaPhi = subDir.make<TH2I>( ("ptGenDeltaPhi_" + name).c_str(), "ptGenDeltaPhi; gen pT [GeV]; (gen phi - ttTrack phi); #", 50, 0, 100,  60, -0.3, 0.3);
+      ptGenDeltaPt = subDir.make<TH2I>( ("ptGenDeltaPt_" + name).c_str(), ("ptGenDeltaPt " + name + "; gen pT [GeV]; (gen pT - ttTrack pT)/(gen pT) [GeV]; #").c_str(), 50, 0, 100, 100, -.5, .5);
+      ptGenDeltaPhi = subDir.make<TH2I>( ("ptGenDeltaPhi_" + name).c_str(), ("ptGenDeltaPhi " + name +  "; gen pT [GeV]; (gen phi - ttTrack phi); #").c_str(), 50, 0, 100,  60, -0.3, 0.3);
     }
 
     virtual void fillHistos(const l1t::BayesMuCorrelatorTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
@@ -960,6 +987,7 @@ private:
   std::vector<std::unique_ptr<MuCandsMatchingAnalyzer> > muCandsMatchingAnalyzers;
 
   std::unique_ptr<MuCandsMatchingAnalyzer> ttTracksMatchingAnalyzer;
+  std::unique_ptr<MuCandsMatchingAnalyzer> ttTracksMatchingAnalyzerBarrel;
 
   std::vector<EfficiencyAnalyser> efficiencyAnalysersCorrelatorWithTrackPart; //used when the correlator works with the Tracking particles and not the ttTracks
 
@@ -1252,6 +1280,9 @@ void MuCorrelatorAnalyzer::beginJob()
 
   std::shared_ptr<TriggerAlgo> allTTTRacks = std::make_shared<AllTTTRacks>(10);
   ttTracksMatchingAnalyzer = std::make_unique<MuCandsMatchingAnalyzer>(allTTTRacks, fs);
+
+  std::shared_ptr<TriggerAlgo> allTTTRacksBarrel = std::make_shared<AllTTTRacksBarrel>(10);
+  ttTracksMatchingAnalyzerBarrel = std::make_unique<MuCandsMatchingAnalyzer>(allTTTRacksBarrel, fs);
 
   //make a new Root file
   /*  string  outRootFile = parameterSet.getParameter<std::string>("outRootFile");
@@ -2041,7 +2072,7 @@ void MuCorrelatorAnalyzer::analyze(
 
     l1t::BayesMuCorrelatorTrack dummy(ttTrackPtr); //very ugly, but should work - the idea is to reuse the MatchingAnalyzer
     ttTracksMatchingAnalyzer->fillHistos(event, MCTruthTTTrackHandle, muonTrackingParticles, dummy);
-
+    ttTracksMatchingAnalyzerBarrel->fillHistos(event, MCTruthTTTrackHandle, muonTrackingParticles, dummy);
   }
   ttTracksFakesPerEvent->Fill(ttTracksFakesPerEventCnt);
   ttTracksPt10FakesPerEvent->Fill(ttTracksPt10FakesPerEventCnt);

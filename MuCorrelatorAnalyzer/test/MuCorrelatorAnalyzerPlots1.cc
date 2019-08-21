@@ -84,11 +84,12 @@ int MuCorrelatorAnalyzerPlots1() {
 
   //makeEfficiencyPlots("HToZZTo4L CMSSW_10_6_0_pre4 gb1Stub",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU.root");
 
-  makeEfficiencyPlots("SingleNeutrino_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t4/results/muCorrelatorTTAnalysis1.root");
+  //makeEfficiencyPlots("SingleNeutrino_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t5/results/muCorrelatorTTAnalysis1.root");
   //makeEfficiencyPlots("MuFlatPt_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t2/results/muCorrelatorTTAnalysis1.root");
   //makeEfficiencyPlots("MuFlatPt_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t3/results/muCorrelatorTTAnalysis1.root");
 
-  //makeEfficiencyPlots("GluGluHToZZTo4L_NoPU",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU.root");
+  makeEfficiencyPlots("GluGluHToZZTo4L_NoPU",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU.root");
+  //makeEfficiencyPlots("SingleNeutrino_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_singleMu.root");
 
 /*
   c0->cd();
@@ -702,7 +703,7 @@ void makePurityPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
     if (key->IsFolder()) {
       omtfTTAnalyzerDir->cd(key->GetName());
       string dirName = key->GetName();
-      if(dirName.find("MuCandsMatchingAnalyzer_AllTTTRacks20") != string::npos) {
+      if(dirName.find("MuCandsMatchingAnalyzer_AllTTTRacks10") != string::npos) {
         subdirAllTTTrack = gDirectory;
       }
     }
