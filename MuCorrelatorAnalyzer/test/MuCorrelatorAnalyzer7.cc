@@ -853,16 +853,16 @@ public:
 };
 
 bool decaysToMuon(edm::Ptr< TrackingParticle >& tpPtr) { //, const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles
-  LogTrace("l1tMuBayesEventPrint")<<std::endl;
-  LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" "<<printTrackigParticleShort(tpPtr);
+  //LogTrace("l1tMuBayesEventPrint")<<std::endl;
+  //LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" "<<printTrackigParticleShort(tpPtr);
 
   for (auto& decayVert : tpPtr->decayVertices()) {
-    LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" decayVertex r "<<decayVert->position().r()<<" phi "<<decayVert->position().phi()<<" z "<<decayVert->position().z()<<" rho "<<decayVert->position().rho()<<std::endl;
+    //LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" decayVertex r "<<decayVert->position().r()<<" phi "<<decayVert->position().phi()<<" z "<<decayVert->position().z()<<" rho "<<decayVert->position().rho()<<std::endl;
 
     for(auto& daughterTrack : decayVert->daughterTracks() ) {
-      LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" daughterTrack: pdgId "<<daughterTrack->pdgId()
-        << " vertex: r "<<daughterTrack->vertex().r()<<" phi "<<daughterTrack->vertex().phi()<<" x "<<daughterTrack->vertex().x()<<" y "<<daughterTrack->vertex().y()<<" z "<<daughterTrack->vertex().z()
-        <<" rho "<<daughterTrack->vertex().rho()<<" pt "<<daughterTrack->pt()<<std::endl;
+//      LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" daughterTrack: pdgId "<<daughterTrack->pdgId()
+//        << " vertex: r "<<daughterTrack->vertex().r()<<" phi "<<daughterTrack->vertex().phi()<<" x "<<daughterTrack->vertex().x()<<" y "<<daughterTrack->vertex().y()<<" z "<<daughterTrack->vertex().z()
+//        <<" rho "<<daughterTrack->vertex().rho()<<" pt "<<daughterTrack->pt()<<std::endl;
 
       if( abs(daughterTrack->pdgId()) == 13) { //looks that neutrino is not present in the daughterTrack - since it has no track
         return true;
@@ -874,7 +874,7 @@ bool decaysToMuon(edm::Ptr< TrackingParticle >& tpPtr) { //, const std::vector<e
     }*/
   }
 
-  LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" dont decays to muon"<<std::endl;
+  //LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" dont decays to muon"<<std::endl;
   return false;
 }
 
@@ -1456,6 +1456,11 @@ void MuCorrelatorAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer>&
     simTracksPt->Fill(simTrackPtr->momentum().pt());
     if(simTrackPtr->momentum().pt() > 20 ) {
       simTracksBetaPt20->Fill(simTrackPtr->momentum().Beta());
+    }
+
+    if(abs(simTrackPtr->type() ) >= 1000000 && abs(simTrackPtr->type()) < 9999999) { //stau is 1000015
+      LogTrace("l1tMuBayesEventPrint") <<" analyzeSimTracks: event "<<simTrackPtr->eventId().event()<<" pdgId "<<simTrackPtr->type()
+              <<" pt "<<simTrackPtr->momentum().pt()<<std::endl;
     }
   }
 }

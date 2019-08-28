@@ -29,7 +29,7 @@ using namespace std;
 
 
 void makeEfficiencyPlots(const char* nameLegend, int color, int ptCut, const char* rootFileName);
-void makePurityPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend);
+void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend);
 
 TCanvas* canvasCompare = new TCanvas("canvasCompare", "canvasCompare", 1200, 800);
 
@@ -85,11 +85,17 @@ int MuCorrelatorAnalyzerPlots1() {
   //makeEfficiencyPlots("HToZZTo4L CMSSW_10_6_0_pre4 gb1Stub",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU.root");
 
   //makeEfficiencyPlots("SingleNeutrino_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t5/results/muCorrelatorTTAnalysis1.root");
-  //makeEfficiencyPlots("MuFlatPt_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t2/results/muCorrelatorTTAnalysis1.root");
-  //makeEfficiencyPlots("MuFlatPt_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t3/results/muCorrelatorTTAnalysis1.root");
 
-  makeEfficiencyPlots("GluGluHToZZTo4L_NoPU",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU.root");
+  //makeEfficiencyPlots("TTTo2L2Nu_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_TTTo2L2Nu_v1_t6/results/muCorrelatorTTAnalysis1.root");
+  //makeEfficiencyPlots("DYToMuMuorEleEle",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_DYToMuMuorEleEle_v1_t6/results/muCorrelatorTTAnalysis1.root");
+  //makeEfficiencyPlots("MuFlatPt_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t6/results/muCorrelatorTTAnalysis1.root");
+  //makeEfficiencyPlots("JPsiToMuMu_Pt0to100_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_JPsiToMuMu_Pt0to100_PU200_v1_t6/results/muCorrelatorTTAnalysis1.root");
+
+  makeEfficiencyPlots("GluGluHToZZTo4L_NoPU gb4",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU_gb4.root");
   //makeEfficiencyPlots("SingleNeutrino_PU200",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_singleMu.root");
+  //makeEfficiencyPlots("HSCPppstau_M_200_NoPU",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_HSCPppstau_M_200_NoPU.root");
+  //makeEfficiencyPlots("JPsiToMuMu_Pt0to100_NoPU gb4",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_JPsiToMuMu_Pt0to100_NoPU_gb4.root");
+  //makeEfficiencyPlots("JPsiToMuMu_Pt0to100_NoPU gb3",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_JPsiToMuMu_Pt0to100_NoPU_gb3.root");
 
 /*
   c0->cd();
@@ -245,7 +251,7 @@ void makeEfficiencyPlots(const char* nameLegend, int color, int ptCut, const cha
 
   makeEffVsBeta(omtfTTAnalyzerDir, nameLegend);
 
-  makePurityPlots(omtfTTAnalyzerDir, nameLegend);
+  makeCandidatesMatchingPlots(omtfTTAnalyzerDir, nameLegend);
 
 
   TH1D* gpMuonPt   = (TH1D*)(omtfTTAnalyzerDir->Get("gpMuonPt"));
@@ -677,7 +683,9 @@ void makeEfficiencyPlots(const char* nameLegend, int color, int ptCut, const cha
 
 
 
-void makePurityPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
+void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
+  bool cumulative = false;
+
   vector< std::pair<std::string, Color_t> > categoryNames;
   //categoryNames.emplace_back("all candidates", kBlack); //0
 
@@ -723,6 +731,7 @@ void makePurityPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
         TCanvas* canvasPurityPlots = new TCanvas(canvasName.c_str(), canvasName.c_str(), 1200, 800);
         canvasPurityPlots->cd();
         canvasPurityPlots->Divide(2, 2);
+
         canvasPurityPlots->cd(1);
         canvasPurityPlots->cd(1)->SetGridx();
         canvasPurityPlots->cd(1)->SetGridy();
@@ -734,9 +743,22 @@ void makePurityPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
         TH1D* allCandPt = (TH1D*)subdir->Get("candPt");
         allCandPt->SetLineColor(kBlack);
         canvasPurityPlots->cd(1);
-        allCandPt->Draw("C");
-        allCandPt->GetXaxis()->SetRangeUser(0, 100);
-        allCandPt->GetYaxis()->SetRangeUser(0.5, 100000000);
+
+        TH1* allCandPtCumul = allCandPt->GetCumulative(false, "_cumul");
+
+        if(!cumulative) {
+          allCandPt->Draw("C");
+          allCandPt->GetXaxis()->SetRangeUser(0, 100);
+          allCandPt->GetYaxis()->SetRangeUser(0.5, 100000000);
+          allCandPt->GetXaxis()->SetTitle("ttTrack p_{T} [GeV]");
+        }
+        else {
+          allCandPtCumul->Draw("C");
+          allCandPtCumul->GetXaxis()->SetRangeUser(0, 100);
+          allCandPtCumul->GetYaxis()->SetRangeUser(0.5, 100000000);
+          allCandPtCumul->GetXaxis()->SetTitle("ttTrack p_{T} threshold [GeV]");
+        }
+
         legend->AddEntry(allCandPt, "all candidates");
 
         ////////////////////////////////////////
@@ -760,17 +782,24 @@ void makePurityPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
 
           */
 
-          TH1* candPtEffCumul = allCandPt->GetCumulative(false, "_eff_cumul");
-          TH1* candPtAllTTTracksCumul = candPtAllTTTracks->GetCumulative(false, "_cumul");
-          candPtEffCumul->Divide(candPtAllTTTracksCumul);
-          candPtEffCumul->Draw("hist");
-          candPtEffCumul->GetXaxis()->SetTitle("ttTrack p_{T} threshold [GeV]");
-          candPtEffCumul->GetYaxis()->SetRangeUser(0.00001, 1.1);
-          candPtEffCumul->GetYaxis()->SetTitle("efficiency");
+          if(!cumulative) {
+            TH1* allCandPtEff = (TH1D*)allCandPt->Clone( (allCandPtCumul->GetName() + std::string("_eff")).c_str() );
+            allCandPtEff->Divide(candPtAllTTTracks);
+            allCandPtEff->Draw("hist");
+            allCandPtEff->GetXaxis()->SetTitle("ttTrack p_{T} [GeV]");
+            allCandPtEff->GetYaxis()->SetRangeUser(0.00001, 1.1);
+            allCandPtEff->GetYaxis()->SetTitle("efficiency");
+          }
+          else {
+            TH1* candPtAllTTTracksCumul = candPtAllTTTracks->GetCumulative(false, "_cumul");
+            TH1* candPtEffCumul = (TH1D*)allCandPtCumul->Clone( (allCandPtCumul->GetName() + std::string("_eff")).c_str() );
+            candPtEffCumul->Divide(candPtAllTTTracksCumul);
+            candPtEffCumul->Draw("hist");
+            candPtEffCumul->GetXaxis()->SetTitle("ttTrack p_{T} threshold [GeV]");
+            candPtEffCumul->GetYaxis()->SetRangeUser(0.00001, 1.1);
+            candPtEffCumul->GetYaxis()->SetTitle("efficiency");
+          }
         }
-
-
-        TH1* allCandPtCumul = allCandPt->GetCumulative(false, "_cumul");
 
         THStack * hsPurity = new THStack("hsPurity"," purity - probability that the muon candidate is matched to a given category of tracking particle");
         THStack * hsPurityCumul = new THStack("hsPurity"," hsPurityCumul");
@@ -788,7 +817,14 @@ void makePurityPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
             legend->AddEntry(candPt, categoryName.first.c_str());
 
             canvasPurityPlots->cd(1);//events count vs pt for every category of candidates
-            candPt->Draw("Csame");
+
+            if(!cumulative) {
+              candPt->Draw("Csame");
+            }
+            else {
+              TH1* candPtCumul = candPt->GetCumulative(false, "_cumul");
+              candPtCumul->Draw("Csame");
+            }
 
             ////////////////////////////////////////
             //efficiency, i.e. probability to tag as a muon the ttTrack of a given matchin category
@@ -798,19 +834,19 @@ void makePurityPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
 
             TH1D* candPtAllTTTracks = (TH1D*)subdirAllTTTrack->Get(histName.c_str());
             candPtAllTTTracks = (TH1D*)candPtAllTTTracks->Clone((candPtAllTTTracks->GetName() + std::string("_denom") ).c_str());
-           /*
-            candPtEff->Divide(candPtAllTTTracks);
-            candPtEff->SetMarkerStyle(22);
-            candPtEff->SetMarkerSize(0.7);
-            candPtEff->Draw("P hist same");*/
-
-            /////////////////////////////////////////
-            //efficiency cumulative
-            canvasPurityPlots->cd(2);
-            TH1* candPtEffCumul = candPt->GetCumulative(false, "_eff_cumul");
-            TH1* candPtAllTTTracksCumul = candPtAllTTTracks->GetCumulative(false, "_cumul");
-            candPtEffCumul->Divide(candPtAllTTTracksCumul);
-            candPtEffCumul->Draw("histsame");
+            if(!cumulative) {
+              candPtEff->Divide(candPtAllTTTracks);
+              candPtEff->SetMarkerStyle(22);
+              candPtEff->SetMarkerSize(0.7);
+              candPtEff->Draw("P hist same");
+            }
+            else {
+              //efficiency cumulative
+              TH1* candPtEffCumul = candPt->GetCumulative(false, "_eff_cumul");
+              TH1* candPtAllTTTracksCumul = candPtAllTTTracks->GetCumulative(false, "_cumul");
+              candPtEffCumul->Divide(candPtAllTTTracksCumul);
+              candPtEffCumul->Draw("histsame");
+            }
 
             /////////////////////////////////////////
             TH1D* candPtPurity = (TH1D*)candPt->Clone( (candPt->GetName() + std::string("_purity") ).c_str() );
