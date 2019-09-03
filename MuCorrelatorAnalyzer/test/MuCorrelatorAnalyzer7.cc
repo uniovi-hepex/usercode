@@ -2053,9 +2053,17 @@ void MuCorrelatorAnalyzer::analyze(
     float ttTrkPt = ttTrackPtr->getMomentum(L1Tk_nPar).perp();
     float ttTrkEta  = ttTrackPtr->getMomentum(L1Tk_nPar).eta();
 
+    ttTrackEta_Pt->Fill(ttTrkEta, ttTrkPt);
+
+    //do we really need the cut on the eta?
+    if(abs(ttTrkEta) >= etaCutFrom && abs(ttTrkEta) <= etaCutTo) {
+    }
+    else
+      continue;
+
     ttTracksPt->Fill(ttTrkPt);
 
-    ttTrackEta_Pt->Fill(ttTrkEta, ttTrkPt);
+
 
     if(MCTruthTTTrackHandle->isLooselyGenuine(ttTrackPtr) == false) { //genuine is also loosely genuine,
 
