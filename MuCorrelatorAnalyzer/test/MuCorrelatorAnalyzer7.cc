@@ -364,6 +364,7 @@ public:
     ptOfBestL1MuCand = -1;
     bestL1MuCand = nullptr;
     notAcceptedL1MuCand = nullptr;
+    numberOfAcceptedCandidates = 0;
   }
 
   virtual void takeCanidate(const l1t::BayesMuCorrTrackBxCollection::const_iterator& itL1MuCand);
@@ -375,21 +376,23 @@ protected:
   l1t::BayesMuCorrelatorTrack const* notAcceptedL1MuCand = nullptr;
 
   double ptOfBestL1MuCand = -1;
+
+  int numberOfAcceptedCandidates = 0;
 };
 
 void AnalyserBase::takeCanidate(const l1t::BayesMuCorrTrackBxCollection::const_iterator& itL1MuCand) {
-  if(ptOfBestL1MuCand < itL1MuCand->getPt() ) {
-    if(ptOfBestL1MuCand > 0)
-      edm::LogImportant("l1tMuBayesEventPrint") <<"L:"<<__LINE__<<" AnalyserBase::takeCanidate: another track already exists with pt "<<ptOfBestL1MuCand<<" new track has pt "<<itL1MuCand->getPt() <<std::endl  ;
-
-    if(triggerAlgo->accept(*itL1MuCand) ) {
+  if(triggerAlgo->accept(*itL1MuCand) ) {
+    if(ptOfBestL1MuCand < itL1MuCand->getPt() ) {
+      if(ptOfBestL1MuCand > 0)
+        edm::LogImportant("l1tMuBayesEventPrint") <<"L:"<<__LINE__<<" AnalyserBase::takeCanidate: another track already exists with pt "<<ptOfBestL1MuCand<<" new track has pt "<<itL1MuCand->getPt() <<std::endl  ;
+      numberOfAcceptedCandidates++;
       ptOfBestL1MuCand = itL1MuCand->getPt();
       bestL1MuCand = &(*itL1MuCand);
       //LogTrace("l1tMuBayesEventPrint")<<" itBestL1MuCand set"<<endl;
     }
-    else {
-      notAcceptedL1MuCand = &(*itL1MuCand);
-    }
+  }
+  else {
+    notAcceptedL1MuCand = &(*itL1MuCand);
   }
 }
 
@@ -433,6 +436,8 @@ public:
     lostTtMuonPt = subDir.make<TH1D>("lostTtMuonPt", "lostTtMuonPt; ttMuonPt [GeV]; #events", ptBins, 0., 500.);;
     lostTtMuonEta_ptGen20GeV = subDir.make<TH1D>("lostTtMuonEta_ptGen20GeV", "lostTtMuonEta_ptGen20GeV; eta; #events", etaBins, -2.4, 2.4);
     lostTtMuonPhi_ptGen20GeV = subDir.make<TH1D>("lostTtMuonPhi_ptGen20GeV", "lostTtMuonPhi_ptGen20GeV; phi; #events", phiBins, -M_PI, M_PI);
+
+    acceptedCandidatesVsPtGen = subDir.make<TH2I>("acceptedCandidatesVsPtGen", "number of accepted candidates; ptGen [GeV]; accepted candidates", 50, 0., 100., 5, -0.5, 4.5);
   }
 
 
@@ -465,9 +470,13 @@ private:
   TH1D* lostTtMuonPt = nullptr;
   TH1D* lostTtMuonEta_ptGen20GeV = nullptr;
   TH1D* lostTtMuonPhi_ptGen20GeV = nullptr;
+
+  TH2I* acceptedCandidatesVsPtGen = nullptr;
 };
 
 void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingParticle >& trackParticle) {
+  acceptedCandidatesVsPtGen->Fill(trackParticle->pt(), numberOfAcceptedCandidates);
+
   int minMuPt = 3; //3 GeV
   if(ptOfBestL1MuCand > 0) {
     LogTrace("l1tMuBayesEventPrint")<<"\n"<<triggerAlgo->name<<" best muCand track: "<<toString(*bestL1MuCand)<<endl<<endl;
@@ -1114,6 +1123,8 @@ private:
 
   TH2I* etaGenPtGenBx2 = nullptr;
 
+  TH2I* ttTracksPerMuonTPvsPtGen = nullptr;
+
   edm::EDGetTokenT<l1t::BayesMuCorrTrackBxCollection> inputMuCorr;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<edm::SimVertexContainer> vertexSim;
@@ -1378,6 +1389,8 @@ void MuCorrelatorAnalyzer::beginJob()
 
   etaGenPtGenBx1 = fs->make<TH2I>("etaGenPtGenBx1", "etaGenPtGenBx1; eta; pt [GeV]; ", 50, -2.4, 2.4, 50, 0, 100);
   etaGenPtGenBx2 = fs->make<TH2I>("etaGenPtGenBx2", "etaGenPtGenBx2; eta; pt [GeV]; ", 50, -2.4, 2.4, 50, 0, 100);
+
+  ttTracksPerMuonTPvsPtGen = fs->make<TH2I>("ttTracksPerMuonTPvsPtGen", "ttTracks matched to Muon Tracking Particle; ptGen [GeV]; ttTracks cout", 50, 0, 100, 5, -0.5, 4.5);
 
   edm::LogImportant("MuCorrelatorAnalyzer")<< "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ << endl;
 }
@@ -1830,6 +1843,13 @@ void MuCorrelatorAnalyzer::analyze(
       else {//the ttTrack is uniquely  matched to the current tracking particle
         //so we assume that the matched ttTrack (and thus omtf track) is at least loose genuine
         nMatch++;
+
+        if(bestMatchedTTTrack.isNonnull()) {
+          edm::LogImportant("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << "WARNING *** 2 or more (loose) genuine ttTrack match to tracking particle !!!!!\n"<<printTrackigParticleShort(tpPtr) << endl;
+          edm::LogImportant("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << " current bestMatchedTTTrack\n"<<printTTTRack(bestMatchedTTTrack, false, false);
+          edm::LogImportant("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << " matchedTTTrack\n"<<printTTTRack(matchedTTTrack, tmp_trk_genuine, tmp_trk_loosegenuine)<<"\n";
+        }
+
         if (bestMatchedTTTrack.isNull() || tmp_trk_chi2dof < chi2dofOfBestMatchedTrack) {
           bestMatchedTTTrack = matchedTTTrack;
           chi2dofOfBestMatchedTrack = tmp_trk_chi2dof;
@@ -1857,9 +1877,12 @@ void MuCorrelatorAnalyzer::analyze(
     }// end loop over matched ttTracks
 
     // ----------------------------------------------------------------------------------------------
+    ttTracksPerMuonTPvsPtGen->Fill(tpPtr->pt(), nMatch);
+
     if (nMatch > 1) {
-      edm::LogImportant("l1tMuBayesEventPrint") << "WARNING *** 2 or more (loose) genuine ttTrack match to tracking particle !!!!! "<<printTrackigParticleShort(tpPtr) << endl;
+      //edm::LogImportant("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << "WARNING *** 2 or more (loose) genuine ttTrack match to tracking particle !!!!! "<<printTrackigParticleShort(tpPtr) << endl;
     }
+
     if (nMatch > 0) {//there is ttTrack matching to the trackingParticle
       float matchTTTrackPt   = bestMatchedTTTrack->getMomentum(L1Tk_nPar).perp();
       float matchTTTrackEta  = bestMatchedTTTrack->getMomentum(L1Tk_nPar).eta();
