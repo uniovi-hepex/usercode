@@ -1,5 +1,5 @@
 /*
- * OmtfAnalyzerPlots.cc
+ * MuCorrelatorAnalyzerPlots2.cc
  *
  *  Created on: Nov 9, 2018
  *      Author: kbunkow
@@ -48,7 +48,7 @@ double lhcFillingRatio = 2748./3564.;
 
 double eventsCnt = 0;
 
-int MuCorrelatorAnalyzerPlots1() {
+int MuCorrelatorAnalyzerPlots2() {
   gStyle->SetOptStat(0);
 
 
@@ -95,7 +95,7 @@ int MuCorrelatorAnalyzerPlots1() {
 
   //makePlots("SingleMu_PU200_without_iRPC",    kRed,   ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_1_7/src/L1Trigger/L1TMuonBayes/test/crab/without_iRPC/crab_muCorr_MC_analysis_SingleMu_PU200/results/muCorrelatorTTAnalysis1.root");
 
-  makePlots("GluGluHToZZTo4L_noPu",  "GluGluHToZZTo4L",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU_1.root");
+  makePlots("GluGluHToZZTo4L_noPu",  "GluGluHToZZTo4L",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU.root");
 
   //makePlots("SingleNeutrino_PU200_t5", "singleNu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t5/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU200_t7", "singleNu", kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t7/results/muCorrelatorTTAnalysis1.root");
@@ -359,12 +359,12 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
 
   TH1D* gpMuonPt   = (TH1D*)(omtfTTAnalyzerDir->Get("gpMuonPt"));
   TH1D* gpMuonEta  = (TH1D*)omtfTTAnalyzerDir->Get("gpMuonEta");
-  TH1D* gpMuonEta_ptGen20GeV  = (TH1D*)omtfTTAnalyzerDir->Get("gpMuonEta_ptGen20GeV");
+  //TH1D* gpMuonEta_ptGen20GeV  = (TH1D*)omtfTTAnalyzerDir->Get("gpMuonEta_ptGen20GeV");
   TH1D* gpMuonPhi  = (TH1D*)omtfTTAnalyzerDir->Get("gpMuonPhi");
 
   TH1D* ttMuonPt  = (TH1D*)omtfTTAnalyzerDir->Get("ttMuonPt");
   TH1D* ttMuonEta = (TH1D*)omtfTTAnalyzerDir->Get("ttMuonEta");
-  TH1D* ttMuonEta_ptGen20GeV_ptTT18Gev = (TH1D*)omtfTTAnalyzerDir->Get("ttMuonEta_ptGen20GeV_ptTT18Gev");
+  //TH1D* ttMuonEta_ptGen20GeV_ptTT18Gev = (TH1D*)omtfTTAnalyzerDir->Get("ttMuonEta_ptGen20GeV_ptTT18Gev");
   TH1D* ttMuonPhi = (TH1D*)omtfTTAnalyzerDir->Get("ttMuonPhi");
 
   //8888888888888888888888888888
@@ -432,20 +432,8 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
     ttTracksFakesPt_rateCumul->Draw("histsame");
 //*************************************************** efficiency ********************************************
   //tracking trigger efficiency, reference for all algos
-  TH2I* ptGenPtTTMuon= (TH2I*)omtfTTAnalyzerDir->Get("ptGenPtTTMuon");
 
-  TH1D* ptTTTrackMuons = ptGenPtTTMuon->ProjectionY("AAAAAptTTTrackMuons", -1, -1); //todo needed  for debug, remove
-  ptTTTrackMuons->SetLineColor(kViolet);
-  cout<<"asfasfasfsaf<<<<<<<<<<<<<<<< "<<ptTTTrackMuons->GetName()<<endl;
   canvasCompare->cd(3);
-  ptTTTrackMuons->Draw("hist");
-
-  TH1D* ptGenPtTTMuonNom = ptGenPtTTMuon->ProjectionX("ptGenPtTTMuonNom", ptCut, -1);
-  TH1D* ptGenPtTTMuonDenom = ptGenPtTTMuon->ProjectionX("ptGenPtTTMuonDenom", 0, -1);
-
-  std::string title = ("ttTrack efficiency, pT cut = " + to_string(ptCut -1) + " GeV" + "; generated p_{T} [GeV]; efficiency");
-  TEfficiency* ttMuon_vs_ptGen_Eff = makeEfficiency(*ptGenPtTTMuonNom, *ptGenPtTTMuonDenom, title, kBlue);
-
 
   TH2I* ptGenPtTTMuonEv0= (TH2I*)omtfTTAnalyzerDir->Get("ptGenPtTTMuonEv0");
 
@@ -458,7 +446,7 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
   ptGenPtTTMuonNomEv0->SetLineColor(kBlue);*/
 
 
-  title = ("ttTrack efficiency, Event 0, pT cut = " + to_string(ptCut -1) + " GeV" + "; generated p_{T} [GeV]; efficiency");
+  std::string title = ("ttTrack efficiency, Event 0, pT cut = " + to_string(ptCut -1) + " GeV" + "; generated p_{T} [GeV]; efficiency");
   TEfficiency* ttMuon_vs_ptGen_Ev0_Eff = makeEfficiency(*ptGenPtTTMuonNomEv0, *ptGenPtTTMuonDenomEv0, title, kBlue);
   ttMuon_vs_ptGen_Ev0_Eff->SetName("efficiency");
 
@@ -495,31 +483,11 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         canvas1Eff->cd(1)->SetGridx();
         canvas1Eff->cd(1)->SetGridy();
 
-        ptGenPtTTMuonNom->Draw("hist");
 
-        TH2I* ptGenPtMuCandMuons= (TH2I*)subdir->Get("ptGenPtMuCandMuons");
-        TH1D* ptGenPtMuCandMuonsNom   = ptGenPtMuCandMuons->ProjectionX("ptGenPtMuCandMuonsNom", ptCut, -1);
-        TH1D* ptGenPtMuCandMuonsDenom = ptGenPtMuCandMuons->ProjectionX("ptGenPtMuCandMuonsDenom", 0, -1);
-
-        if(dirName == "EfficiencyAnalyser_SingleMuAlgo20") {
-          TH1D* ptMuCandMuons = ptGenPtMuCandMuons->ProjectionY("ptMuCandMuons", -1, -1); //todo needed  for debug, remove
-          ptMuCandMuons->SetLineColor(kMagenta);
-         /* canvasCompare->cd(3);
-          ptMuCandMuons->Draw("same");
-          canvas1Eff->cd(1);*/
-        }
-
-        ttMuon_vs_ptGen_Eff->Draw("APZ");
         canvas1Eff->cd(1)->Update();
 
-        ttMuon_vs_ptGen_Eff->GetPaintedGraph()->GetYaxis()->SetRangeUser(0, 1.05);
-        ttMuon_vs_ptGen_Eff->GetPaintedGraph()->GetXaxis()->SetRangeUser(0, 100);
 
         canvas1Eff->Update();
-
-        title = ("muCand efficiency, pT cut = " + to_string(ptCut -1) + " GeV" + "; generated p_{T} [GeV]; efficiency");
-        TEfficiency* muCand_vs_genPt_Eff = makeEfficiency(*ptGenPtMuCandMuonsNom, *ptGenPtTTMuonDenom, title, kRed);
-        muCand_vs_genPt_Eff->Draw("same PZ");
 
         //--------------------------------------------
 
@@ -555,9 +523,9 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         savePlot(canvasName + "_effVsPt", canvas1Eff->cd(2) );
 
         //--------------------------------
-        canvas1Eff->cd(3);
-        canvas1Eff->cd(3)->SetGridx();
-        canvas1Eff->cd(3)->SetGridy();
+        canvas1Eff->cd(1);
+        canvas1Eff->cd(1)->SetGridx();
+        canvas1Eff->cd(1)->SetGridy();
 
         ptGenPtTTMuonNomEvPu->Draw("hist");
 
@@ -573,32 +541,38 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         ptGenPtMuCandMuonsPuNom->Draw("samehist");
 
         //--------------------------------
+        canvas1Eff->cd(3);
+        canvas1Eff->cd(3)->SetGridx();
+        canvas1Eff->cd(3)->SetGridy();
+
+        TH2I* ptGenPtMuCandMuonsEv0Overlap = (TH2I*)subdir->Get("ptGenPtMuCandMuonsEv0Overlap");
+        TH1D* ptGenPtMuCandMuonsEv0OverlapNom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapNom", ptCut, -1);
+        TH1D* ptGenPtMuCandMuonsEv0OverlapDenom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapDenom", 0, -1);
+
+        title = ("muCand efficiency overlap region, Event 0, pT cut = " + to_string(ptCut -1) + " GeV" + "; generated p_{T} [GeV]; efficiency");
+        TEfficiency* muCandEv0Overlap_EffVsPtGen = makeEfficiency(*ptGenPtMuCandMuonsEv0OverlapNom, *ptGenPtMuCandMuonsEv0OverlapDenom, title, kRed);
+        muCandEv0Overlap_EffVsPtGen->Draw("APZ");
+
+        DrawLabel(canvas1Eff->cd(3), label);
+        savePlot(canvasName + "_effVsPt", canvas1Eff->cd(3) );
+
+
+        //--------------------------------
 
         double meanEff = 0;
         int binCnt = 0; //TODO
 
-        TH1D* muCandGenEtaMuons_ptGen20GeV_ptTT18GeV = (TH1D*)subdir->Get("muCandGenEtaMuons_ptGen20GeV_ptTT18GeV");
+        TH1D* gpMuonGenEtaMuons_withPtCuts = (TH1D*)subdir->Get("gpMuonGenEtaMuons_withPtCuts");
+        TH1D* ttMuonGenEtaMuons_withPtCuts = (TH1D*)subdir->Get("ttMuonGenEtaMuons_withPtCuts");
+        TH1D* muCandGenEtaMuons_withPtCuts = (TH1D*)subdir->Get("muCandGenEtaMuons_withPtCuts");
 
-        double ttMuonEff_ptGen20GeV_ptTT18Gev = ttMuonEta_ptGen20GeV_ptTT18Gev->Integral() / gpMuonEta_ptGen20GeV->Integral();
-        double muCadnEffEff_ptGen20GeV_ptTT18Gev = muCandGenEtaMuons_ptGen20GeV_ptTT18GeV->Integral() / gpMuonEta_ptGen20GeV->Integral();
-        double taggingEff_ptGen20GeV_ptTT18Gev = muCandGenEtaMuons_ptGen20GeV_ptTT18GeV->Integral() / ttMuonEta_ptGen20GeV_ptTT18Gev->Integral();
-        /*  for(int iBin = 1; iBin <= omtfAndTtMuonPtRebined2->GetNbinsX(); iBin++) {
-            if(omtfAndTtMuonPtRebined2->GetBinLowEdge(iBin) == 100) {
-              break;
-            }
+        double ttMuonEff = ttMuonGenEtaMuons_withPtCuts->Integral() / gpMuonGenEtaMuons_withPtCuts->Integral();
+        double muCadnEffEff = muCandGenEtaMuons_withPtCuts->Integral() / gpMuonGenEtaMuons_withPtCuts->Integral();
+        double taggingEff = muCandGenEtaMuons_withPtCuts->Integral() / ttMuonGenEtaMuons_withPtCuts->Integral();
 
-            double eff = omtfAndTtMuonPtRebined2->GetBinContent(iBin);
-            //cout<<iBin<<" "<<omtfAndTtMuonPtRebined2->GetBinLowEdge(iBin) <<" "<<eff<<endl;
-
-            if(omtfAndTtMuonPtRebined2->GetBinLowEdge(iBin) > 20) {
-              meanEff += eff;
-              binCnt++;
-            }
-
-          }*/
-        cout<<"ttMuonEff_ptGen20GeV_ptTT18Gev    "<<ttMuonEff_ptGen20GeV_ptTT18Gev<<endl;
-        cout<<"muCadnEffEff_ptGen20GeV_ptTT18Gev "<<muCadnEffEff_ptGen20GeV_ptTT18Gev<<endl;
-        cout<<"taggingEff_ptGen20GeV_ptTT18Gev   "<<taggingEff_ptGen20GeV_ptTT18Gev<<endl<<endl;
+        cout<<"ttMuonEff    "<<ttMuonEff<<endl;
+        cout<<"muCadnEffEff "<<muCadnEffEff<<endl;
+        cout<<"taggingEff   "<<taggingEff<<endl<<endl;
 
         //------------------------
 
@@ -606,68 +580,36 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         canvas1Eff->cd(4)->SetGridx();
         canvas1Eff->cd(4)->SetGridy();
         canvas1Eff->cd(4)->SetLeftMargin(0.12);
-        if(1) {
-          if(TEfficiency::CheckConsistency(*ttMuonEta_ptGen20GeV_ptTT18Gev, *gpMuonEta_ptGen20GeV) )
+        {
+          if(TEfficiency::CheckConsistency(*ttMuonGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts) )
           {
-            TEfficiency* ttMuonEta_ptCut20GeV_Eff = new TEfficiency(*ttMuonEta_ptGen20GeV_ptTT18Gev, *gpMuonEta_ptGen20GeV);
-            std::string title = ttMuonEta_ptGen20GeV_ptTT18Gev->GetTitle();
+            TEfficiency* ttMuonEta_ptCut_Eff = new TEfficiency(*ttMuonGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts);
+            std::string title = ttMuonGenEtaMuons_withPtCuts->GetTitle();
             //title = std::regex_replace(title, std::regex("\\muCandGenEtaMuons"), "tagging efficiency");
-            ttMuonEta_ptCut20GeV_Eff->SetTitle(title.c_str());
-            ttMuonEta_ptCut20GeV_Eff->SetStatisticOption(TEfficiency::EStatOption::kBUniform );
-            ttMuonEta_ptCut20GeV_Eff->SetPosteriorMode();
-            ttMuonEta_ptCut20GeV_Eff->SetLineColor(kBlue);
-            ttMuonEta_ptCut20GeV_Eff->Draw("APZ");
-            ttMuonEta_ptCut20GeV_Eff->SetTitle((title + "; generated #eta; efficiency").c_str());
+            ttMuonEta_ptCut_Eff->SetTitle(title.c_str());
+            ttMuonEta_ptCut_Eff->SetStatisticOption(TEfficiency::EStatOption::kBUniform );
+            ttMuonEta_ptCut_Eff->SetPosteriorMode();
+            ttMuonEta_ptCut_Eff->SetLineColor(kBlue);
+            ttMuonEta_ptCut_Eff->Draw("APZ");
+            ttMuonEta_ptCut_Eff->SetTitle((title + "; generated #eta; efficiency").c_str());
             canvas1Eff->Update();
-            ttMuonEta_ptCut20GeV_Eff->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.95, 1.01);
-            ttMuonEta_ptCut20GeV_Eff->GetPaintedGraph()->GetXaxis()->SetRangeUser(-2.4, 2.4);
+            ttMuonEta_ptCut_Eff->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.95, 1.01);
+            ttMuonEta_ptCut_Eff->GetPaintedGraph()->GetXaxis()->SetRangeUser(-2.4, 2.4);
           }
 
-          if(TEfficiency::CheckConsistency(*muCandGenEtaMuons_ptGen20GeV_ptTT18GeV, *gpMuonEta_ptGen20GeV) )
+          if(TEfficiency::CheckConsistency(*muCandGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts) )
           {
-            TEfficiency* muCandGenEtaMuons_ptGen20GeV_ptTT18GeV_Eff = new TEfficiency(*muCandGenEtaMuons_ptGen20GeV_ptTT18GeV, *gpMuonEta_ptGen20GeV);
-            std::string title = ttMuonEta_ptGen20GeV_ptTT18Gev->GetTitle();
+            TEfficiency* muCandGenEtaMuons_ptCut_Eff = new TEfficiency(*muCandGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts);
+            std::string title = muCandGenEtaMuons_ptCut_Eff->GetTitle();
             //title = std::regex_replace(title, std::regex("\\muCandGenEtaMuons"), "tagging efficiency");
-            muCandGenEtaMuons_ptGen20GeV_ptTT18GeV_Eff->SetTitle(title.c_str());
-            muCandGenEtaMuons_ptGen20GeV_ptTT18GeV_Eff->SetStatisticOption(TEfficiency::EStatOption::kBUniform );
-            muCandGenEtaMuons_ptGen20GeV_ptTT18GeV_Eff->SetPosteriorMode();
-            muCandGenEtaMuons_ptGen20GeV_ptTT18GeV_Eff->SetLineColor(kRed);
-            muCandGenEtaMuons_ptGen20GeV_ptTT18GeV_Eff->Draw("same PZ");
-          }
-
-
-        }
-        else {
-
-          TH1D* muCandGenEtaMuons_ptGenCutm2_ptTTCut = (TH1D*)subdir->Get("muCandGenEtaMuons_ptGenCutm2_ptTTCut");
-          TH1D* gpMuonGenEtaMuons_ptGenCutm2_ptTTCut = (TH1D*)subdir->Get("gpMuonGenEtaMuons_ptGenCutm2_ptTTCut");
-
-
-          TH1D* muCandGenEtaMuons_ptGenCutm2_ptTTCut_Eff = (TH1D*)muCandGenEtaMuons_ptGenCutm2_ptTTCut->Clone("muCandGenEtaMuons_ptGenCutm2_ptTTCut_Eff");
-          muCandGenEtaMuons_ptGenCutm2_ptTTCut_Eff->Divide(gpMuonGenEtaMuons_ptGenCutm2_ptTTCut);
-
-          //muCandGenEtaMuons_ptGenCutm2_ptTTCut_Eff->GetYaxis()->SetRangeUser(0.95, 1.01);
-
-
-          if(TEfficiency::CheckConsistency(*muCandGenEtaMuons_ptGenCutm2_ptTTCut, *gpMuonGenEtaMuons_ptGenCutm2_ptTTCut) )
-          {
-            TEfficiency* ptGenCutm2_ptTTCut_eff = new TEfficiency(*muCandGenEtaMuons_ptGenCutm2_ptTTCut, *gpMuonGenEtaMuons_ptGenCutm2_ptTTCut);
-            std::string title = muCandGenEtaMuons_ptGenCutm2_ptTTCut->GetTitle();
-            title = std::regex_replace(title, std::regex("\\muCandGenEtaMuons"), "tagging efficiency");
-            ptGenCutm2_ptTTCut_eff->SetTitle(title.c_str());
-            ptGenCutm2_ptTTCut_eff->SetStatisticOption(TEfficiency::EStatOption::kBUniform );
-            ptGenCutm2_ptTTCut_eff->SetPosteriorMode();
-            ptGenCutm2_ptTTCut_eff->SetLineColor(15);
-            ptGenCutm2_ptTTCut_eff->Draw("APZ");
-
-            muCandGenEtaMuons_ptGenCutm2_ptTTCut_Eff->SetLineColor(kRed);
-            muCandGenEtaMuons_ptGenCutm2_ptTTCut_Eff->Draw("histsame");
-            canvas1Eff->Update();
-            ptGenCutm2_ptTTCut_eff->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.9, 1.01);
-            ptGenCutm2_ptTTCut_eff->GetPaintedGraph()->GetXaxis()->SetRangeUser(-2.4, 2.4);
-            //ptGenCutm2_ptTTCut_eff->GetGetYaxis()->SetRangeUser(0.9, 1.01);
+            muCandGenEtaMuons_ptCut_Eff->SetTitle(title.c_str());
+            muCandGenEtaMuons_ptCut_Eff->SetStatisticOption(TEfficiency::EStatOption::kBUniform );
+            muCandGenEtaMuons_ptCut_Eff->SetPosteriorMode();
+            muCandGenEtaMuons_ptCut_Eff->SetLineColor(kRed);
+            muCandGenEtaMuons_ptCut_Eff->Draw("same PZ");
           }
         }
+
 
         DrawLabel(canvas1Eff->cd(4), label);
         savePlot(canvasName + "_effVsEta", canvas1Eff->cd(4) );

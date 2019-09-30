@@ -251,7 +251,7 @@ public:
           (muCorrelatorTrack.getFiredLayerBits().count() == 4 && muCorrelatorTrack.pdfSum() > 2200 && muCorrelatorTrack.getBetaLikelihood() >= 9) ||
            muCorrelatorTrack.getFiredLayerBits().count() >= 5) &&
        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
-           ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+           ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 200 ) ||
              muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
           muCorrelatorTrack.getTtTrackPtr().isNull() )
       )
@@ -288,50 +288,6 @@ public:
 
 
 ///////////////////////////////////
-
-class TrackingPartCuts {
-public:
-  TrackingPartCuts(std::string name, double ptFrom, double ptTo, double etaFrom, double etaTo): name(name), ptFrom(ptFrom), ptTo(ptTo), etaFrom(etaFrom), etaTo(etaTo) {};
-  virtual ~TrackingPartCuts() {};
-
-  virtual bool accept(const edm::Ptr< TrackingParticle >& trackParticle) {
-    if(trackParticle->pt() >= ptFrom && trackParticle->pt() <= ptTo &&
-      abs(trackParticle->eta() ) > etaFrom && abs(trackParticle->eta() ) < etaTo)
-      return true;
-
-    return false;
-  }
-
-private:
-  std::string name;
-
-  double ptFrom = 0;
-  double ptTo = 10000;
-  double etaFrom = 0;
-  double etaTo = 2.4;
-
-};
-
-/*class TrackingPartCutsOmtfLowPt {
-public:
-  TrackingPartCutsOmtfLowPt(std::string name): name(name) {};
-  virtual ~TrackingPartCutsOmtfLowPt() {};
-
-  virtual bool accept(const edm::Ptr< TrackingParticle >& trackParticle) {
-    if(trackParticle->pt() >= 7 && trackParticle->pt() <= 20 &&
-      abs(trackParticle->eta() ) > 0.83 && abs(trackParticle->eta() ) < 1.24)
-      return true;
-
-    return false;
-  }
-
-  std::string name;
-
-};*/
-
-//////////////////////////////////
-
-
 
 
 std::ostream & operator<< (std::ostream &out, const l1t::BayesMuCorrelatorTrack&  muCand) {
@@ -449,9 +405,9 @@ public:
     //takes the ownership of the triggerAlgo
   //EfficiencyAnalyser() {}
 
-  EfficiencyAnalyser(std::shared_ptr<TriggerAlgo>& triggerAlgo, std::shared_ptr<TrackingPartCuts>& trackingPartCuts, edm::Service<TFileService>& fs): AnalyserBase(triggerAlgo), trackingPartCuts(trackingPartCuts) {
+  EfficiencyAnalyser(std::shared_ptr<TriggerAlgo>& triggerAlgo, double ptGenFrom, double ptGenTo, edm::Service<TFileService>& fs): AnalyserBase(triggerAlgo), ptGenFrom(ptGenFrom), ptGenTo(ptGenTo) {
     const int ptBins = 1000;
-    const int etaBins = 100;
+    const int etaBins = 96;
     const int phiBins = 360;
 
     TFileDirectory subDir = fs->mkdir( ("EfficiencyAnalyser_" + triggerAlgo->name).c_str());
@@ -459,21 +415,25 @@ public:
     muCandGenPtMuons = subDir.make<TH1I>("muCandGenPtMuons", "muCandGenPtMuons; pt gen; #events", ptBins, 0., 500.);
     muCandGenEtaMuons = subDir.make<TH1D>("muCandGenEtaMuons", "muCandGenEtaMuons; eta gen; #events", etaBins, -2.4, 2.4);
 
-    muCandGenEtaMuons_ptGen20GeV_ptTT18GeV = subDir.make<TH1D>("muCandGenEtaMuons_ptGen20GeV_ptTT18GeV", "muCandGenEtaMuons_ptGen20GeV_ptTT18GeV; eta; #events", etaBins, -2.4, 2.4);
+
 
     ostringstream title;
-    title<<"muCandGenEtaMuons "<<" ptTT >= " <<triggerAlgo->ptCut<<" GeV"<<", "<<triggerAlgo->ptCut+2<<" < ptGen < "<<triggerAlgo->ptCut+2+10 <<" GeV ";
+    title<<" ptTTTrack >= " <<triggerAlgo->ptCut<<" GeV"<<", "<<ptGenFrom<<" < ptGen < "<<ptGenTo <<" GeV, event 0 ";
     title<<"; eta; #events";
 
-    gpMuonGenEtaMuons_ptGenCutm2_ptTTCut = subDir.make<TH1D>("gpMuonGenEtaMuons_ptGenCutm2_ptTTCut", "gpMuonGenEtaMuons_ptGenCutm2_ptTTCut", etaBins, -2.4, 2.4);
-    //ttMuonGenEtaMuons_ptGenCutm2_ptTTCut = subDir.make<TH1D>("ttMuonGenEtaMuons_ptGenCutm2_ptTTCut", title.str().c_str(), etaBins, -2.4, 2.4);
-    muCandGenEtaMuons_ptGenCutm2_ptTTCut = subDir.make<TH1D>("muCandGenEtaMuons_ptGenCutm2_ptTTCut", title.str().c_str(), etaBins, -2.4, 2.4);
+    gpMuonGenEtaMuons_withPtCuts = subDir.make<TH1D>("gpMuonGenEtaMuons_withPtCuts", ("gpMuonGenEtaMuons_withPtCuts " + title.str()).c_str(), etaBins, -2.4, 2.4);
+    ttMuonGenEtaMuons_withPtCuts = subDir.make<TH1D>("ttMuonGenEtaMuons_withPtCuts", ("ttMuonGenEtaMuons_withPtCuts " + title.str()).c_str(), etaBins, -2.4, 2.4);
+    muCandGenEtaMuons_withPtCuts = subDir.make<TH1D>("muCandGenEtaMuons_withPtCuts", ("muCandGenEtaMuons_withPtCuts " + title.str()).c_str(), etaBins, -2.4, 2.4);
 
     muCandGenPhiMuons = subDir.make<TH1D>("muCandGenPhiMuons", "muCandGenPhiMuons; phi gen; #events", phiBins, -M_PI, M_PI);
 
-    ptGenPtMuCandMuons = subDir.make<TH2I>("ptGenPtMuCandMuons", "ptGenPtMuCandMuons; pT gen [GeV]; pT ttTrack [GeV]; #", 100, 0, 100, 100, 0, 100);
     ptGenPtMuCandMuonsEv0 = subDir.make<TH2I>("ptGenPtMuCandMuonsEv0", "ptGenPtMuCandMuonsEv0; pT gen [GeV]; pT ttTrack [GeV]; #", 100, 0, 100, 100, 0, 100);
     ptGenPtMuCandMuonsPu = subDir.make<TH2I>("ptGenPtMuCandMuonsPu", "ptGenPtMuCandMuonsPu; pT gen [GeV]; pT ttTrack [GeV]; #", 100, 0, 100, 100, 0, 100);
+
+
+    ptGenPtMuCandMuonsEv0Barrel = subDir.make<TH2I>("ptGenPtMuCandMuonsEv0Barrel", "ptGenPtMuCandMuonsEv0Barrel |#eta| < 0.82; generated p_{T} [GeV]; ttTrack p_{T} [GeV]; #", 100, 0, 100, 100, 0, 100);
+    ptGenPtMuCandMuonsEv0Overlap = subDir.make<TH2I>("ptGenPtMuCandMuonsEv0Overlap", "ptGenPtMuCandMuonsEv0Overlap 0.82 < |#eta| < 1.24; generated p_{T} [GeV]; ttTrack p_{T} [GeV]; #", 100, 0, 100, 100, 0, 100);
+    ptGenPtMuCandMuonsEv0Endcap = subDir.make<TH2I>("ptGenPtMuCandMuonsEv0Endcap", "ptGenPtMuCandMuonsEv0Endcap 1.24 < |#eta|; generated p_{T} [GeV]; ttTrack p_{T} [GeV]; #", 100, 0, 100, 100, 0, 100);
 
     muonsPdfSumFiredPlanes = subDir.make<TH2I>("muonsPdfSumFiredPlanes", "muonsPdfSumFiredPlanes; pdfSum; FiredPlanes; #", 100, 0, 10000, 19, -0.5, 18.5);
 
@@ -491,25 +451,32 @@ public:
 
   virtual ~EfficiencyAnalyser() {}
 
-  void fillHistos(const edm::Event& event, edm::Ptr< TrackingParticle >& trackParticle);
+  void fillHistos(const edm::Event& event, edm::Ptr< TrackingParticle >& trackParticle, edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > bestMatchedTTTrack);
 
 private:
-  std::shared_ptr<TrackingPartCuts>& trackingPartCuts;
+  double ptGenFrom = 0;
+  double ptGenTo = 100000;
 
   TH1I* muCandGenPtMuons = nullptr;
-  TH1D* muCandGenEtaMuons = nullptr;
-  TH1D* muCandGenEtaMuons_ptGen20GeV_ptTT18GeV = nullptr;
 
-  TH1D* gpMuonGenEtaMuons_ptGenCutm2_ptTTCut = nullptr;
-  //TH1D* ttMuonGenEtaMuons_ptGenCutm2_ptTTCut = nullptr; ttTRacks not avaible here
-  TH1D* muCandGenEtaMuons_ptGenCutm2_ptTTCut = nullptr;
+
+  TH1D* muCandGenEtaMuons = nullptr;
+
+  TH1D* gpMuonGenEtaMuons_withPtCuts = nullptr;
+  TH1D* ttMuonGenEtaMuons_withPtCuts = nullptr;
+  TH1D* muCandGenEtaMuons_withPtCuts = nullptr;
+
+  //TH1D* muCandGenEtaMuons_ptGenCutm2_ptTTCut = nullptr;
+
 
   TH1D* muCandGenPhiMuons = nullptr;
 
-  TH2I* ptGenPtMuCandMuons = nullptr;
-
   TH2I* ptGenPtMuCandMuonsEv0 = nullptr;
   TH2I* ptGenPtMuCandMuonsPu = nullptr;
+
+  TH2I* ptGenPtMuCandMuonsEv0Barrel = nullptr;
+  TH2I* ptGenPtMuCandMuonsEv0Overlap = nullptr;
+  TH2I* ptGenPtMuCandMuonsEv0Endcap = nullptr;
 
   TH2I* muonsPdfSumFiredPlanes = nullptr;
 
@@ -524,40 +491,20 @@ private:
   TH2I* acceptedCandidatesVsPtGen = nullptr;
 };
 
-void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingParticle >& trackParticle) {
-  if( !trackingPartCuts->accept(trackParticle) )
-    return;
-
+void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingParticle >& trackParticle, edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > bestMatchedTTTrack) {
   acceptedCandidatesVsPtGen->Fill(trackParticle->pt(), numberOfAcceptedCandidates);
 
-  int minMuPt = 3; //3 GeV
-  if(ptOfBestL1MuCand > 0) {
-    LogTrace("l1tMuBayesEventPrint")<<"\n"<<triggerAlgo->name<<" best muCand track: "<<toString(*bestL1MuCand)<<endl<<endl;
+  if(trackParticle->eventId().event() == 0 &&
+      trackParticle->pt() >= ptGenFrom && trackParticle->pt() <= ptGenTo)
+  {
+    gpMuonGenEtaMuons_withPtCuts->Fill(trackParticle->eta());
 
-    double muCandPt = bestL1MuCand->getPt();
-    if(trackParticle->pt() > minMuPt) {
-      muCandGenEtaMuons->Fill(trackParticle->eta());
-      muCandGenPhiMuons->Fill(trackParticle->phi());
-    }
+    if(bestMatchedTTTrack.isNonnull() && bestMatchedTTTrack->getMomentum(4).perp() >= triggerAlgo->ptCut)
+      ttMuonGenEtaMuons_withPtCuts->Fill(trackParticle->eta());
 
-    if(trackParticle->pt() > 20 && muCandPt >= 18) {
-      muCandGenEtaMuons_ptGen20GeV_ptTT18GeV->Fill(trackParticle->eta());
-    }
+    if(ptOfBestL1MuCand > 0 && bestL1MuCand->getPt() >= triggerAlgo->ptCut) {
+      muCandGenEtaMuons_withPtCuts->Fill(trackParticle->eta());
 
-    muCandGenPtMuons->Fill(trackParticle->pt());
-    ptGenPtMuCandMuons->Fill(trackParticle->pt(), muCandPt);
-
-    if(trackParticle->eventId().event() == 0) {
-      ptGenPtMuCandMuonsEv0->Fill(trackParticle->pt(), muCandPt);
-    }
-    else {
-      ptGenPtMuCandMuonsPu->Fill(trackParticle->pt(), muCandPt);
-    }
-
-    if(muCandPt >= triggerAlgo->ptCut) {
-      if(trackParticle->pt() > triggerAlgo->ptCut + 2 && trackParticle->pt() < triggerAlgo->ptCut + 2 + 10) {
-        muCandGenEtaMuons_ptGenCutm2_ptTTCut->Fill(trackParticle->eta());
-      }
 
       auto& layerHitBits = bestL1MuCand->getFiredLayerBits();
       int firedLayers = layerHitBits.count();
@@ -572,11 +519,43 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
       betaGenBetaL1Mu->Fill(trackParticle->p4().Beta(), l1MuBeta);
     }
   }
-  else {
-    ptGenPtMuCandMuons->Fill(trackParticle->pt(), 0);
+
+  int minMuPt = 3; //3 GeV
+  if(ptOfBestL1MuCand > 0) {
+    LogTrace("l1tMuBayesEventPrint")<<"\n"<<triggerAlgo->name<<" best muCand track: "<<toString(*bestL1MuCand)<<endl<<endl;
+
+    double muCandPt = bestL1MuCand->getPt();
+    if(trackParticle->pt() > minMuPt) {
+      muCandGenEtaMuons->Fill(trackParticle->eta());
+      muCandGenPhiMuons->Fill(trackParticle->phi());
+    }
+
+    muCandGenPtMuons->Fill(trackParticle->pt());
 
     if(trackParticle->eventId().event() == 0) {
+      ptGenPtMuCandMuonsEv0->Fill(trackParticle->pt(), muCandPt);
+
+      if( abs(trackParticle->eta() ) < 0.82)
+        ptGenPtMuCandMuonsEv0Barrel->Fill(trackParticle->pt(), muCandPt);
+      else if( abs(trackParticle->eta() ) < 1.24)
+        ptGenPtMuCandMuonsEv0Overlap->Fill(trackParticle->pt(), muCandPt);
+      else if( abs(trackParticle->eta() ) < 2.4)
+        ptGenPtMuCandMuonsEv0Endcap->Fill(trackParticle->pt(), muCandPt);
+    }
+    else {
+      ptGenPtMuCandMuonsPu->Fill(trackParticle->pt(), muCandPt);
+    }
+  }
+  else {
+    if(trackParticle->eventId().event() == 0) {
       ptGenPtMuCandMuonsEv0->Fill(trackParticle->pt(), 0);
+
+      if( abs(trackParticle->eta() ) < 0.82)
+        ptGenPtMuCandMuonsEv0Barrel->Fill(trackParticle->pt(), 0);
+      else if( abs(trackParticle->eta() ) < 1.24)
+        ptGenPtMuCandMuonsEv0Overlap->Fill(trackParticle->pt(), 0);
+      else if( abs(trackParticle->eta() ) < 2.4)
+        ptGenPtMuCandMuonsEv0Endcap->Fill(trackParticle->pt(), 0);
     }
     else {
       ptGenPtMuCandMuonsPu->Fill(trackParticle->pt(), 0);
@@ -602,10 +581,6 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
 
       betaGenBetaL1Mu->Fill(trackParticle->p4().Beta(), -1);
     }
-  }
-
-  if(trackParticle->pt() > triggerAlgo->ptCut + 2 && trackParticle->pt() < triggerAlgo->ptCut + 2 + 10) {
-    gpMuonGenEtaMuons_ptGenCutm2_ptTTCut->Fill(trackParticle->eta());
   }
 }
 
@@ -1142,8 +1117,6 @@ private:
   TH1D* ttMuonVeryLoosePt = nullptr;
   TH1D* ttMuonVeryLooseEta_ptGen20GeV_ptTT18Gev = nullptr;
 
-  TH2I* ptGenPtTTMuon = nullptr;
-
   TH2I* ptGenPtTTMuonEv0 = nullptr;
 
   TH2I* ptGenPtTTMuonEvPu = nullptr;
@@ -1263,8 +1236,8 @@ void MuCorrelatorAnalyzer::beginJob()
   std::shared_ptr<TriggerAlgo> singleMuAlgoPtCut10 = std::make_shared<SingleMuAlgo>(10);
   std::shared_ptr<TriggerAlgo> singleMuAlgoBarrelPtCut10 = std::make_shared<SingleMuAlgoBarrel>(10);
 
-  std::shared_ptr<TriggerAlgo> singleMuAlgoPtCut8 = std::make_shared<SingleMuAlgo>(8);
-  std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCutsPtCut8 = std::make_shared<SingleMuAlgoSoftCuts>(8);
+  std::shared_ptr<TriggerAlgo> singleMuAlgoPtCut5 = std::make_shared<SingleMuAlgo>(5);
+  std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCutsPtCut5 = std::make_shared<SingleMuAlgoSoftCuts>(5);
 
   std::shared_ptr<TriggerAlgo> singleMuAlgoPtCut3 = std::make_shared<SingleMuAlgo>(3);
   std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCutsPtCut3 = std::make_shared<SingleMuAlgoSoftCuts>(3);
@@ -1295,40 +1268,42 @@ void MuCorrelatorAnalyzer::beginJob()
 
     //rateAnalysers.emplace_back(hscpAlgo30, fs);
 
-    rateAnalysers.emplace_back(hscpAlgoHardCuts20, fs);
+    //rateAnalysers.emplace_back(hscpAlgoHardCuts20, fs);
     rateAnalysers.emplace_back(hscpAlgoSoftCuts20, fs);
     //rateAnalysers.emplace_back(hscpAlgoPdfSumCuts20, fs);
   }
   else if(analysisType == "efficiency") {
-    efficiencyAnalysers.emplace_back(singleMuAlgo, fs);
+    efficiencyAnalysers.emplace_back(singleMuAlgo, 25, 10000, fs);
 
-    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCuts, fs);
+    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCuts, 25, 10000, fs);
 
-    efficiencyAnalysers.emplace_back(singleMuAlgoPdfSumSoftCuts, fs);
+    efficiencyAnalysers.emplace_back(singleMuAlgoPdfSumSoftCuts, 25, 10000, fs);
 
-    efficiencyAnalysers.emplace_back(singleMuAlgoPtCut8, fs);
-    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut8, fs);
+    efficiencyAnalysers.emplace_back(singleMuAlgoPtCut5, 7, 15, fs);
+    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut5, 7, 15, fs);
 
+    efficiencyAnalysers.emplace_back(singleMuAlgoPtCut5, 7, 20, fs);
+    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut5, 7, 20, fs);
 
-    efficiencyAnalysers.emplace_back(singleMuAlgoPtCut3, fs);
-    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut3, fs);
+    efficiencyAnalysers.emplace_back(singleMuAlgoPtCut3, 5, 10, fs);
+    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut3, 5, 10, fs);
 
     //efficiencyAnalysers.emplace_back(singleMuAlgoHardCuts, fs);
 
-    efficiencyAnalysers.emplace_back(hscpAlgo20, fs);
+    //efficiencyAnalysers.emplace_back(hscpAlgo20, fs);
 
-    efficiencyAnalysers.emplace_back(hscpAlgo30, fs);
+    //efficiencyAnalysers.emplace_back(hscpAlgo30, fs);
 
-    efficiencyAnalysers.emplace_back(hscpAlgoHardCuts20, fs);
-    efficiencyAnalysers.emplace_back(hscpAlgoSoftCuts20, fs);
+    //efficiencyAnalysers.emplace_back(hscpAlgoHardCuts20, fs);
+    efficiencyAnalysers.emplace_back(hscpAlgoSoftCuts20, 25, 10000, fs);
     //efficiencyAnalysers.emplace_back(hscpAlgoPdfSumCuts20, fs);
   }
   else if(analysisType == "withTrackPart") {
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(singleMuAlgo, fs);
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgo20, fs);
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgo30, fs);
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoHardCuts20, fs);
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoSoftCuts20, fs);
+    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(singleMuAlgo, 25, 10000, fs);
+    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgo20, 25, 10000, fs);
+    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgo30, 35, 10000, fs);
+    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoHardCuts20, 25, 10000,  fs);
+    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoSoftCuts20, 25, 10000, fs);
     //efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoPdfSumCuts20, fs);
 
   }
@@ -1417,8 +1392,6 @@ void MuCorrelatorAnalyzer::beginJob()
   gpMuonEta_Pt = fs->make<TH2F>("gpMuonEta_Pt", "gpMuonEta_Pt; eta; pT [GeV]; #events", etaBins/10, -2.4, 2.4, 20, 0, 40);
 
   //nominators
-  ptGenPtTTMuon = fs->make<TH2I>("ptGenPtTTMuon", "ptGenPtTTMuon; gen pT [GeV]; ttTrack pT [GeV]; #", 100, 0, 100, 100, 0, 100);
-
   ptGenPtTTMuonEv0 = fs->make<TH2I>("ptGenPtTTMuonEv0", "ptGenPtTTMuonEv0; gen pT [GeV]; ttTrack pT [GeV]; #", 100, 0, 100, 100, 0, 100);
 
   ptGenPtTTMuonEvPu = fs->make<TH2I>("ptGenPtTTMuonEvPu", "ptGenPtTTMuonEvPu; gen pT [GeV]; ttTrack pT [GeV]; #", 100, 0, 100, 100, 0, 100);
@@ -1509,10 +1482,11 @@ void MuCorrelatorAnalyzer::hscpAnalysis(const edm::Event& event, edm::Ptr< Track
       betaGenBetaL1Mu->Fill(trackPartPtr->p4().Beta(), -1);
     }
 
-    if (abs(trackPartPtr->pdgId()) == 1000015) {
+    //TODO fix
+/*    if (abs(trackPartPtr->pdgId()) == 1000015) {
       for(auto& effAnalys : efficiencyAnalysersCorrelatorWithTrackPart)
         effAnalys.fillHistos(event, trackPartPtr);
-    }
+    }*/
   }
 }
 
@@ -1932,6 +1906,9 @@ void MuCorrelatorAnalyzer::analyze(
     // ----------------------------------------------------------------------------------------------
     ttTracksPerMuonTPvsPtGen->Fill(tpPtr->pt(), nMatch);
 
+    for(auto& effAnalys : efficiencyAnalysers)
+      effAnalys.fillHistos(event, tpPtr, bestMatchedTTTrack);
+
     if (nMatch > 1) {
       //edm::LogImportant("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << "WARNING *** 2 or more (loose) genuine ttTrack match to tracking particle !!!!! "<<printTrackigParticleShort(tpPtr) << endl;
     }
@@ -1955,8 +1932,6 @@ void MuCorrelatorAnalyzer::analyze(
 
       ttMuonEta_Pt->Fill(matchTTTrackEta, matchTTTrackPt);
 
-      ptGenPtTTMuon->Fill(tpPtr->pt(), matchTTTrackPt);
-
       if(tpPtr->eventId().event() == 0) {
         ptGenPtTTMuonEv0->Fill(tpPtr->pt(), matchTTTrackPt);
       }
@@ -1968,12 +1943,8 @@ void MuCorrelatorAnalyzer::analyze(
       ptGenDeltaPhiTTMuon->Fill(tpPtr->pt(), tpPtr->phi() - matchTTTrackPhi);
       ptGenDeltaEtaTTMuon->Fill(tpPtr->pt(), tpPtr->eta() - matchTTTrackEta);
 
-      for(auto& effAnalys : efficiencyAnalysers)
-        effAnalys.fillHistos(event, tpPtr);
-
     }
     else { //no matched ttTrack
-      ptGenPtTTMuon->Fill(tpPtr->pt(), 0);
       if(tpPtr->eventId().event() == 0) {
         ptGenPtTTMuonEv0->Fill(tpPtr->pt(), 0);
       }
