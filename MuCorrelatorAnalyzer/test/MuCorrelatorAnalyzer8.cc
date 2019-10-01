@@ -112,7 +112,7 @@ public:
   virtual ~AllTTTRacksBarrel() {};
 
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
-    if(abs(muCorrelatorTrack.getEta() ) < 0.85)
+    if(abs(muCorrelatorTrack.getEta() ) < 0.82)
       return true;
     return false;
   }
@@ -137,11 +137,38 @@ public:
 
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        abs(muCorrelatorTrack.getEta() ) < 0.85)
+        abs(muCorrelatorTrack.getEta() ) < 0.82)
       return true;
     return false;
   }
 };
+
+class SingleMuAlgoOverlap: public TriggerAlgo {
+public:
+  SingleMuAlgoOverlap(double ptCut): TriggerAlgo("SingleMuAlgoOverlap" + std::to_string((int)ptCut), ptCut) {};
+  virtual ~SingleMuAlgoOverlap() {};
+
+  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        abs(muCorrelatorTrack.getEta() ) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )
+      return true;
+    return false;
+  }
+};
+
+class SingleMuAlgoEndcap: public TriggerAlgo {
+public:
+  SingleMuAlgoEndcap(double ptCut): TriggerAlgo("SingleMuAlgoEndcap" + std::to_string((int)ptCut), ptCut) {};
+  virtual ~SingleMuAlgoEndcap() {};
+
+  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        abs(muCorrelatorTrack.getEta() ) >= 1.24 )
+      return true;
+    return false;
+  }
+};
+
 
 class SingleMuAlgoSoftCuts: public TriggerAlgo {
 public:
@@ -158,6 +185,28 @@ public:
             ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
               muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
            muCorrelatorTrack.getTtTrackPtr().isNull() )
+    )
+      return true;
+    return false;
+  }
+};
+
+class SingleMuAlgoSoftCutsOverlap: public TriggerAlgo {
+public:
+  SingleMuAlgoSoftCutsOverlap(double ptCut): TriggerAlgo("SingleMuAlgoSoftCutsOverlap" + std::to_string((int)ptCut), ptCut) {};
+  virtual ~SingleMuAlgoSoftCutsOverlap() {};
+
+  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+    if( muCorrelatorTrack.hwQual() >= 12 &&
+        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
+          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
+           muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
+        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
+            ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+              muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
+           muCorrelatorTrack.getTtTrackPtr().isNull() ) &&
+        (abs(muCorrelatorTrack.getEta() ) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )
     )
       return true;
     return false;
@@ -599,16 +648,16 @@ public:
     muCandPhi = subDir.make<TH1D>("muCandPhi", "muCandPhi; phi; #events", phiBins, -M_PI, M_PI);
 
     muCandPtMuons = subDir.make<TH1D>("muCandPtMuons", "muCandPtMuons; ttTrack pt [GeV]; #events", ptBins, 0., 500.);;
-    muCandEtaMuons = subDir.make<TH1D>("muCandEtaMuons", "muCandEtaMuons; eta; #events", etaBins, -2.4, 2.4);
-    muCandPhiMuons = subDir.make<TH1D>("muCandPhiMuons", "muCandPhiMuons; phi; #events", phiBins, -M_PI, M_PI);
+    //muCandEtaMuons = subDir.make<TH1D>("muCandEtaMuons", "muCandEtaMuons; eta; #events", etaBins, -2.4, 2.4);
+    //muCandPhiMuons = subDir.make<TH1D>("muCandPhiMuons", "muCandPhiMuons; phi; #events", phiBins, -M_PI, M_PI);
 
     muCandPtFakes = subDir.make<TH1D>("muCandPtFakes", "muCandPtFakes; ttTrack pt [GeV]; #events", ptBins, 0., 500.);;
-    muCandEtaFakes = subDir.make<TH1D>("muCandEtaFakes", "muCandEtaFakes; eta; #events", etaBins, -2.4, 2.4);
-    muCandPhiFakes = subDir.make<TH1D>("muCandPhiFakes", "muCandPhiFakes; phi; #events", phiBins, -M_PI, M_PI);
+    //muCandEtaFakes = subDir.make<TH1D>("muCandEtaFakes", "muCandEtaFakes; eta; #events", etaBins, -2.4, 2.4);
+    //muCandPhiFakes = subDir.make<TH1D>("muCandPhiFakes", "muCandPhiFakes; phi; #events", phiBins, -M_PI, M_PI);
 
     muCandPtWrongTag = subDir.make<TH1D>("muCandPtWrongTag", "muCandPtWrongTag; ttTrack pt [GeV]; #events", ptBins, 0., 500.);;
-    muCandEtaWrongTag = subDir.make<TH1D>("muCandEtaWrongTag", "muCandEtaWrongTag; eta; #events", etaBins, -2.4, 2.4);
-    muCandPhiWrongTag = subDir.make<TH1D>("muCandPhiWrongTag", "muCandPhiWrongTag; phi; #events", phiBins, -M_PI, M_PI);
+    //muCandEtaWrongTag = subDir.make<TH1D>("muCandEtaWrongTag", "muCandEtaWrongTag; eta; #events", etaBins, -2.4, 2.4);
+    //muCandPhiWrongTag = subDir.make<TH1D>("muCandPhiWrongTag", "muCandPhiWrongTag; phi; #events", phiBins, -M_PI, M_PI);
 
     pdfSumFiredPlanesNotMuons = subDir.make<TH2I>("pdfSumFiredPlanesNotMuons", "pdfSumFiredPlanesNotMuons; pdfSum; firedPlanes; #", 100, 0, 10000, 19, -0.5, 18.5);
     betaLikelihoodFiredPlanesNotMuons = subDir.make<TH2I>("notMuonsBetaLikelihoodFiredPlanes", "notMuonsBetaLikelihoodFiredPlanes; betaLikelihood; FiredPlanes; #", 100, 0, 100, 19, -0.5, 18.5);
@@ -620,8 +669,8 @@ public:
     chi2DofGenuineTTTrackMuCand = subDir.make<TH1D>("chi2DofGenuineTTTrackMuCand", "chi2DofGenuineTTTrackMuCand; chi2; #events", 40, 0., 200.);
     chi2DofFakeTTTrackMuCand = subDir.make<TH1D>("chi2DofFakeTTTrackMuCand", "chi2DofFakeTTTrackMuCand; chi2; #events", 40, 0., 200.);
 
-    etaGenPtGenLostBx1 = subDir.make<TH2I>("etaGenPtGenLostBx1", "etaGenPtGenLostBx1; eta; pt [GeV]; ", 50, -2.4, 2.4, 50, 0, 100);
-    etaGenPtGenLostBx2 = subDir.make<TH2I>("etaGenPtGenLostBx2", "etaGenPtGenLostBx2; eta; pt [GeV]; ", 50, -2.4, 2.4, 50, 0, 100);
+    //etaGenPtGenLostBx1 = subDir.make<TH2I>("etaGenPtGenLostBx1", "etaGenPtGenLostBx1; eta; pt [GeV]; ", 50, -2.4, 2.4, 50, 0, 100);
+    //etaGenPtGenLostBx2 = subDir.make<TH2I>("etaGenPtGenLostBx2", "etaGenPtGenLostBx2; eta; pt [GeV]; ", 50, -2.4, 2.4, 50, 0, 100);
   }
 
   virtual ~RateAnalyzer() {}
@@ -635,17 +684,17 @@ private:
   TH1D* muCandPhi = nullptr;
 
   TH1D* muCandPtMuons = nullptr;
-  TH1D* muCandEtaMuons = nullptr;
-  TH1D* muCandPhiMuons = nullptr;
+  //TH1D* muCandEtaMuons = nullptr;
+  //TH1D* muCandPhiMuons = nullptr;
 
   //nominator
   TH1D* muCandPtFakes = nullptr;
-  TH1D* muCandEtaFakes = nullptr;
-  TH1D* muCandPhiFakes = nullptr;
+  //TH1D* muCandEtaFakes = nullptr;
+  //TH1D* muCandPhiFakes = nullptr;
 
   TH1D* muCandPtWrongTag = nullptr;
-  TH1D* muCandEtaWrongTag = nullptr;
-  TH1D* muCandPhiWrongTag = nullptr;
+  //TH1D* muCandEtaWrongTag = nullptr;
+  //TH1D* muCandPhiWrongTag = nullptr;
 
   TH2I* pdfSumFiredPlanesNotMuons = nullptr;
   TH2I* betaLikelihoodFiredPlanesNotMuons = nullptr;
@@ -657,8 +706,8 @@ private:
   TH1D* chi2DofGenuineTTTrackMuCand = nullptr;
   TH1D* chi2DofFakeTTTrackMuCand = nullptr;
 
-  TH2I* etaGenPtGenLostBx1 = nullptr;
-  TH2I* etaGenPtGenLostBx2 = nullptr;
+  //TH2I* etaGenPtGenLostBx1 = nullptr;
+  //TH2I* etaGenPtGenLostBx2 = nullptr;
 };
 
 
@@ -689,15 +738,15 @@ void RateAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrac
       if(abs(tpMatchedToBestL1MuCand->pdgId()) == 13) {
         muCandPtMuons->Fill(bestL1MuCand->getPt());
         if(bestL1MuCand->getPt() >= triggerAlgo->ptCut) {
-          muCandEtaMuons->Fill(bestL1MuCand->getEta());
-          muCandPhiMuons->Fill(bestL1MuCand->getPhi());
+          //muCandEtaMuons->Fill(bestL1MuCand->getEta());
+          //muCandPhiMuons->Fill(bestL1MuCand->getPhi());
         }
       }
       else {
         muCandPtWrongTag->Fill(bestL1MuCand->getPt());
         if(bestL1MuCand->getPt() >= triggerAlgo->ptCut) {
-          muCandEtaWrongTag->Fill(bestL1MuCand->getEta());
-          muCandPhiWrongTag->Fill(bestL1MuCand->getPhi());
+          //muCandEtaWrongTag->Fill(bestL1MuCand->getEta());
+          //muCandPhiWrongTag->Fill(bestL1MuCand->getPhi());
 
           edm::LogImportant("l1tMuBayesEventPrint")<<"\nrun:lumi:event "<<event.run()<<":"<<event.luminosityBlock()<<":"<<event.id().event()<<endl;
           edm::LogImportant("l1tMuBayesEventPrint")<<" "<<triggerAlgo->name<<" wrongTag muCand track "<<(bestL1MuCand->getPt() > 18 ? " high Pt" : "")<<"\n"<<toString(*bestL1MuCand)<<endl;
@@ -717,8 +766,8 @@ void RateAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrac
     else {
       muCandPtFakes->Fill(bestL1MuCand->getPt());
       if(bestL1MuCand->getPt() >= triggerAlgo->ptCut) {
-        muCandEtaFakes->Fill(bestL1MuCand->getEta());
-        muCandPhiFakes->Fill(bestL1MuCand->getPhi());
+        //muCandEtaFakes->Fill(bestL1MuCand->getEta());
+        //muCandPhiFakes->Fill(bestL1MuCand->getPhi());
 
         pdfSumFiredPlanesNotMuons->Fill(pdfSum, firedLayers);
         betaLikelihoodFiredPlanesNotMuons->Fill(bestL1MuCand->getBetaLikelihood(), firedLayers);
@@ -742,13 +791,13 @@ void RateAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrac
 
 
     //this triggerAlgo fired, because the bestL1MuCand is not null
-    if(bestL1MuCand->getPt() >= triggerAlgo->ptCut) {
+/*    if(bestL1MuCand->getPt() >= triggerAlgo->ptCut) {
       if(bestMuInBx1.isNonnull())
         etaGenPtGenLostBx1->Fill(bestMuInBx1->eta(), bestMuInBx1->pt() );
 
       if(bestMuInBx2.isNonnull())
         etaGenPtGenLostBx2->Fill(bestMuInBx2->eta(), bestMuInBx2->pt() );
-    }
+    }*/
   }
 }
 
@@ -1244,6 +1293,12 @@ void MuCorrelatorAnalyzer::beginJob()
 
   std::shared_ptr<TriggerAlgo> singleMuAlgoPdfSumSoftCuts = std::make_shared<SingleMuAlgoPdfSumSoftCuts>(20);
 
+  std::shared_ptr<TriggerAlgo> singleMuAlgoBarrel = std::make_shared<SingleMuAlgoBarrel>(20);
+  std::shared_ptr<TriggerAlgo> singleMuAlgoOverlap = std::make_shared<SingleMuAlgoOverlap>(20);
+  std::shared_ptr<TriggerAlgo> singleMuAlgoEndcap = std::make_shared<SingleMuAlgoEndcap>(20);
+
+  std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCutsOverlap = std::make_shared<SingleMuAlgoSoftCutsOverlap>(20);
+
   //std::shared_ptr<TriggerAlgo> singleMuAlgoHardCuts = std::make_shared<SingleMuAlgoHardCuts>(20);
 
   std::shared_ptr<TriggerAlgo> hscpAlgo20 = std::make_shared<HscpAlgo>(20);
@@ -1263,6 +1318,11 @@ void MuCorrelatorAnalyzer::beginJob()
     rateAnalysers.emplace_back(singleMuAlgoPdfSumSoftCuts, fs);
 
     //rateAnalysers.emplace_back(singleMuAlgoHardCuts, fs);
+
+    rateAnalysers.emplace_back(singleMuAlgoBarrel, fs);
+    rateAnalysers.emplace_back(singleMuAlgoOverlap, fs);
+    rateAnalysers.emplace_back(singleMuAlgoEndcap, fs);
+    rateAnalysers.emplace_back(singleMuAlgoSoftCutsOverlap, fs);
 
     rateAnalysers.emplace_back(hscpAlgo20, fs);
 

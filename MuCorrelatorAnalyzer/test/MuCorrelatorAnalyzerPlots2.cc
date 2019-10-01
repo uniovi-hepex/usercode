@@ -97,6 +97,9 @@ int MuCorrelatorAnalyzerPlots2() {
 
   //makePlots("GluGluHToZZTo4L_noPu",  "GluGluHToZZTo4L",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU.root");
 
+  makePlots("singleMu500Ev",  "singleMu500Ev",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_singleMu.root");
+
+
   //makePlots("SingleNeutrino_PU200_t5", "singleNu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t5/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU200_t7", "singleNu", kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t7/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU200_t9",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t9/results/muCorrelatorTTAnalysis1.root");
@@ -121,7 +124,7 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("TauTo3Mu_PU200_v1_t11", "#tau #rightarrow 3#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_TauTo3Mu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
   //makePlots("BsToMuMu_PU200_v1_t11", "Bs #rightarrow #mu#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_BsToMuMu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
 
-  makePlots("MuFlatPt_PU200_t12_bad", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t12_badPtCut5/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("MuFlatPt_PU200_t12_bad", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t12_badPtCut5/results/muCorrelatorTTAnalysis1.root");
 
 
   //makePlots("GluGluHToZZTo4L_NoPU gb4",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU_gb4.root");
@@ -754,7 +757,8 @@ void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int co
         //canvas1->cd(6)->SetLogy();
 
         savePlot(canvasName + "_EventsRate", canvasRate1->cd(2) );
-        ////////////////////////////////
+
+/*        ////////////////////////////////
         canvasRate1->cd(3);
         canvasRate1->cd(3)->SetLogy();
         canvasRate1->cd(3)->SetGridx();
@@ -786,7 +790,7 @@ void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int co
 
         int ptGenBx2Pt20 = ptGenBx2->Integral(ptGenBx2->FindBin(20), -1);
         int ptGenLostBx2Pt20 = ptGenLostBx2->Integral(ptGenBx2->FindBin(20), -1);
-        cout<<" ptGenBx2Pt20 "<<ptGenBx2Pt20<<" ptGenLostBx2Pt20 "<<ptGenLostBx2Pt20<<" eff lost "<<ptGenLostBx2Pt20/(double)ptGenBx2Pt20<<endl;;
+        cout<<" ptGenBx2Pt20 "<<ptGenBx2Pt20<<" ptGenLostBx2Pt20 "<<ptGenLostBx2Pt20<<" eff lost "<<ptGenLostBx2Pt20/(double)ptGenBx2Pt20<<endl;;*/
 
       }
     }
