@@ -56,7 +56,7 @@ int MuCorrelatorAnalyzerPlots2() {
   int ptCut = 20;
 
   //ptCut = 18+1;
-  ptCut = 1+1;
+  //ptCut = 1+1;
   //ptCut = 10 +1;
 
   ostringstream ostr;
@@ -95,7 +95,7 @@ int MuCorrelatorAnalyzerPlots2() {
 
   //makePlots("SingleMu_PU200_without_iRPC",    kRed,   ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_1_7/src/L1Trigger/L1TMuonBayes/test/crab/without_iRPC/crab_muCorr_MC_analysis_SingleMu_PU200/results/muCorrelatorTTAnalysis1.root");
 
-  makePlots("GluGluHToZZTo4L_noPu",  "GluGluHToZZTo4L",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU.root");
+  //makePlots("GluGluHToZZTo4L_noPu",  "GluGluHToZZTo4L",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU.root");
 
   //makePlots("SingleNeutrino_PU200_t5", "singleNu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t5/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU200_t7", "singleNu", kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t7/results/muCorrelatorTTAnalysis1.root");
@@ -120,6 +120,9 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("JPsiToMuMu_Pt0to100_PU200_t7_1", "J/#psi #rightarrow #mu#mu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_JPsiToMuMu_Pt0to100_PU200_v1_t7_1/results/muCorrelatorTTAnalysis1.root");
   //makePlots("TauTo3Mu_PU200_v1_t11", "#tau #rightarrow 3#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_TauTo3Mu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
   //makePlots("BsToMuMu_PU200_v1_t11", "Bs #rightarrow #mu#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_BsToMuMu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
+
+  makePlots("MuFlatPt_PU200_t12_bad", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t12_badPtCut5/results/muCorrelatorTTAnalysis1.root");
+
 
   //makePlots("GluGluHToZZTo4L_NoPU gb4",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU_gb4.root");
   //makePlots("singleMu_sigma_2p8",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_singleMu_sigma_2p8.root");
@@ -502,7 +505,7 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         ttMuon_vs_ptGen_Ev0_Eff->GetPaintedGraph()->GetXaxis()->SetRangeUser(0, 100);
         cout<<"ttMuon_vs_ptGen_Ev0_Eff->GetPaintedGraph()->GetName() "<<ttMuon_vs_ptGen_Ev0_Eff->GetPaintedGraph()->GetName()<<endl;
         canvas1Eff->cd(2)->Update();
-        TH2I* ptGenPtMuCandMuonsEv0 = (TH2I*)subdir->Get("ptGenPtMuCandMuonsEv0");
+        TH2I* ptGenPtMuCandMuonsEv0 = (TH2I*)subdir->Get("ptGenPtMuCandMuonsEv0;1");
         TH1D* ptGenPtMuCandMuonsEv0Nom = ptGenPtMuCandMuonsEv0->ProjectionX("ptGenPtMuCandMuonsEv0Nom", ptCut, -1);
         TH1D* ptGenPtMuCandMuonsEv0Denom = ptGenPtMuCandMuonsEv0->ProjectionX("ptGenPtMuCandMuonsEv0Denom", 0, -1);
 
@@ -516,7 +519,7 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
 
 
         title = ("muCand efficiency, Event 0, pT cut = " + to_string(ptCut -1) + " GeV" + "; generated p_{T} [GeV]; efficiency");
-        TEfficiency* muCand_vs_ptGen_Ev0_Eff = makeEfficiency(*ptGenPtMuCandMuonsEv0Nom, *ptGenPtTTMuonDenomEv0, title, kRed);
+        TEfficiency* muCand_vs_ptGen_Ev0_Eff = makeEfficiency(*ptGenPtMuCandMuonsEv0Nom, *ptGenPtMuCandMuonsEv0Denom, title, kRed);
         muCand_vs_ptGen_Ev0_Eff->Draw("same PZ");
 
         DrawLabel(canvas1Eff->cd(2), label);
@@ -530,12 +533,12 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         ptGenPtTTMuonNomEvPu->Draw("hist");
 
 
-        TH2I* ptGenPtMuCandMuonsPu = (TH2I*)subdir->Get("ptGenPtMuCandMuonsPu");
+        TH2I* ptGenPtMuCandMuonsPu = (TH2I*)subdir->Get("ptGenPtMuCandMuonsPu;1");
         TH1D* ptGenPtMuCandMuonsPuNom = ptGenPtMuCandMuonsPu->ProjectionX("ptGenPtMuCandMuonsPuNom", ptCut, -1);
         TH1D* ptGenPtMuCandMuonsPuDenom = ptGenPtMuCandMuonsPu->ProjectionX("ptGenPtMuCandMuonsPuDenom", 0, -1);
 
         //ptGenPtOMtfMuonNom->Divide(ptGenPtOMtfMuonDenom); //TODO!!!! in principle ptGenPtOMtfMuonDenom and ptGenPtTTMuonDenom should be the same
-        ptGenPtMuCandMuonsPuNom->Divide(ptGenPtTTMuonDenomEvPu);
+        ptGenPtMuCandMuonsPuNom->Divide(ptGenPtMuCandMuonsPuDenom);
         ptGenPtMuCandMuonsPuNom->SetTitle( ("ttTrack and OMTF efficiency, PU Events, pT cut = " + to_string(ptCut - 1) + " GeV").c_str() );
         ptGenPtMuCandMuonsPuNom->SetLineColor(kRed);
         ptGenPtMuCandMuonsPuNom->Draw("samehist");
@@ -545,7 +548,7 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         canvas1Eff->cd(3)->SetGridx();
         canvas1Eff->cd(3)->SetGridy();
 
-        TH2I* ptGenPtMuCandMuonsEv0Overlap = (TH2I*)subdir->Get("ptGenPtMuCandMuonsEv0Overlap");
+        TH2I* ptGenPtMuCandMuonsEv0Overlap = (TH2I*)subdir->Get("ptGenPtMuCandMuonsEv0Overlap;1");
         TH1D* ptGenPtMuCandMuonsEv0OverlapNom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapNom", ptCut, -1);
         TH1D* ptGenPtMuCandMuonsEv0OverlapDenom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapDenom", 0, -1);
 
@@ -562,9 +565,9 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         double meanEff = 0;
         int binCnt = 0; //TODO
 
-        TH1D* gpMuonGenEtaMuons_withPtCuts = (TH1D*)subdir->Get("gpMuonGenEtaMuons_withPtCuts");
-        TH1D* ttMuonGenEtaMuons_withPtCuts = (TH1D*)subdir->Get("ttMuonGenEtaMuons_withPtCuts");
-        TH1D* muCandGenEtaMuons_withPtCuts = (TH1D*)subdir->Get("muCandGenEtaMuons_withPtCuts");
+        TH1D* gpMuonGenEtaMuons_withPtCuts = (TH1D*)subdir->Get("gpMuonGenEtaMuons_withPtCuts;1");
+        TH1D* ttMuonGenEtaMuons_withPtCuts = (TH1D*)subdir->Get("ttMuonGenEtaMuons_withPtCuts;1");
+        TH1D* muCandGenEtaMuons_withPtCuts = (TH1D*)subdir->Get("muCandGenEtaMuons_withPtCuts;1");
 
         double ttMuonEff = ttMuonGenEtaMuons_withPtCuts->Integral() / gpMuonGenEtaMuons_withPtCuts->Integral();
         double muCadnEffEff = muCandGenEtaMuons_withPtCuts->Integral() / gpMuonGenEtaMuons_withPtCuts->Integral();

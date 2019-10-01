@@ -410,7 +410,7 @@ public:
     const int etaBins = 96;
     const int phiBins = 360;
 
-    TFileDirectory subDir = fs->mkdir( ("EfficiencyAnalyser_" + triggerAlgo->name).c_str());
+    TFileDirectory subDir = fs->mkdir( ("EfficiencyAnalyser_" + triggerAlgo->name + "_ptGenFrom_" + std::to_string( (int)ptGenFrom) + "_ptGenTo_" + std::to_string( (int)ptGenTo)).c_str());
     //versus gen (tracking particle) pt, eta, phi
     muCandGenPtMuons = subDir.make<TH1I>("muCandGenPtMuons", "muCandGenPtMuons; pt gen; #events", ptBins, 0., 500.);
     muCandGenEtaMuons = subDir.make<TH1D>("muCandGenEtaMuons", "muCandGenEtaMuons; eta gen; #events", etaBins, -2.4, 2.4);
@@ -1279,14 +1279,17 @@ void MuCorrelatorAnalyzer::beginJob()
 
     efficiencyAnalysers.emplace_back(singleMuAlgoPdfSumSoftCuts, 25, 10000, fs);
 
+    efficiencyAnalysers.emplace_back(singleMuAlgoPtCut5, 7, 10, fs);
+    //efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut5, 7, 15, fs);
+
     efficiencyAnalysers.emplace_back(singleMuAlgoPtCut5, 7, 15, fs);
     efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut5, 7, 15, fs);
 
     efficiencyAnalysers.emplace_back(singleMuAlgoPtCut5, 7, 20, fs);
-    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut5, 7, 20, fs);
+    //efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut5, 7, 20, fs);
 
     efficiencyAnalysers.emplace_back(singleMuAlgoPtCut3, 5, 10, fs);
-    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut3, 5, 10, fs);
+    //efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut3, 5, 10, fs);
 
     //efficiencyAnalysers.emplace_back(singleMuAlgoHardCuts, fs);
 
