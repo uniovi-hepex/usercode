@@ -595,7 +595,7 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
       ptGenPtMuCandMuonsPu->Fill(trackParticle->pt(), muCandPt);
     }
   }
-  else {
+  else {//no cnaidate
     if(trackParticle->eventId().event() == 0) {
       ptGenPtMuCandMuonsEv0->Fill(trackParticle->pt(), 0);
 
@@ -616,7 +616,8 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
       lostTtMuonPhi_ptGen20GeV->Fill(trackParticle->phi());
     }
 
-    if(trackParticle->pt() >= triggerAlgo->ptCut) {
+    if(trackParticle->eventId().event() == 0 &&
+        trackParticle->pt() >= ptGenFrom && trackParticle->pt() <= ptGenTo) {
       /*if(notAcceptedL1MuCand == nullptr) {
         edm::LogImportant("l1tMuBayesEventPrint")<<"\nrun:lumi:event "<<event.run()<<":"<<event.luminosityBlock()<<":"<<event.id().event()<<endl;
         edm::LogImportant("l1tMuBayesEventPrint")<<" "<<triggerAlgo->name<<" no correlator candidate. lost high pT muon"<<endl;
@@ -1063,7 +1064,7 @@ public:
 
 private:
   //void analyzeSimTracks(edm::Handle<edm::SimTrackContainer>& simTraksHandle, edm::Handle<l1t::BayesMuCorrTrackBxCollection>& muCorrTracksHandle);
-  void analyzeSimTracks(edm::Handle<edm::SimTrackContainer>& simTraksHandle);
+  void analyzeSimTracks(edm::Handle<edm::SimTrackContainer>& simTraksHandle, edm::Handle<reco::GenParticleCollection>& genPartHandle);
 
   void hscpAnalysis(edm::Handle< std::vector< TrackingParticle > >& trackingParticleHandle, edm::Handle<l1t::BayesMuCorrTrackBxCollection>& muCorrTracksHandle);
   void hscpAnalysis(const edm::Event& event, edm::Ptr< TrackingParticle >& trackPartPtr, edm::Handle<l1t::BayesMuCorrTrackBxCollection>& muCorrTracksHandle);
@@ -1194,6 +1195,8 @@ private:
 
   TH1I* tpBetaPt20 = nullptr;
 
+  TH1I* tpBetaHscpPt20 = nullptr;
+
   TH2I* etaGenPtGenBx1 = nullptr;
 
   TH2I* etaGenPtGenBx2 = nullptr;
@@ -1203,6 +1206,7 @@ private:
   edm::EDGetTokenT<l1t::BayesMuCorrTrackBxCollection> inputMuCorr;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<edm::SimVertexContainer> vertexSim;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
 };
 
 
@@ -1216,6 +1220,8 @@ MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
   //simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimTrackSrc"));
 
   vertexSim = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+
+  genParticleToken = consumes<reco::GenParticleCollection>(edm::InputTag("genParticles") );
 
   etaCutFrom = parameterSet.getParameter< double >("etaCutFrom");
   etaCutTo = parameterSet.getParameter< double >("etaCutTo");
@@ -1362,11 +1368,11 @@ void MuCorrelatorAnalyzer::beginJob()
     //efficiencyAnalysers.emplace_back(hscpAlgoPdfSumCuts20, fs);
   }
   else if(analysisType == "withTrackPart") {
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(singleMuAlgo, 25, 10000, fs);
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgo20, 25, 10000, fs);
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgo30, 35, 10000, fs);
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoHardCuts20, 25, 10000,  fs);
-    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoSoftCuts20, 25, 10000, fs);
+    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(singleMuAlgo, 20, 100000, fs);
+    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgo20, 20, 100000, fs);
+    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgo30, 20, 100000, fs);
+    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoHardCuts20, 20, 100000,  fs);
+    efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoSoftCuts20, 20, 100000, fs);
     //efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(hscpAlgoPdfSumCuts20, fs);
 
   }
@@ -1474,7 +1480,9 @@ void MuCorrelatorAnalyzer::beginJob()
   simTracksBetaPt20 = fs->make<TH1I>("simTracksBetaPt20", "simTracks beta, pt > 20 GeV; beta; #events",  20, 0., 1.);
   simTracksPt = fs->make<TH1I>("simTracksPt", "simTracksPt; ptGen [GeV]; #events", 100, 0, 1000);
 
-  tpBetaPt20 = fs->make<TH1I>("genBetaPt20", "tracking particle beta, pt > 20 GeV; beta; #events",  20, 0., 1.);
+  tpBetaPt20 = fs->make<TH1I>("tpBetaPt20", "tracking particle beta, pt > 20 GeV; beta; #events",  20, 0., 1.);
+
+  tpBetaHscpPt20 = fs->make<TH1I>("tpBetaHscpPt20", "tracking particle beta, HSCP only, pt > 20 GeV; beta; #events",  20, 0., 1.);
 
   etaGenPtGenBx1 = fs->make<TH2I>("etaGenPtGenBx1", "etaGenPtGenBx1; eta; pt [GeV]; ", 50, -2.4, 2.4, 50, 0, 100);
   etaGenPtGenBx2 = fs->make<TH2I>("etaGenPtGenBx2", "etaGenPtGenBx2; eta; pt [GeV]; ", 50, -2.4, 2.4, 50, 0, 100);
@@ -1546,14 +1554,16 @@ void MuCorrelatorAnalyzer::hscpAnalysis(const edm::Event& event, edm::Ptr< Track
     }
 
     //TODO fix
-/*    if (abs(trackPartPtr->pdgId()) == 1000015) {
+    if (abs(trackPartPtr->pdgId()) == 1000015) {
+      edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > bestMatchedTTTrack;
       for(auto& effAnalys : efficiencyAnalysersCorrelatorWithTrackPart)
-        effAnalys.fillHistos(event, trackPartPtr);
-    }*/
+        effAnalys.fillHistos(event, trackPartPtr, bestMatchedTTTrack);
+    }
   }
 }
 
-void MuCorrelatorAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer>& simTraksHandle) {
+void MuCorrelatorAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer>& simTraksHandle, edm::Handle<reco::GenParticleCollection>& genPartHandle ) {
+  LogTrace("l1tMuBayesEventPrint") <<"analyzeSimTracks\n printing simTraks"<<std::endl;
   for (unsigned int iSimTrack = 0; iSimTrack != simTraksHandle->size(); iSimTrack++ ) {
     edm::Ptr< SimTrack > simTrackPtr(simTraksHandle, iSimTrack);
     simTracksPt->Fill(simTrackPtr->momentum().pt());
@@ -1561,11 +1571,72 @@ void MuCorrelatorAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer>&
       simTracksBetaPt20->Fill(simTrackPtr->momentum().Beta());
     }
 
-    if(abs(simTrackPtr->type() ) >= 1000000 && abs(simTrackPtr->type()) < 9999999) { //stau is 1000015
+    //if(abs(simTrackPtr->type() ) >= 1000000 && abs(simTrackPtr->type()) < 9999999)
+    if(simTrackPtr->momentum().pt() > 20 )
+    { //stau is 1000015
+    //if(abs(simTrackPtr->type()) == 13 ) {
       LogTrace("l1tMuBayesEventPrint") <<" analyzeSimTracks: event "<<simTrackPtr->eventId().event()<<" pdgId "<<simTrackPtr->type()
-              <<" pt "<<simTrackPtr->momentum().pt()<<std::endl;
+              <<" pt "<<simTrackPtr->momentum().pt()<<" Beta "<<simTrackPtr->momentum().Beta()<<" genpartIndex "<<simTrackPtr->genpartIndex()<<std::endl;
     }
+
   }
+
+
+  LogTrace("l1tMuBayesEventPrint") <<"\n printing GenParticle"<<std::endl;
+  for (unsigned int iGenTrack = 0; iGenTrack != genPartHandle->size(); iGenTrack++ ) {
+    edm::Ptr< reco::GenParticle > genPartPtr(genPartHandle, iGenTrack);
+
+    if(abs(genPartPtr->pdgId()) == 1000015) {
+      LogTrace("l1tMuBayesEventPrint") <<" analyzeSimTracks "<<"genPartPtr->pdgId() "<<genPartPtr->pdgId()<<" status() "<<genPartPtr->status()<<" charge() "<<genPartPtr->charge()
+                      <<" p "<<genPartPtr->p()<<" pt "<<genPartPtr->pt()<<" vertex().Rho() "<<genPartPtr->vertex().Rho()<<" eta "<<genPartPtr->eta()<<" phi "<<genPartPtr->phi()
+                      <<" numberOfDaughters() "<<genPartPtr->numberOfDaughters()<<" numberOfMothers "<<genPartPtr->numberOfMothers()<<endl;
+
+      LogTrace("l1tMuBayesEventPrint")<<"mothers" <<endl;
+      for(auto& mother : genPartPtr->motherRefVector()) {
+        LogTrace("l1tMuBayesEventPrint") <<"      mother->pdgId() "<<mother->pdgId()
+                            <<" status() "<<mother->status()
+                            <<" p "<<mother->p()<<" pt "<<mother->pt()<<" vertex().Rho() "<<mother->vertex().Rho()
+                            <<endl;
+      }
+
+      LogTrace("l1tMuBayesEventPrint")<<"daughters" <<endl;
+      for(auto& daughter : genPartPtr->daughterRefVector()) {
+        LogTrace("l1tMuBayesEventPrint") <<"      daughter->pdgId() "<<daughter->pdgId()
+                              <<" status() "<<daughter->status() //<<"  numberOfMothers() "<<daughter->numberOfMothers()<<
+                              <<" p "<<daughter->p()<<" pt "<<daughter->pt()<<" vertex().Rho() "<<daughter->vertex().Rho()<<endl;
+
+
+        for(auto& mother : daughter->motherRefVector()) {
+          LogTrace("l1tMuBayesEventPrint") <<"                mother->pdgId() "<<mother->pdgId()
+                                            <<" status() "<<mother->status()
+                                            <<" p "<<mother->p()<<" pt "<<mother->pt()<<" vertex().Rho() "<<mother->vertex().Rho()
+                                            <<endl;
+        }
+
+      }
+      LogTrace("l1tMuBayesEventPrint") <<endl;
+    }
+    /*else {
+        if(genPartPtr->numberOfMothers() > 0) {
+          bool hasStauMother = false;
+          for(auto& mother : genPartPtr->motherRefVector()) {
+            if( (mother->pdgId()) == 1000015 ) {
+              hasStauMother = true;
+            }
+          }
+          if(hasStauMother) {
+            LogTrace("l1tMuBayesEventPrint") <<" analyzeSimTracks genPartPtr->pdgId() "<<genPartPtr->pdgId()<<" status() "<<genPartPtr->status()
+                  <<" p "<<genPartPtr->p()<<" pt "<<genPartPtr->pt()<<" vertex().Rho() "<<genPartPtr->vertex().Rho()
+                  <<" numberOfDaughters() "<<genPartPtr->numberOfDaughters()<<" numberOfMothers "<<genPartPtr->numberOfMothers()<<endl;
+
+            for(auto& mother : genPartPtr->motherRefVector()) {
+              LogTrace("l1tMuBayesEventPrint") <<"      mother->pdgId() "<<mother->pdgId()<<endl;
+            }
+          }
+        }
+      }*/
+  }
+
 }
 
 void analyseMuonTrackingParticles(edm::Ptr< TrackingParticle >& tpPtr, const std::vector<SimTrack>& simTraks, const std::vector<SimVertex>& simVertexes) {
@@ -1573,9 +1644,10 @@ void analyseMuonTrackingParticles(edm::Ptr< TrackingParticle >& tpPtr, const std
   //tpPtr->parentVertex();
   //tpPtr->vertex();
 
-  if(tpPtr->eventId().event() != 0 )
+  //if(tpPtr->eventId().event() != 0 )
   {//&& tpPtr->decayVertices().size() > 0
-    if ( (abs(tpPtr->pdgId()) == 211  && tpPtr->pt() > 4 && tpPtr->vertex().r() < 10) || (abs(tpPtr->pdgId()) == 13 && tpPtr->pt() > 3) ) { //13
+    //if ( (abs(tpPtr->pdgId()) == 211  && tpPtr->pt() > 4 && tpPtr->vertex().r() < 10) || (abs(tpPtr->pdgId()) == 13 && tpPtr->pt() > 3) )
+    { //13
       //if(tpPtr->pt() > 4)
       {
         //if(tpPtr->vertex().Rho() > 1)
@@ -1615,7 +1687,13 @@ void MuCorrelatorAnalyzer::analyze(
   edm::Handle<edm::SimVertexContainer> simVx;
   event.getByToken(vertexSim, simVx);
   const std::vector<SimVertex>& simVertexes = *(simVx.product());
-  LogTrace("l1tMuBayesEventPrint") << "\nOmtfTTAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" vertexSim "<<simVx->size()<< endl;
+
+
+  edm::Handle<reco::GenParticleCollection> genPartHandle;
+  event.getByToken(genParticleToken, genPartHandle);
+
+
+  LogTrace("l1tMuBayesEventPrint") << "\MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" vertexSim "<<simVx->size()<< endl;
 
   // L1 tracks
   edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTrackHandle;
@@ -1643,7 +1721,7 @@ void MuCorrelatorAnalyzer::analyze(
 
   int bxNumber = 0;
 
-  analyzeSimTracks(simTraksHandle); //muCorrTracksHandle
+  analyzeSimTracks(simTraksHandle, genPartHandle); //muCorrTracksHandle
 
   //hscpAnalysis(trackingParticleHandle, muCorrTracksHandle);
 
@@ -1709,8 +1787,6 @@ void MuCorrelatorAnalyzer::analyze(
 
     float tp_d0_prod = -tpPtr->vx()*sin(tpPtr->phi()) + tpPtr->vy()*cos(tpPtr->phi());
 
-    if(tpPtr->pt() > 20)
-      tpBetaPt20->Fill(tpPtr->p4().Beta());
 
     gpTrackEta_Pt->Fill(tpPtr->eta(), tpPtr->pt());
 
@@ -1732,6 +1808,14 @@ void MuCorrelatorAnalyzer::analyze(
 
     if(tpPtr->vertex().rho() > TP_maxRho)
       continue;
+
+    if(tpPtr->pt() > 20) {
+      tpBetaPt20->Fill(tpPtr->p4().Beta());
+
+      if(abs(tpPtr->pdgId()) == 1000015 && tpPtr->eventId().event() == 0) {
+        tpBetaHscpPt20->Fill(tpPtr->p4().Beta());
+      }
+    }
 
     hscpAnalysis(event, tpPtr, muCorrTracksHandle);
 
@@ -2162,6 +2246,9 @@ void MuCorrelatorAnalyzer::analyze(
 
     float ttTrkPt = ttTrackPtr->getMomentum(L1Tk_nPar).perp();
     float ttTrkEta  = ttTrackPtr->getMomentum(L1Tk_nPar).eta();
+
+    if(ttTrkPt > 20)
+      LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" "<<printTTTRack(ttTrackPtr, false, false);
 
     ttTrackEta_Pt->Fill(ttTrkEta, ttTrkPt);
 

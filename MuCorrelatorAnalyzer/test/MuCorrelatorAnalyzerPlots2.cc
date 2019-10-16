@@ -37,14 +37,17 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
 void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, double eventsCnt);
 void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend);
 void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int color, int ptCut);
+TEfficiency* makeEfficiency(const TH1& passed, const TH1& total, std::string title, Color_t lineColor);
 
 void makePlots(const char* name, string label, int color, int ptCut, const char* rootFileName);
+
 
 TCanvas* canvasCompare = new TCanvas("canvasCompare", "canvasCompare", 1200, 800);
 
 bool compareFirst = true;
 
-double lhcFillingRatio = 2748./3564.;
+double lhcFillingRatio = 2760./3564.;
+double lhcFreq = 40144896; //11264 * 3564
 
 double eventsCnt = 0;
 
@@ -53,7 +56,7 @@ int MuCorrelatorAnalyzerPlots2() {
 
 
   canvasCompare->Divide(2, 2);
-  int ptCut = 20;
+  int ptCut = 3;
 
   //ptCut = 18+1;
   //ptCut = 1+1;
@@ -67,7 +70,7 @@ int MuCorrelatorAnalyzerPlots2() {
 
   //makePlots("hscp_noiRPC",    kRed,   ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_5_0_pre1/src/L1Trigger/L1TMuonBayes/test/muCorrelatorTTAnalysis1HSCP_noiRPC.root");
 
-  //makePlots("hscp CMSSW_10_6_0_pre4",    kRed,   ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_0_pre4/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1HSCP.root");
+  //makePlots("hscp CMSSW_10_6_0_pre4", "stau", kRed,   ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_0_pre4/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1HSCP.root");
 
 
   //makePlots("singleMu",    kRed,   ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_5_0_pre1/src/L1Trigger/L1TMuonBayes/test/muCorrelatorTTAnalysis1.root");
@@ -97,7 +100,7 @@ int MuCorrelatorAnalyzerPlots2() {
 
   //makePlots("GluGluHToZZTo4L_noPu",  "GluGluHToZZTo4L",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU.root");
 
-  makePlots("singleMu500Ev",  "singleMu500Ev",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_singleMu.root");
+  //makePlots("singleMu500Ev",  "singleMu500Ev",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_singleMu.root");
 
 
   //makePlots("SingleNeutrino_PU200_t5", "singleNu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t5/results/muCorrelatorTTAnalysis1.root");
@@ -124,7 +127,10 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("TauTo3Mu_PU200_v1_t11", "#tau #rightarrow 3#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_TauTo3Mu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
   //makePlots("BsToMuMu_PU200_v1_t11", "Bs #rightarrow #mu#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_BsToMuMu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
 
-  //makePlots("MuFlatPt_PU200_t12_bad", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t12_badPtCut5/results/muCorrelatorTTAnalysis1.root");
+  makePlots("MuFlatPt_PU200_t12", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t12/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("SingleNeutrino_PU200_t13", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t13/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("SingleNeutrino_PU140_t13", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU140_v1_t13/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("SingleNeutrino_PU250_t13", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU250_v1_t13/results/muCorrelatorTTAnalysis1.root");
 
 
   //makePlots("GluGluHToZZTo4L_NoPU gb4",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU_gb4.root");
@@ -139,6 +145,8 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("JPsiToMuMu_Pt0to100_NoPU gb3",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_JPsiToMuMu_Pt0to100_NoPU_gb3.root");
 
   //makePlots("mtd5_BsToMuMu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_mtd5_BsToMuMu_SoftQCDnonD_NoPU.root");
+
+  //makePlots("HSCP",  "HSCP",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1HSCP.root");
 
 /*
   c0->cd();
@@ -170,17 +178,20 @@ void makePlots(const char* name, string label, int color, int ptCut, const char*
   plotsDir = string("plots_") + name;
   mkdir( plotsDir.c_str(), 0777);
 
-  //makeEffVsBeta(omtfTTAnalyzerDir, nameLegend);
+  //makeEffVsBeta(omtfTTAnalyzerDir, name);
 
-  makeCandidatesMatchingPlots(omtfTTAnalyzerDir, name, eventsCnt);
+  //makeCandidatesMatchingPlots(omtfTTAnalyzerDir, name, eventsCnt);
 
   makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, ptCut);
 
-  makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
+  //makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
 }
 
 void savePlot(string name, TVirtualPad* orgianlPad) {
-  if(name.find("SingleMuAlgo20") == string::npos && name.find("RateAnalyzer_HscpAlgoSoftCuts20") == string::npos && name.find("MuCandsMatchingAnalyzer_SingleMuAlgo10"))
+  if(name.find("SingleMuAlgo20") == string::npos &&
+     name.find("RateAnalyzer_HscpAlgoSoftCuts20") == string::npos &&
+     name.find("SingleMuAlgo5") == string::npos
+     )
     return;
 
   orgianlPad->SaveAs("test.png");
@@ -210,11 +221,23 @@ void savePlot(string name, TVirtualPad* orgianlPad) {
 
   //DrawPrelimLabel(canvas);
   //DrawLumiLabel(canvas, Lumi);
-  DrawCmsSimulationLabel(padCopy, "200");
+  DrawCmsSimulationLabel(padCopy);
+  DrawPuLabel(padCopy);
+
   SaveCanvas(canvas, plotsDir, name);
   cout<<__FUNCTION__<<":"<<__LINE__<<endl;
 
   canvas->Close();
+}
+
+TH1D* makeAbs(TH1D* orgHist) {
+  TH1D* absHist = new TH1D( (orgHist->GetName() + string("_abs")).c_str(), orgHist->GetTitle(), orgHist->GetNbinsX()/2., 0, orgHist->GetXaxis()->GetXmax());
+  for(unsigned int iBin = 0; iBin <= orgHist->GetNbinsX(); iBin++) {
+    absHist->Fill( abs( orgHist->GetBinCenter(iBin)), orgHist->GetBinContent(iBin));
+  }
+
+  absHist->Sumw2(false);
+  return absHist;
 }
 
 void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
@@ -234,6 +257,8 @@ void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
 
   TH1D* l1MuVsBetaGenSingleMu = nullptr;
 
+  string singleMuAlgoName = "EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_20_ptGenTo_100000";
+
   while ((key = (TKey*)next())) {
     if (key->IsFolder()) {
       omtfTTAnalyzerDir->cd(key->GetName());
@@ -245,27 +270,35 @@ void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
         TH2I* betaGenBetaL1Mu = (TH2I*)subdir->Get("betaGenBetaL1Mu");
 
         int bin0 = betaGenBetaL1Mu->GetYaxis()->FindBin(0.);
-        TH1D* l1MuVsBetaGen = betaGenBetaL1Mu->ProjectionX( ( string("l1MuVsBetaGen_") + to_string(color) ).c_str(), bin0, -1);
-        TH1D* allVsBetaGen = betaGenBetaL1Mu->ProjectionX("allVsBetaGen", -1, -1);
+        TH1* l1MuVsBetaGen = betaGenBetaL1Mu->ProjectionX( ( string("l1MuVsBetaGen_") + to_string(color) ).c_str(), bin0, -1);
+        TH1* allVsBetaGen = betaGenBetaL1Mu->ProjectionX("allVsBetaGen", -1, -1);
 
-        if(dirName == "EfficiencyAnalyser_SingleMuAlgo20") {
+        if(dirName == singleMuAlgoName) {
           l1MuVsBetaGenSingleMu = (TH1D*)l1MuVsBetaGen->Clone("l1MuVsBetaGenSingleMu");
         }
 
-        l1MuVsBetaGen->Divide(allVsBetaGen);
-
-        l1MuVsBetaGen->SetLineColor(color);
+        l1MuVsBetaGen->Sumw2(false);
+        allVsBetaGen->Sumw2(false);
+        std::string title = ("HSCP efficiency; generated #beta; efficiency");
+        TEfficiency* effVsBeta = makeEfficiency(*l1MuVsBetaGen, *allVsBetaGen, title, color);
 
         canvasBetaPlost->cd(1);
 
-        if(first)
-          l1MuVsBetaGen->Draw("hist");
-        else
-          l1MuVsBetaGen->Draw("histsame");
+        if(first) {
+          effVsBeta->Draw("APZ");
+          canvasBetaPlost->cd(1)->Update();
+        }
+        else {
+          effVsBeta->Draw("same PZ");
+          canvasBetaPlost->cd(1)->Update();
+        }
+
+        string fileName1 = (plotsDir + "/" + dirName + "_" + effVsBeta->GetName()  + "_algoEff_"+ string(".root"));
+        effVsBeta->SaveAs(fileName1.c_str() );
 
         cout<<"l1MuVsBetaGen->GetName() "<<l1MuVsBetaGen->GetName()<<endl;
 
-        legend->AddEntry(l1MuVsBetaGen, dirName.erase(0, 19).c_str());
+        legend->AddEntry(effVsBeta, dirName.erase(0, 19).c_str());
 
         first = false;
         color++;
@@ -298,23 +331,30 @@ void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
         TH1D* l1MuVsBetaGen = betaGenBetaL1Mu->ProjectionX("l1MuVsBetaGen2", bin0, -1);
         TH1D* allVsBetaGen = betaGenBetaL1Mu->ProjectionX("allVsBetaGen2", -1, -1);
 
-        if(dirName != "EfficiencyAnalyser_SingleMuAlgo20") {
+        if(dirName != singleMuAlgoName) {
           TH1D* l1MuVsBetaGenSum = (TH1D*)l1MuVsBetaGen->Clone("l1MuVsBetaGenSum");
           TH1D* allVsBetaGenSum = (TH1D*)allVsBetaGen->Clone("allVsBetaGenSum");
 
           l1MuVsBetaGenSum->Add(l1MuVsBetaGenSingleMu);
 
-          l1MuVsBetaGenSum->Divide(allVsBetaGenSum);
 
-          l1MuVsBetaGenSum->SetLineColor(color);
+          l1MuVsBetaGenSum->Sumw2(false);
+          allVsBetaGenSum->Sumw2(false);
+          std::string title = ("HSCP efficiency; generated #beta; efficiency");
+          TEfficiency* effVsBeta = makeEfficiency(*l1MuVsBetaGenSum, *allVsBetaGenSum, title, color);
 
           canvasBetaPlost->cd(3);
 
-          l1MuVsBetaGenSum->SetTitle("total efficiency vs. beta gen");
-          if(first)
-            l1MuVsBetaGenSum->Draw("hist");
-          else
-            l1MuVsBetaGenSum->Draw("histsame");
+          if(first) {
+            effVsBeta->Draw("APZ");
+          }
+          else {
+            effVsBeta->Draw("same PZ");
+          }
+          canvasBetaPlost->cd(3)->Update();
+
+          string fileName1 = (plotsDir + "/" + dirName + "_" + effVsBeta->GetName()  + "_totalEff_"+ string(".root"));
+          effVsBeta->SaveAs(fileName1.c_str() );
 
           first = false;
 
@@ -337,7 +377,7 @@ void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
 }
 
 
-TEfficiency* makeEfficiency(const TH1& passed,const TH1& total, std::string title, Color_t lineColor) {
+TEfficiency* makeEfficiency(const TH1& passed, const TH1& total, std::string title, Color_t lineColor) {
   if(TEfficiency::CheckConsistency(passed, total) ) {
     TEfficiency* efficiency = new TEfficiency(passed, total);
     //title = std::regex_replace(title, std::regex("\\muCandGenEtaMuons"), "tagging efficiency");
@@ -443,25 +483,27 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
 
   TH2I* ptGenPtTTMuonEv0= (TH2I*)omtfTTAnalyzerDir->Get("ptGenPtTTMuonEv0");
 
-  TH1D* ptGenPtTTMuonNomEv0 = ptGenPtTTMuonEv0->ProjectionX("ptGenPtTTMuonNomEv0", ptCut, -1);
+  TH1D* ptGenPtTTMuonNomEv0 = ptGenPtTTMuonEv0->ProjectionX("ptGenPtTTMuonNomEv0", ptGenPtTTMuonEv0->GetYaxis()->FindBin(ptCut), -1);
   TH1D* ptGenPtTTMuonDenomEv0 = ptGenPtTTMuonEv0->ProjectionX("ptGenPtTTMuonDenomEv0", 0, -1);
 
+  int binNum = ptGenPtTTMuonEv0->GetYaxis()->FindBin(ptCut);
+  cout<<"ptGenPtTTMuonEv0 FindBin("<<ptCut<<") = "<<binNum<<" GetBinLowEdge "<<ptGenPtTTMuonEv0->GetYaxis()->GetBinLowEdge(binNum)<<"  "<<ptGenPtTTMuonEv0->GetYaxis()->GetBinUpEdge(binNum)<<endl;
 /*  ptGenPtTTMuonNomEv0->SetTitle( ("ttTrack efficiency, Event 0, pT cut = " + to_string(ptCut -1) + " GeV").c_str() );
   ptGenPtTTMuonNomEv0->Divide(ptGenPtTTMuonDenomEv0);
   ptGenPtTTMuonNomEv0->GetYaxis()->SetTitle("efficiency");
   ptGenPtTTMuonNomEv0->SetLineColor(kBlue);*/
 
 
-  std::string title = ("ttTrack efficiency, Event 0, pT cut = " + to_string(ptCut -1) + " GeV" + "; generated p_{T} [GeV]; efficiency");
+  std::string title = ("ttTrack efficiency, Event 0, pT cut = " + to_string(ptCut) + " GeV" + "; generated p_{T} [GeV]; efficiency");
   TEfficiency* ttMuon_vs_ptGen_Ev0_Eff = makeEfficiency(*ptGenPtTTMuonNomEv0, *ptGenPtTTMuonDenomEv0, title, kBlue);
   ttMuon_vs_ptGen_Ev0_Eff->SetName("efficiency");
 
   TH2I* ptGenPtTTMuonEvPu= (TH2I*)omtfTTAnalyzerDir->Get("ptGenPtTTMuonEvPu");
 
-  TH1D* ptGenPtTTMuonNomEvPu = ptGenPtTTMuonEvPu->ProjectionX("ptGenPtTTMuonNomEvPu", ptCut, -1);
+  TH1D* ptGenPtTTMuonNomEvPu = ptGenPtTTMuonEvPu->ProjectionX("ptGenPtTTMuonNomEvPu", ptGenPtTTMuonEvPu->GetYaxis()->FindBin(ptCut), -1);
   TH1D* ptGenPtTTMuonDenomEvPu = ptGenPtTTMuonEvPu->ProjectionX("ptGenPtTTMuonDenomEvPu", 0, -1);
 
-  ptGenPtTTMuonNomEvPu->SetTitle( ("ttTrack efficiency, PU Events, pT cut = " + to_string(ptCut -1) + " GeV").c_str() );
+  ptGenPtTTMuonNomEvPu->SetTitle( ("ttTrack efficiency, PU Events, pT cut = " + to_string(ptCut) + " GeV").c_str() );
   ptGenPtTTMuonNomEvPu->Divide(ptGenPtTTMuonDenomEvPu);
   ptGenPtTTMuonNomEvPu->GetYaxis()->SetTitle("efficiency");
   ptGenPtTTMuonNomEvPu->SetLineColor(kBlue);
@@ -509,7 +551,8 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         cout<<"ttMuon_vs_ptGen_Ev0_Eff->GetPaintedGraph()->GetName() "<<ttMuon_vs_ptGen_Ev0_Eff->GetPaintedGraph()->GetName()<<endl;
         canvas1Eff->cd(2)->Update();
         TH2I* ptGenPtMuCandMuonsEv0 = (TH2I*)subdir->Get("ptGenPtMuCandMuonsEv0;1");
-        TH1D* ptGenPtMuCandMuonsEv0Nom = ptGenPtMuCandMuonsEv0->ProjectionX("ptGenPtMuCandMuonsEv0Nom", ptCut, -1);
+
+        TH1D* ptGenPtMuCandMuonsEv0Nom = ptGenPtMuCandMuonsEv0->ProjectionX("ptGenPtMuCandMuonsEv0Nom", ptGenPtMuCandMuonsEv0->GetYaxis()->FindBin(ptCut), -1);
         TH1D* ptGenPtMuCandMuonsEv0Denom = ptGenPtMuCandMuonsEv0->ProjectionX("ptGenPtMuCandMuonsEv0Denom", 0, -1);
 
         //ptGenPtOMtfMuonNom->Divide(ptGenPtOMtfMuonDenom); //TODO!!!! in principle ptGenPtOMtfMuonDenom and ptGenPtTTMuonDenom should be the same
@@ -521,7 +564,7 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
 */
 
 
-        title = ("muCand efficiency, Event 0, pT cut = " + to_string(ptCut -1) + " GeV" + "; generated p_{T} [GeV]; efficiency");
+        title = ("muCand efficiency, Event 0, pT cut = " + to_string(ptCut) + " GeV" + "; generated p_{T} [GeV]; efficiency");
         TEfficiency* muCand_vs_ptGen_Ev0_Eff = makeEfficiency(*ptGenPtMuCandMuonsEv0Nom, *ptGenPtMuCandMuonsEv0Denom, title, kRed);
         muCand_vs_ptGen_Ev0_Eff->Draw("same PZ");
 
@@ -537,12 +580,12 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
 
 
         TH2I* ptGenPtMuCandMuonsPu = (TH2I*)subdir->Get("ptGenPtMuCandMuonsPu;1");
-        TH1D* ptGenPtMuCandMuonsPuNom = ptGenPtMuCandMuonsPu->ProjectionX("ptGenPtMuCandMuonsPuNom", ptCut, -1);
+        TH1D* ptGenPtMuCandMuonsPuNom = ptGenPtMuCandMuonsPu->ProjectionX("ptGenPtMuCandMuonsPuNom", ptGenPtMuCandMuonsPu->GetYaxis()->FindBin(ptCut), -1);
         TH1D* ptGenPtMuCandMuonsPuDenom = ptGenPtMuCandMuonsPu->ProjectionX("ptGenPtMuCandMuonsPuDenom", 0, -1);
 
         //ptGenPtOMtfMuonNom->Divide(ptGenPtOMtfMuonDenom); //TODO!!!! in principle ptGenPtOMtfMuonDenom and ptGenPtTTMuonDenom should be the same
         ptGenPtMuCandMuonsPuNom->Divide(ptGenPtMuCandMuonsPuDenom);
-        ptGenPtMuCandMuonsPuNom->SetTitle( ("ttTrack and OMTF efficiency, PU Events, pT cut = " + to_string(ptCut - 1) + " GeV").c_str() );
+        ptGenPtMuCandMuonsPuNom->SetTitle( ("ttTrack and OMTF efficiency, PU Events, pT cut = " + to_string(ptCut) + " GeV").c_str() );
         ptGenPtMuCandMuonsPuNom->SetLineColor(kRed);
         ptGenPtMuCandMuonsPuNom->Draw("samehist");
 
@@ -552,16 +595,20 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         canvas1Eff->cd(3)->SetGridy();
 
         TH2I* ptGenPtMuCandMuonsEv0Overlap = (TH2I*)subdir->Get("ptGenPtMuCandMuonsEv0Overlap;1");
-        TH1D* ptGenPtMuCandMuonsEv0OverlapNom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapNom", ptCut, -1);
+        TH1D* ptGenPtMuCandMuonsEv0OverlapNom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapNom", ptGenPtMuCandMuonsEv0Overlap->GetYaxis()->FindBin(ptCut), -1);
         TH1D* ptGenPtMuCandMuonsEv0OverlapDenom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapDenom", 0, -1);
 
-        title = ("muCand efficiency overlap region, Event 0, pT cut = " + to_string(ptCut -1) + " GeV" + "; generated p_{T} [GeV]; efficiency");
+        title = ("muCand efficiency overlap region, Event 0, pT cut = " + to_string(ptCut) + " GeV" + "; generated p_{T} [GeV]; efficiency");
         TEfficiency* muCandEv0Overlap_EffVsPtGen = makeEfficiency(*ptGenPtMuCandMuonsEv0OverlapNom, *ptGenPtMuCandMuonsEv0OverlapDenom, title, kRed);
         muCandEv0Overlap_EffVsPtGen->Draw("APZ");
 
         DrawLabel(canvas1Eff->cd(3), label);
         savePlot(canvasName + "_effVsPt", canvas1Eff->cd(3) );
 
+
+        string fileName1 = (plotsDir + "/" + dirName + "_" + muCandEv0Overlap_EffVsPtGen->GetName() + "_ptCut_" + to_string(ptCut) + string(".root"));
+        cout<<"saving hist as "<<fileName1<<endl;
+        muCandEv0Overlap_EffVsPtGen->SaveAs(fileName1.c_str() );
 
         //--------------------------------
 
@@ -589,13 +636,10 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         {
           if(TEfficiency::CheckConsistency(*ttMuonGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts) )
           {
-            TEfficiency* ttMuonEta_ptCut_Eff = new TEfficiency(*ttMuonGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts);
+            TEfficiency* ttMuonEta_ptCut_Eff = makeEfficiency(*ttMuonGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts, title, kBlue);
+
             std::string title = ttMuonGenEtaMuons_withPtCuts->GetTitle();
             //title = std::regex_replace(title, std::regex("\\muCandGenEtaMuons"), "tagging efficiency");
-            ttMuonEta_ptCut_Eff->SetTitle(title.c_str());
-            ttMuonEta_ptCut_Eff->SetStatisticOption(TEfficiency::EStatOption::kBUniform );
-            ttMuonEta_ptCut_Eff->SetPosteriorMode();
-            ttMuonEta_ptCut_Eff->SetLineColor(kBlue);
             ttMuonEta_ptCut_Eff->Draw("APZ");
             ttMuonEta_ptCut_Eff->SetTitle((title + "; generated #eta; efficiency").c_str());
             canvas1Eff->Update();
@@ -605,14 +649,45 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
 
           if(TEfficiency::CheckConsistency(*muCandGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts) )
           {
-            TEfficiency* muCandGenEtaMuons_ptCut_Eff = new TEfficiency(*muCandGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts);
-            std::string title = muCandGenEtaMuons_ptCut_Eff->GetTitle();
-            //title = std::regex_replace(title, std::regex("\\muCandGenEtaMuons"), "tagging efficiency");
-            muCandGenEtaMuons_ptCut_Eff->SetTitle(title.c_str());
-            muCandGenEtaMuons_ptCut_Eff->SetStatisticOption(TEfficiency::EStatOption::kBUniform );
-            muCandGenEtaMuons_ptCut_Eff->SetPosteriorMode();
-            muCandGenEtaMuons_ptCut_Eff->SetLineColor(kRed);
+            std::string title = " ";
+            TEfficiency* muCandGenEtaMuons_ptCut_Eff = makeEfficiency(*muCandGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts , title, kRed);
             muCandGenEtaMuons_ptCut_Eff->Draw("same PZ");
+
+            string fileName1 = (plotsDir + "/" + dirName + "_" + muCandGenEtaMuons_ptCut_Eff->GetName() + string(".root"));
+            cout<<"saving hist as "<<fileName1<<endl;
+            muCandGenEtaMuons_ptCut_Eff->SaveAs(fileName1.c_str() );
+
+            {
+              TH1D* muCandGenEtaMuons_withPtCuts_overlap = (TH1D*)muCandGenEtaMuons_withPtCuts->Clone( (muCandGenEtaMuons_withPtCuts->GetName() + string("_overlap")).c_str() );
+              TH1D* gpMuonGenEtaMuons_withPtCuts_overlap = (TH1D*)gpMuonGenEtaMuons_withPtCuts->Clone( (gpMuonGenEtaMuons_withPtCuts->GetName() + string("_overlap")).c_str() );
+
+              for(int iBin = 1; iBin <= gpMuonGenEtaMuons_withPtCuts_overlap->GetNbinsX(); iBin++) {
+                if( abs(gpMuonGenEtaMuons_withPtCuts_overlap->GetBinCenter(iBin)) < 0.8 || abs(gpMuonGenEtaMuons_withPtCuts_overlap->GetBinCenter(iBin)) > 1.25) {
+                  gpMuonGenEtaMuons_withPtCuts_overlap->SetBinContent(iBin, 0);
+                  muCandGenEtaMuons_withPtCuts_overlap->SetBinContent(iBin, 0);
+                }
+              }
+
+              TEfficiency* muCandGenEtaMuons_ptCut_Eff_overlap  = makeEfficiency(*muCandGenEtaMuons_withPtCuts_overlap , *gpMuonGenEtaMuons_withPtCuts_overlap , title, kRed);
+              //muCandGenEtaMuons_ptCut_Eff_overlap->Draw("APZ");
+
+              string fileName1 = (plotsDir + "/" + dirName + "_" + muCandGenEtaMuons_ptCut_Eff_overlap->GetName() + string(".root"));
+              cout<<"!!!!!!! saving hist as "<<fileName1<<endl;
+              muCandGenEtaMuons_ptCut_Eff_overlap->SaveAs(fileName1.c_str() );
+
+
+              TH1* muCandGenEtaMuons_withPtCuts_overlap_abs = makeAbs(muCandGenEtaMuons_withPtCuts_overlap);
+              TH1* gpMuonGenEtaMuons_withPtCuts_overlap_abs = makeAbs(gpMuonGenEtaMuons_withPtCuts_overlap);
+
+
+              TEfficiency* muCandGenEtaMuons_ptCut_Eff_overlap_abs  = makeEfficiency(*muCandGenEtaMuons_withPtCuts_overlap_abs , *gpMuonGenEtaMuons_withPtCuts_overlap_abs , title, kRed);
+              //muCandGenEtaMuons_ptCut_Eff_overlap->Draw("APZ");
+
+              fileName1 = (plotsDir + "/" + dirName + "_" + muCandGenEtaMuons_ptCut_Eff_overlap_abs->GetName() + string(".root"));
+              muCandGenEtaMuons_ptCut_Eff_overlap_abs->SaveAs(fileName1.c_str() );
+              //muCandGenEtaMuons_withPtCuts_overlap_abs->SaveAs(fileName1.c_str() );
+              //gpMuonGenEtaMuons_withPtCuts_overlap_abs->SaveAs(fileName1.c_str() );
+            }
           }
         }
 
@@ -665,6 +740,8 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
 
 //*************************************************** rate ********************************************
 void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int color, int ptCut) {
+  cout<<"lhcFillingRatio "<<lhcFillingRatio<<endl;
+
   TH2I* etaGenPtGenBx1 = (TH2I*)omtfTTAnalyzerDir->Get("etaGenPtGenBx1");
   TH1D* ptGenBx1 = etaGenPtGenBx1->ProjectionY("ptGenBx1");
 
@@ -682,7 +759,7 @@ void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int co
 
       if(dirName.find("RateAnalyzer_") != string::npos) {
         TDirectory *subdir = gDirectory;
-        cout<<"making plots for "<<dirName<<endl;
+        cout<<"\nmaking plots for "<<dirName<<endl;
         string canvasName = string(nameLegend)  + "_" + dirName;
         TCanvas* canvasRate1 = new TCanvas((string("canvas_") + canvasName).c_str(), canvasName.c_str(), 1500, 1200);
         canvasRate1->Divide(2, 2);
@@ -719,9 +796,53 @@ void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int co
         canvasRate1->cd(2)->SetGridx();
         canvasRate1->cd(2)->SetGridy();
 
-        cout<<"lhcFillingRatio "<<lhcFillingRatio<<endl;
-        double scale = 1./eventsCnt * 40000000 * lhcFillingRatio;
+        ;
+        double scale = 1./eventsCnt * lhcFreq * lhcFillingRatio;
         TH1* muCandPt_rateCumul = muCandPt->GetCumulative(false, "_rate");
+
+        if(1) {
+          TH1* muCandPt_rateCumul_copy = (TH1*)muCandPt_rateCumul->Clone( (muCandPt_rateCumul->GetName() + string("_copy")).c_str() );
+          TH1* allEventsHist = (TH1*)muCandPt_rateCumul_copy->Clone("allEventsHist");
+          for(int iBin = 0; iBin < allEventsHist->GetNbinsX(); iBin++) {
+            allEventsHist->SetBinContent(iBin, eventsCnt);
+          }
+          muCandPt_rateCumul_copy->Sumw2(false);
+          allEventsHist->Sumw2(false);
+
+          canvasRate1->cd(3);
+          canvasRate1->cd(3)->SetLogy();
+          canvasRate1->cd(3)->SetGridx();
+          canvasRate1->cd(3)->SetGridy();
+          string title = ("; ttTrack p_{T} [GeV]; rate [Hz]");
+          TEfficiency* muCandPt_rateCumul_withTEff = makeEfficiency(*muCandPt_rateCumul_copy, *allEventsHist, title, kRed );
+
+          muCandPt_rateCumul_withTEff->Draw("APZ");
+          canvasRate1->cd(3)->Update();
+          muCandPt_rateCumul_withTEff->GetPaintedGraph()->GetXaxis()->SetRangeUser(0, 100);
+          //muCandPt_rateCumul_withTEff->GetPaintedGraph()->GetYaxis()->SetRangeUser(100, 50000000);
+
+          TGraphAsymmErrors* paintedGraph = (TGraphAsymmErrors*) (muCandPt_rateCumul_withTEff->GetPaintedGraph()->Clone( (muCandPt_rateCumul_withTEff->GetName() + string("_copy")).c_str()  ) );
+
+          for (int i=0;i < paintedGraph->GetN();i++) {
+            paintedGraph->GetY()[i] *= lhcFreq * lhcFillingRatio;
+            paintedGraph->GetEYhigh()[i] *= lhcFreq * lhcFillingRatio;
+            paintedGraph->GetEYlow()[i] *= lhcFreq * lhcFillingRatio;
+          }
+
+          canvasRate1->cd(4);
+          canvasRate1->cd(4)->SetLogy();
+          canvasRate1->cd(4)->SetGridx();
+          canvasRate1->cd(4)->SetGridy();
+          paintedGraph->Draw("APZ");
+          canvasRate1->cd(4)->Update();
+          paintedGraph->GetXaxis()->SetRangeUser(0, 100);
+          paintedGraph->GetYaxis()->SetRangeUser(100, 50000000);
+          canvasRate1->cd(4)->Update();
+
+        }
+
+
+        canvasRate1->cd(2);
         muCandPt_rateCumul->SetTitle(canvasRate1->GetTitle());
         muCandPt_rateCumul->Sumw2(false);
         muCandPt_rateCumul->Scale(scale);
@@ -733,7 +854,9 @@ void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int co
         muCandPt_rateCumul->GetXaxis()->SetRangeUser(0, 100);
         muCandPt_rateCumul->GetYaxis()->SetRangeUser(100, 50000000);
 
-        cout<<" rate at 20GeV "<<muCandPt_rateCumul->GetBinContent(muCandPt_rateCumul->FindBin(20))<<" error "<<muCandPt_rateCumul->GetBinError(muCandPt_rateCumul->FindBin(20))<<endl; //TODO <<<<<<<<<<<<<
+        cout<<" rate at pt_cut 20GeV "<<muCandPt_rateCumul->GetBinContent(muCandPt_rateCumul->FindBin(20))<<" error "<<muCandPt_rateCumul->GetBinError(muCandPt_rateCumul->FindBin(20))<<endl; //TODO <<<<<<<<<<<<<
+        cout<<" rate at pt_cut 25GeV "<<muCandPt_rateCumul->GetBinContent(muCandPt_rateCumul->FindBin(25))<<" error "<<muCandPt_rateCumul->GetBinError(muCandPt_rateCumul->FindBin(25))<<endl<<endl; //TODO <<<<<<<<<<<<<
+
 
         TH1* muCandPtFakes_rateCumul = muCandPtFakes->GetCumulative(false, "_rate");
         muCandPtFakes_rateCumul->Sumw2(false);
@@ -757,6 +880,10 @@ void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int co
         //canvas1->cd(6)->SetLogy();
 
         savePlot(canvasName + "_EventsRate", canvasRate1->cd(2) );
+
+        string fileName1 = (plotsDir + "/" + dirName + "_" + muCandPt_rateCumul->GetName()  + string(".root"));
+        cout<<"saving hist as "<<fileName1<<endl;
+        muCandPt_rateCumul->SaveAs(fileName1.c_str() );
 
 /*        ////////////////////////////////
         canvasRate1->cd(3);
@@ -838,7 +965,7 @@ void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* name
 
   next.Reset();
 
-  double scale = 1./eventsCnt * 40000000 * lhcFillingRatio;
+  double scale = 1./eventsCnt * lhcFreq * lhcFillingRatio;
 
   while ((key = (TKey*)next())) {
     if (key->IsFolder()) {
@@ -974,8 +1101,8 @@ void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* name
               candPtCumulCopy->Scale(scale);
               candPtCumulCopy->Draw("LEsame");
 
-              cout<<"candPtCumul error "<<candPtCumul->GetBinError(15)<<endl;
-              cout<<"candPtCumulCopy error"<<candPtCumulCopy->GetBinError(15)<<endl;
+              //cout<<"candPtCumul error "<<candPtCumul->GetBinError(15)<<endl;
+              //cout<<"candPtCumulCopy error"<<candPtCumulCopy->GetBinError(15)<<endl;
             }
 
             ////////////////////////////////////////

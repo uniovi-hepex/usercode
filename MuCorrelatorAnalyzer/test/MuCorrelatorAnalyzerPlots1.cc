@@ -48,6 +48,7 @@ double lhcFillingRatio = 2748./3564.;
 
 double eventsCnt = 0;
 
+
 int MuCorrelatorAnalyzerPlots1() {
   gStyle->SetOptStat(0);
 
@@ -177,7 +178,7 @@ void savePlot(string name, TVirtualPad* orgianlPad) {
   if(name.find("SingleMuAlgo20") == string::npos && name.find("RateAnalyzer_HscpAlgoSoftCuts20") == string::npos && name.find("MuCandsMatchingAnalyzer_SingleMuAlgo10"))
     return;
 
-  orgianlPad->SaveAs("test.png");
+  //orgianlPad->SaveAs("test.png");
   TVirtualPad* padCopy = (TVirtualPad*)orgianlPad->Clone((orgianlPad->GetName() + string("_copy")).c_str());
   //padCopy = orgianlPad;
   TCanvas* canvas = CreateCanvas(name, false, true);
@@ -1025,8 +1026,8 @@ void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* name
               candPtCumulCopy->Scale(scale);
               candPtCumulCopy->Draw("LEsame");
 
-              cout<<"candPtCumul error "<<candPtCumul->GetBinError(15)<<endl;
-              cout<<"candPtCumulCopy error"<<candPtCumulCopy->GetBinError(15)<<endl;
+              //cout<<"candPtCumul error "<<candPtCumul->GetBinError(15)<<endl;
+              //cout<<"candPtCumulCopy error"<<candPtCumulCopy->GetBinError(15)<<endl;
             }
 
             ////////////////////////////////////////
