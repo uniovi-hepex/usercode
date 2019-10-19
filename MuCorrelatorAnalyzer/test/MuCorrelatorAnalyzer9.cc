@@ -63,6 +63,8 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
 #include "DataFormats/L1TMuon/interface/BayesMuCorrelatorTrack.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
 
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuCorrelatorConfig.h"
 #include "L1Trigger/L1TMuonBayes/plugins/L1TMuonBayesMuCorrelatorTrackProducer.h"
@@ -137,7 +139,8 @@ public:
 
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        abs(muCorrelatorTrack.getEta() ) < 0.82)
+        ( (muCorrelatorTrack.getRegion() == 0 && abs(muCorrelatorTrack.getEta() ) < 0.82 ) ||
+           muCorrelatorTrack.getRegion() == 1 ) )
       return true;
     return false;
   }
@@ -150,7 +153,8 @@ public:
 
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        abs(muCorrelatorTrack.getEta() ) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )
+        ( (muCorrelatorTrack.getRegion() == 0 && abs(muCorrelatorTrack.getEta()) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )  ||
+            muCorrelatorTrack.getRegion() == 2 ) )
       return true;
     return false;
   }
@@ -163,7 +167,8 @@ public:
 
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        abs(muCorrelatorTrack.getEta() ) >= 1.24 )
+        ( (muCorrelatorTrack.getRegion() == 0 && abs(muCorrelatorTrack.getEta() ) >= 1.24 ) ||
+            muCorrelatorTrack.getRegion() == 3 ) )
       return true;
     return false;
   }
@@ -1203,17 +1208,21 @@ private:
 
   TH2I* ttTracksPerMuonTPvsPtGen = nullptr;
 
-  edm::EDGetTokenT<l1t::BayesMuCorrTrackBxCollection> inputMuCorr;
+  edm::EDGetTokenT<l1t::BayesMuCorrTrackBxCollection> bayesMuCorrToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<edm::SimVertexContainer> vertexSim;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
+
+  edm::EDGetTokenT<l1t::L1TkMuonParticleCollection> l1TkMuonToken;
 };
 
 
 MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
 : parameterSet(conf), eventCount(0)
 {
-  inputMuCorr = consumes<l1t::BayesMuCorrTrackBxCollection>(edm::InputTag("simBayesMuCorrelatorTrackProducer", L1TMuonBayesMuCorrelatorTrackProducer::allTracksProductName)); //
+  bayesMuCorrToken = consumes<l1t::BayesMuCorrTrackBxCollection>(edm::InputTag("simBayesMuCorrelatorTrackProducer", L1TMuonBayesMuCorrelatorTrackProducer::allTracksProductName)); //
+
+  l1TkMuonToken = consumes<l1t::L1TkMuonParticleCollection>(edm::InputTag("L1TkMuons")); //
 
 
   simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits")); //TODO which is correct?
@@ -1693,7 +1702,7 @@ void MuCorrelatorAnalyzer::analyze(
   event.getByToken(genParticleToken, genPartHandle);
 
 
-  LogTrace("l1tMuBayesEventPrint") << "\MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" vertexSim "<<simVx->size()<< endl;
+  LogTrace("l1tMuBayesEventPrint") << "\nMuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" vertexSim "<<simVx->size()<< endl;
 
   // L1 tracks
   edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTrackHandle;
@@ -1715,9 +1724,39 @@ void MuCorrelatorAnalyzer::analyze(
   //event.getByToken(inputOMTF, l1Omtf);
   //cout << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" omtfCands->size(bxNumber) "<<omtfCands->size()<< endl;
 
-  edm::Handle<l1t::BayesMuCorrTrackBxCollection> muCorrTracksHandle;
-  event.getByToken(inputMuCorr, muCorrTracksHandle);
-  auto muCorrTracks = muCorrTracksHandle.product();
+  const l1t::BayesMuCorrTrackBxCollection* muCorrTracks = nullptr;
+  l1t::BayesMuCorrTrackBxCollection l1TkMuonBayesTracks;//must be here because muCorrTracks can be a pointer to l1TkMuonBayesTracks
+
+  if(0) { //TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    edm::Handle<l1t::BayesMuCorrTrackBxCollection> muCorrTracksHandle;
+    event.getByToken(bayesMuCorrToken, muCorrTracksHandle);
+    muCorrTracks = muCorrTracksHandle.product();
+  }
+  else { //ugly solution ot use the same alalyser for the the l1TkMuonTracks
+    edm::Handle<l1t::L1TkMuonParticleCollection> l1TkMuonTracksHandle;
+    event.getByToken(l1TkMuonToken, l1TkMuonTracksHandle);
+
+    auto& l1TkMuonTracks = *(l1TkMuonTracksHandle.product());
+    l1TkMuonBayesTracks.setBXRange(0, 0);
+
+    for(auto& l1TkMuonTrack : l1TkMuonTracks) {
+      LogTrace("l1tMuBayesEventPrint") << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__
+          <<" l1TkMuonTrack muonDetector "<<" "<<l1TkMuonTrack.muonDetector()<<" eta "<<l1TkMuonTrack.eta()<<" pt "<<l1TkMuonTrack.pt()<< endl;
+
+      l1t::BayesMuCorrelatorTrack bayesTrack(l1TkMuonTrack.getTrkPtr());
+      bayesTrack.setCandidateType(l1t::BayesMuCorrelatorTrack::CandidateType::fastTrack);
+      bayesTrack.setHwQual(12);
+      bayesTrack.setRegion(l1TkMuonTrack.muonDetector());
+
+      if(l1TkMuonTrack.muonDetector() == 2) //TODO omtf only !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
+       l1TkMuonBayesTracks.push_back(0, bayesTrack);
+    }
+
+    //LogTrace("l1tMuBayesEventPrint") << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__<<" l1TkMuonBayesTracks.size() "<<l1TkMuonBayesTracks.size()<<" size(0) "<<l1TkMuonBayesTracks.size(0)<<endl;
+
+    muCorrTracks = &l1TkMuonBayesTracks;
+  }
+
 
   int bxNumber = 0;
 
@@ -1817,8 +1856,7 @@ void MuCorrelatorAnalyzer::analyze(
       }
     }
 
-    if(analysisType == "withTrackPart")
-      hscpAnalysis(event, tpPtr, muCorrTracksHandle);
+    //if(analysisType == "withTrackPart") hscpAnalysis(event, tpPtr, muCorrTracksHandle);
 
     if (abs(tpPtr->pdgId()) == 1000015) {
       hscpGenEta->Fill(tpPtr->momentum().eta());

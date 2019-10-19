@@ -39,7 +39,7 @@ PlotElements makeEfficiencyPlot(string canvasName, TFile* omtf_tdr_effs, string 
   plotElements.canvas = CreateCanvas(canvasName.c_str(), false, true);
   plotElements.canvas->cd();
 
-  if(canvasName.find("effVsEta") != string::npos)
+  if(canvasName.find("effVsEta") != string::npos || canvasName.find("effVsAbsEta") != string::npos)
     plotElements.omtfEff->SetTitle(";generated #eta;Efficiency");
   else
     plotElements.omtfEff->SetTitle(";generated p_{T};Efficiency");
@@ -97,7 +97,7 @@ void MakePlots()
   makeEfficiencyPlot( string("canvas_effVsAbsEta_L1ptCut5_ptGenFrom_7_ptGenTo_15"), omtf_tdr_effs_abseta, "hEta7_15_q12_cut5PU200",
       "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo5_ptGenFrom_7_ptGenTo_15_gpMuonGenEtaMuons_withPtCuts_overlap_abs_clone.root",
                                                                                        "gpMuonGenEtaMuons_withPtCuts_overlap_abs_clone", 0.8, 1.2,
-                                                                                       "7 < p_{T}^{gen} < 15 GeV, L1 p_{T} #geq 20 GeV");
+                                                                                       "7 < p_{T}^{gen} < 15 GeV, L1 p_{T} #geq 5 GeV");
 
  // return;
 
@@ -124,7 +124,7 @@ void MakePlots()
   makeEfficiencyPlot( string("canvas_effVsEta_L1ptCut5_ptGenFrom_7_ptGenTo_15"), omtf_tdr_effs, "hEta7_15_q12_cut5PU200",
       "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo5_ptGenFrom_7_ptGenTo_15_gpMuonGenEtaMuons_withPtCuts_overlap_clone.root",
                                                                                        "gpMuonGenEtaMuons_withPtCuts_overlap_clone", -1.5, 1.5,
-                                                                                       "7 < p_{T}^{gen} < 15 GeV, L1 p_{T} #geq 20 GeV");
+                                                                                       "7 < p_{T}^{gen} < 15 GeV, L1 p_{T} #geq 5 GeV");
 
 
 
