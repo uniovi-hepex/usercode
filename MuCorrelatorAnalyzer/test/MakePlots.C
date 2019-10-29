@@ -27,11 +27,18 @@ struct PlotElements {
   TCanvas* canvas = nullptr;
   TEfficiency* omtfEff =  nullptr;
   TEfficiency* correlEff =  nullptr;
+  TEfficiency* l1TkMuEff =  nullptr;
+
   TLegend* legend = nullptr;
 };
 
+int lineWidth = 2;
 
-PlotElements makeEfficiencyPlot(string canvasName, TFile* omtf_tdr_effs, string omtfEffName, string corrFileName, string corrEffName, double xRangeFrom, double xRangeTo, string header) {
+PlotElements makeEfficiencyPlot(string canvasName, TFile* omtf_tdr_effs, string omtfEffName,
+    string corrFileName, string corrEffName,
+    string bayesCorrDir, string tkMuDir,
+    double xRangeFrom, double xRangeTo, string header)
+{
   PlotElements plotElements;
 
   plotElements.omtfEff = (TEfficiency*)omtf_tdr_effs->Get(omtfEffName.c_str());
@@ -39,10 +46,16 @@ PlotElements makeEfficiencyPlot(string canvasName, TFile* omtf_tdr_effs, string 
   plotElements.canvas = CreateCanvas(canvasName.c_str(), false, true);
   plotElements.canvas->cd();
 
-  if(canvasName.find("effVsEta") != string::npos || canvasName.find("effVsAbsEta") != string::npos)
+  if(canvasName.find("effVsEta") != string::npos)
     plotElements.omtfEff->SetTitle(";generated #eta;Efficiency");
+  else if(canvasName.find("effVsAbsEta") != string::npos)
+    plotElements.omtfEff->SetTitle(";generated #left|#eta#right|;Efficiency");
   else
     plotElements.omtfEff->SetTitle(";generated p_{T};Efficiency");
+
+  plotElements.omtfEff->SetLineWidth(lineWidth);
+  plotElements.omtfEff->SetMarkerStyle(20);
+  plotElements.omtfEff->SetMarkerColor(kBlack);
 
   plotElements.omtfEff->Draw("APZ");
   plotElements.canvas->Update();
@@ -51,23 +64,41 @@ PlotElements makeEfficiencyPlot(string canvasName, TFile* omtf_tdr_effs, string 
   plotElements.canvas->Update();
 
 
-  TFile* corrEffVsPt = new TFile(corrFileName.c_str());
+  TFile* corrEffVsPt = new TFile((bayesCorrDir + corrFileName).c_str());
 
   plotElements.correlEff = (TEfficiency*)corrEffVsPt->Get(corrEffName.c_str());
+  plotElements.correlEff->SetLineWidth(lineWidth);
+  plotElements.correlEff->SetMarkerStyle(22);
+  plotElements.correlEff->SetMarkerColor(kRed);
   plotElements.correlEff->Draw("same PZ");
 
   DrawCmsSimulationLabel(plotElements.canvas);
   DrawPuLabel(plotElements.canvas, "200 PU");
 
-  TLegend* leg = new TLegend(0.33, 0.14,0.77,0.28);
+  TLegend* leg = new TLegend(0.33, 0.13,0.77,0.38);
   leg->SetHeader(header.c_str());
   //leg->SetBorderSize(0);
-  leg->SetFillStyle(1001);
+  leg->SetFillStyle(0);
+  leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
+  leg->SetMargin(0.2);
   //leg->SetHeader("here is a beautiful header");x
-  leg->AddEntry(plotElements.correlEff , "muon correlator", "le");
+  leg->AddEntry(plotElements.correlEff , "Track + Stubs", "lep");
   leg->AddEntry(plotElements.omtfEff, "OMTF", "lep");
   leg->Draw("same");
+
+  if(tkMuDir.size() != 0) {
+    TFile* l1TkMuEffVsPt = new TFile((tkMuDir + corrFileName).c_str());
+
+    plotElements.l1TkMuEff = (TEfficiency*)l1TkMuEffVsPt->Get(corrEffName.c_str());
+    plotElements.l1TkMuEff->SetLineColor(kGreen +2);
+    plotElements.l1TkMuEff->SetLineWidth(lineWidth);
+    plotElements.l1TkMuEff->SetMarkerStyle(23);
+    plotElements.l1TkMuEff->SetMarkerColor(kGreen +2);
+    plotElements.l1TkMuEff->Draw("same PZ");
+    leg->AddEntry(plotElements.l1TkMuEff, "Track + OMTF", "lep");
+  }
+
   plotElements.canvas->Update();
 
   plotElements.canvas->SaveAs( (outPlotsdir + canvasName + ".pdf").c_str());
@@ -88,65 +119,94 @@ void MakePlots()
 
 
   makeEfficiencyPlot( string("canvas_effVsAbsEta_L1ptCut20_ptGenFrom_25_ptGenTo_10000_fullCorr"), omtf_tdr_effs_abseta, "hEta20_q12_cut20PU200",
-      "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_gpMuonGenEtaMuons_withPtCuts_overlap_abs_clone.root",
-                                                                                            "gpMuonGenEtaMuons_withPtCuts_overlap_abs_clone", 0.8, 1.2,
+                       "EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_gpMuonGenEtaMuons_withPtCuts_overlap_abs_clone.root",
+                                                                                                             "gpMuonGenEtaMuons_withPtCuts_overlap_abs_clone",
+                                                                                                             "plots_MuFlatPt_PU200_t12/",
+                                                                                                             "plots_MuFlatPt_PU200_v1_t15_bayesOMTFonly/",
+                                                                                            0.8, 1.2,
                                                                                             "p_{T}^{gen} > 25 GeV, L1 p_{T} #geq 20 GeV");
 
 
-
   makeEfficiencyPlot( string("canvas_effVsAbsEta_L1ptCut5_ptGenFrom_7_ptGenTo_15"), omtf_tdr_effs_abseta, "hEta7_15_q12_cut5PU200",
-      "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo5_ptGenFrom_7_ptGenTo_15_gpMuonGenEtaMuons_withPtCuts_overlap_abs_clone.root",
-                                                                                       "gpMuonGenEtaMuons_withPtCuts_overlap_abs_clone", 0.8, 1.2,
+                       "EfficiencyAnalyser_SingleMuAlgo5_ptGenFrom_7_ptGenTo_15_gpMuonGenEtaMuons_withPtCuts_overlap_abs_clone.root",
+                                                                                                        "gpMuonGenEtaMuons_withPtCuts_overlap_abs_clone",
+                                                                                                        "plots_MuFlatPt_PU200_t12/",
+                                                                                                        "plots_MuFlatPt_PU200_v1_t15_bayesOMTFonly/",
+                                                                                       0.8, 1.2,
                                                                                        "7 < p_{T}^{gen} < 15 GeV, L1 p_{T} #geq 5 GeV");
 
  // return;
 
 
   makeEfficiencyPlot( string("canvas_effVsEta_L1ptCut20_ptGenFrom_25_ptGenTo_10000_fullCorr"), omtf_tdr_effs, "hEta20_q12_cut20PU200",
-      "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_gpMuonGenEtaMuons_withPtCuts_clone.root",
-                                                                                            "gpMuonGenEtaMuons_withPtCuts_clone", -2.4, 2.4,
+                       "EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_gpMuonGenEtaMuons_withPtCuts_clone.root",
+                                                                                                             "gpMuonGenEtaMuons_withPtCuts_clone",
+                                                                                                             "plots_MuFlatPt_PU200_t12/",
+                                                                                                             "plots_MuFlatPt_PU200_v1_t15_bayesOMTFonly/",
+                                                                                            -2.4, 2.4,
                                                                                             "p_{T}^{gen} > 25 GeV, L1 p_{T} #geq 20 GeV");
 
 
   makeEfficiencyPlot( string("canvas_effVsEta_L1ptCut5_ptGenFrom_7_ptGenTo_15_fullCorr"), omtf_tdr_effs, "hEta7_15_q12_cut5PU200",
-      "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo5_ptGenFrom_7_ptGenTo_15_gpMuonGenEtaMuons_withPtCuts_clone.root",
-                                                                                       "gpMuonGenEtaMuons_withPtCuts_clone", -2.4, 2.4,
+                       "EfficiencyAnalyser_SingleMuAlgo5_ptGenFrom_7_ptGenTo_15_gpMuonGenEtaMuons_withPtCuts_clone.root",
+                                                                                       "gpMuonGenEtaMuons_withPtCuts_clone",
+                                                                                       "plots_MuFlatPt_PU200_t12/",
+                                                                                       "plots_MuFlatPt_PU200_v1_t15_bayesOMTFonly/",
+                                                                                       -2.4, 2.4,
                                                                                        "7 < p_{T}^{gen} < 15 GeV, L1 p_{T} #geq 5 GeV");
 
 
 
   makeEfficiencyPlot( string("canvas_effVsEta_L1ptCut20_ptGenFrom_25_ptGenTo_10000"), omtf_tdr_effs, "hEta20_q12_cut20PU200",
-      "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_gpMuonGenEtaMuons_withPtCuts_overlap_clone.root",
-                                                                                            "gpMuonGenEtaMuons_withPtCuts_overlap_clone", -1.5, 1.5,
+      "EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_gpMuonGenEtaMuons_withPtCuts_overlap_clone.root",
+                                                                                            "gpMuonGenEtaMuons_withPtCuts_overlap_clone",
+                                                                                            "plots_MuFlatPt_PU200_t12/",
+                                                                                            "plots_MuFlatPt_PU200_v1_t15_bayesOMTFonly/",
+                                                                                            -1.5, 1.5,
                                                                                             "p_{T}^{gen} > 25 GeV, L1 p_{T} #geq 20 GeV");
 
 
   makeEfficiencyPlot( string("canvas_effVsEta_L1ptCut5_ptGenFrom_7_ptGenTo_15"), omtf_tdr_effs, "hEta7_15_q12_cut5PU200",
-      "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo5_ptGenFrom_7_ptGenTo_15_gpMuonGenEtaMuons_withPtCuts_overlap_clone.root",
-                                                                                       "gpMuonGenEtaMuons_withPtCuts_overlap_clone", -1.5, 1.5,
+      "EfficiencyAnalyser_SingleMuAlgo5_ptGenFrom_7_ptGenTo_15_gpMuonGenEtaMuons_withPtCuts_overlap_clone.root",
+                                                                                       "gpMuonGenEtaMuons_withPtCuts_overlap_clone",
+                                                                                       "plots_MuFlatPt_PU200_t12/",
+                                                                                       "plots_MuFlatPt_PU200_v1_t15_bayesOMTFonly/",
+                                                                                       -1.5, 1.5,
                                                                                        "7 < p_{T}^{gen} < 15 GeV, L1 p_{T} #geq 5 GeV");
 
 
 
   makeEfficiencyPlot( string("canvas_effVsPt_L1ptCut3"), omtf_tdr_effs, "hPt5_SingleMu_PU200_q12_1",
-      "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_ptGenPtMuCandMuonsEv0OverlapDenom_clone_ptCut_3.root",
-                                                                                       "ptGenPtMuCandMuonsEv0OverlapDenom_clone", 0, 100,
-                                                                                       "single #mu gun, L1 p_{T} #geq 3 GeV");
+      "EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_ptGenPtMuCandMuonsEv0OverlapDenom_clone_ptCut_3.root",
+                                                                                       "ptGenPtMuCandMuonsEv0OverlapDenom_clone",
+                                                                                       "plots_MuFlatPt_PU200_t12/",
+                                                                                       "plots_MuFlatPt_PU200_v1_t15_bayesOMTFonly/",
+                                                                                       0, 100,
+                                                                                       "#splitline{single #mu gun, 0.82 < #left|#eta^{gen}#right| < 1.24}{L1 p_{T} #geq 3 GeV}");
 
   makeEfficiencyPlot( string("canvas_effVsPt_L1ptCut5"), omtf_tdr_effs, "hPt5_SingleMu_PU200_q12_1",
-      "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_ptGenPtMuCandMuonsEv0OverlapDenom_clone_ptCut_5.root",
-                                                                                       "ptGenPtMuCandMuonsEv0OverlapDenom_clone", 0, 100,
-                                                                                       "single #mu gun, L1 p_{T} #geq 5 GeV");
+      "EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_ptGenPtMuCandMuonsEv0OverlapDenom_clone_ptCut_5.root",
+                                                                                       "ptGenPtMuCandMuonsEv0OverlapDenom_clone",
+                                                                                       "plots_MuFlatPt_PU200_t12/",
+                                                                                       "plots_MuFlatPt_PU200_v1_t15_bayesOMTFonly/",
+                                                                                       0, 100,
+                                                                                       "#splitline{single #mu gun, 0.82 < #left|#eta^{gen}#right| < 1.24}{L1 p_{T} #geq 5 GeV}");
 
   makeEfficiencyPlot( string("canvas_effVsPt_L1ptCut10"), omtf_tdr_effs, "hPt10_SingleMu_PU200_q12_1",
-      "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_ptGenPtMuCandMuonsEv0OverlapDenom_clone_ptCut_10.root",
-                                                                                       "ptGenPtMuCandMuonsEv0OverlapDenom_clone", 0, 100,
-                                                                                       "single #mu gun, L1 p_{T} #geq 10 GeV");
+      "EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_ptGenPtMuCandMuonsEv0OverlapDenom_clone_ptCut_10.root",
+                                                                                       "ptGenPtMuCandMuonsEv0OverlapDenom_clone",
+                                                                                       "plots_MuFlatPt_PU200_t12/",
+                                                                                       "plots_MuFlatPt_PU200_v1_t15_bayesOMTFonly/",
+                                                                                       0, 100,
+                                                                                       "#splitline{single #mu gun, 0.82 < #left|#eta^{gen}#right| < 1.24}{L1 p_{T} #geq 10 GeV}");
 
   makeEfficiencyPlot( string("canvas_effVsPt_L1ptCut20"), omtf_tdr_effs, "hPt20_SingleMu_PU200_q12_1",
-      "plots_MuFlatPt_PU200_t12/EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_ptGenPtMuCandMuonsEv0OverlapDenom_clone_ptCut_20.root",
-                                                                                       "ptGenPtMuCandMuonsEv0OverlapDenom_clone", 0, 100,
-                                                                                       "single #mu gun, L1 p_{T} #geq 20 GeV");
+      "EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_ptGenPtMuCandMuonsEv0OverlapDenom_clone_ptCut_20.root",
+                                                                                       "ptGenPtMuCandMuonsEv0OverlapDenom_clone",
+                                                                                       "plots_MuFlatPt_PU200_t12/",
+                                                                                       "plots_MuFlatPt_PU200_v1_t15_bayesOMTFonly/",
+                                                                                       0, 100,
+                                                                                       "#splitline{single #mu gun, 0.82 < #left|#eta^{gen}#right| < 1.24}{L1 p_{T} #geq 20 GeV}");
 
   /*
   {
@@ -187,7 +247,7 @@ void MakePlots()
     muCandPt_rate->Draw("same L");
   }*/
 
-  {
+  {//rate vs pt
     double xRangeFrom = 0;
     double xRangeTo = 50;
 
@@ -203,6 +263,9 @@ void MakePlots()
     omtfRate->SetTitle(";p_{T} threshold [GeV]; Rate [kHz]");
 
     omtfRate->SetLineColor(kBlack);
+    omtfRate->SetLineWidth(lineWidth);
+    omtfRate->SetMarkerStyle(20);
+    omtfRate->SetMarkerColor(kBlack);
     omtfRate->Draw("APZ");
     canvas->Update();
     omtfRate->GetXaxis()->SetRangeUser(xRangeFrom, xRangeTo);
@@ -216,11 +279,15 @@ void MakePlots()
     muCandPt_rate->Scale(1./1000.);
 
     muCandPt_rate->SetLineColor(kRed);
-    muCandPt_rate->Draw("same L");
+    muCandPt_rate->SetLineWidth(lineWidth);
+    muCandPt_rate->SetMarkerStyle(22);
+    muCandPt_rate->SetMarkerColor(kRed);
+    muCandPt_rate->Draw("same PZ");
 
-    TLegend* leg = new TLegend(0.55, 0.65,0.85,0.75);
-    //leg->SetBorderSize(0);
-    leg->SetFillStyle(1001);
+    TLegend* leg = new TLegend(0.51, 0.61,0.81, 0.76);
+    leg->SetHeader("0.82 < #left|#eta^{L1}#right| < 1.24");
+    leg->SetBorderSize(0);
+    leg->SetFillStyle(0);
     leg->SetTextSize(0.035);
     //leg->SetHeader("here is a beautiful header");x
     leg->AddEntry(muCandPt_rate , "muon correlator", "le");
@@ -236,7 +303,7 @@ void MakePlots()
     canvas->SaveAs( (outPlotsdir + "rates_omtfRegion" + ".root").c_str());
   }
 
-  {
+  {//rates vs pu
     TGraphAsymmErrors* muCorrRateVsPu = new TGraphAsymmErrors(4);
 
 
@@ -254,9 +321,10 @@ void MakePlots()
 
 
     muCorrRateVsPu->SetLineColor(kRed);
+    muCorrRateVsPu->SetLineWidth(lineWidth);
     muCorrRateVsPu->SetMarkerStyle(23);
     muCorrRateVsPu->SetMarkerColor(kRed);
-    muCorrRateVsPu->SetTitle("; average pile-up; rete [kHz]");
+    muCorrRateVsPu->SetTitle("; average pile-up; Rate [kHz]");
     muCorrRateVsPu->Draw("APZ");
 
     canvas->Update();
@@ -280,9 +348,10 @@ void MakePlots()
     TCanvas* canvas = CreateCanvas(canvasName.c_str(), false, true);
     canvas->cd();
 
-    TLegend* leg = new TLegend(0.13, 0.22,0.46,0.36);
-    leg->SetHeader("#tilde{#tau}, m = 494 and 1599 GeV");
-    leg->SetFillStyle(1001);
+    TLegend* leg = new TLegend(0.13, 0.22,0.46,0.46);
+    leg->SetHeader("#splitline{#tilde{#tau} m = 494 and 1599 GeV}{#left|#eta^{gen}#right|<2.4}");
+    leg->SetFillStyle(0);
+    leg->SetBorderSize(0);
     leg->SetTextSize(0.03);
 
 
@@ -290,6 +359,7 @@ void MakePlots()
     TEfficiency* totalEff = (TEfficiency*)totalEffFile->Get("allVsBetaGenSum_clone");
     totalEff->SetTitle(";generated #beta; efficiency");
     totalEff->SetLineColor(kBlack);
+    totalEff->SetLineWidth(lineWidth);
     totalEff->SetMarkerColor(kBlack);
     totalEff->SetMarkerStyle(24);
     totalEff->Draw("APZ");
@@ -306,11 +376,12 @@ void MakePlots()
     TFile* hscpAlgoEffFile = new TFile("plots_HSCP/EfficiencyAnalyser_HscpAlgoSoftCuts20_ptGenFrom_20_ptGenTo_100000_allVsBetaGen_clone_algoEff_.root");
     TEfficiency* hscpAlgoEff = (TEfficiency*)hscpAlgoEffFile->Get("allVsBetaGen_clone");
     hscpAlgoEff->SetLineColor(kBlue);
+    hscpAlgoEff->SetLineWidth(lineWidth);
     hscpAlgoEff->SetMarkerStyle(22);
     hscpAlgoEff->SetMarkerColor(kBlue);
     hscpAlgoEff->Draw("same PZ");
     canvas->Update();
-    leg->AddEntry(hscpAlgoEff, "HSCP algo", "lep");
+    leg->AddEntry(hscpAlgoEff, "HSCP algorithm", "lep");
 
 
     TFile* sinleMuAlgoEffFile = new TFile("plots_HSCP/EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_20_ptGenTo_100000_allVsBetaGen_clone_algoEff_.root");
@@ -320,7 +391,7 @@ void MakePlots()
     sinleMuAlgoEff->SetMarkerColor(kRed);
     sinleMuAlgoEff->Draw("same PZ");
     canvas->Update();
-    leg->AddEntry(sinleMuAlgoEff, "#mu algo", "lep");
+    leg->AddEntry(sinleMuAlgoEff, "#mu algorithm", "lep");
 
 
     leg->Draw("same");
@@ -351,6 +422,7 @@ void MakePlots()
     muCandPt_rate->Scale(1./1000.);
 
     muCandPt_rate->SetLineColor(kRed);
+    muCandPt_rate->SetLineWidth(lineWidth);
 
     muCandPt_rate->GetXaxis()->SetRangeUser(0, 50);
     muCandPt_rate->GetYaxis()->SetRangeUser(0.1, 5000);
@@ -358,9 +430,10 @@ void MakePlots()
 
     TLegend* leg = new TLegend(0.5, 0.35, 0.87, 0.4);
     //leg->SetBorderSize(0);
-    leg->SetFillStyle(1001);
+    leg->SetFillStyle(0);
+    leg->SetBorderSize(0);
     leg->SetTextSize(0.035);
-    leg->SetHeader("HSCP algo rate, |#eta| < 2.4");
+    leg->SetHeader("#splitline{HSCP algorithm rate}{#left|#eta^{L1}#right| < 2.4}");
     //leg->AddEntry(muCandPt_rate , "muon correlator", "le");
     leg->Draw("same");
 

@@ -69,6 +69,8 @@
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuCorrelatorConfig.h"
 #include "L1Trigger/L1TMuonBayes/plugins/L1TMuonBayesMuCorrelatorTrackProducer.h"
 
+#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
+
 #include "TProfile.h"
 #include "TH1D.h"
 #include "TH2D.h"
@@ -1209,6 +1211,7 @@ private:
   TH2I* ttTracksPerMuonTPvsPtGen = nullptr;
 
   edm::EDGetTokenT<l1t::BayesMuCorrTrackBxCollection> bayesMuCorrToken;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection > omtfToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<edm::SimVertexContainer> vertexSim;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
@@ -1221,8 +1224,9 @@ MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
 : parameterSet(conf), eventCount(0)
 {
   bayesMuCorrToken = consumes<l1t::BayesMuCorrTrackBxCollection>(edm::InputTag("simBayesMuCorrelatorTrackProducer", L1TMuonBayesMuCorrelatorTrackProducer::allTracksProductName)); //
+  omtfToken = consumes<l1t::RegionalMuonCandBxCollection >(conf.getParameter<edm::InputTag>("L1OMTFInputTag"));
 
-  l1TkMuonToken = consumes<l1t::L1TkMuonParticleCollection>(edm::InputTag("L1TkMuons")); //
+  l1TkMuonToken = consumes<l1t::L1TkMuonParticleCollection>(edm::InputTag("L1TkMuonsTP")); //
 
 
   simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits")); //TODO which is correct?
@@ -1724,6 +1728,25 @@ void MuCorrelatorAnalyzer::analyze(
   //event.getByToken(inputOMTF, l1Omtf);
   //cout << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" omtfCands->size(bxNumber) "<<omtfCands->size()<< endl;
 
+  edm::Handle<l1t::RegionalMuonCandBxCollection> l1omtfHandle;
+  event.getByToken(omtfToken, l1omtfHandle);
+
+  for(l1t::RegionalMuonCandBxCollection::const_iterator omtfCand = l1omtfHandle.product()->begin(0);
+       omtfCand != l1omtfHandle.product()->end(0); ++omtfCand) {
+    int refLayer = (int)omtfCand->trackAddress().at(1);
+    int layerHits = (int)omtfCand->trackAddress().at(0);
+    std::bitset<18> layerHitBits(layerHits);
+
+    double globalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi( omtfCand->hwPhi(), omtfCand->trackFinderType(), omtfCand->processor() )* 2. * M_PI / 576;
+    if(globalPhi > M_PI)
+      globalPhi = globalPhi -(2.*M_PI);
+    LogTrace("l1tMuBayesEventPrint") << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__
+        <<" omtf pt "<<omtfCand->hwPt()<<" omtf qual "<<omtfCand->hwQual()<<" omtf hwEta "<<omtfCand->hwEta()<<" omtf hwPhi "<<omtfCand->hwPhi()
+        <<" eta "<< (omtfCand->hwEta()*0.010875)
+        <<" phi "<<globalPhi
+        <<" refLayer "<<refLayer<<" "<<layerHitBits<<endl;
+  }
+
   const l1t::BayesMuCorrTrackBxCollection* muCorrTracks = nullptr;
   l1t::BayesMuCorrTrackBxCollection l1TkMuonBayesTracks;//must be here because muCorrTracks can be a pointer to l1TkMuonBayesTracks
 
@@ -1741,7 +1764,16 @@ void MuCorrelatorAnalyzer::analyze(
 
     for(auto& l1TkMuonTrack : l1TkMuonTracks) {
       LogTrace("l1tMuBayesEventPrint") << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__
-          <<" l1TkMuonTrack muonDetector "<<" "<<l1TkMuonTrack.muonDetector()<<" eta "<<l1TkMuonTrack.eta()<<" pt "<<l1TkMuonTrack.pt()<< endl;
+          <<" l1TkMuonTrack muonDetector "<<" "<<l1TkMuonTrack.muonDetector()<<" eta "<<l1TkMuonTrack.eta()<<" pt "<<l1TkMuonTrack.pt();
+      if(l1TkMuonTrack.getMuRef().isNonnull() && l1TkMuonTrack.muonDetector() == 2) {
+        int refLayer = (int)l1TkMuonTrack.getMuRef()->trackAddress().at(1);
+        int layerHits = (int)l1TkMuonTrack.getMuRef()->trackAddress().at(0);
+        std::bitset<18> layerHitBits(layerHits);
+
+        LogTrace("l1tMuBayesEventPrint")<<" omtf pt "<<l1TkMuonTrack.getMuRef()->hwPt()<<" omtf qual "<<l1TkMuonTrack.getMuRef()->hwQual()<<" omtf eta "<<l1TkMuonTrack.getMuRef()->hwEta()
+          <<" refLayer "<<refLayer<<" "<<layerHitBits;
+      }
+      LogTrace("l1tMuBayesEventPrint")<<endl;
 
       l1t::BayesMuCorrelatorTrack bayesTrack(l1TkMuonTrack.getTrkPtr());
       bayesTrack.setCandidateType(l1t::BayesMuCorrelatorTrack::CandidateType::fastTrack);
@@ -1756,7 +1788,6 @@ void MuCorrelatorAnalyzer::analyze(
 
     muCorrTracks = &l1TkMuonBayesTracks;
   }
-
 
   int bxNumber = 0;
 
@@ -2072,6 +2103,7 @@ void MuCorrelatorAnalyzer::analyze(
         //LogTrace("l1tMuBayesEventPrint")<<" omtfCands->size "<<omtfCands->size(bxNumber)<<endl;
 
         //we should find one candidate with max pt and use it for filling the histograms
+        bool was = false;
         for(auto itL1MuCand = muCorrTracks->begin(bxNumber); itL1MuCand != muCorrTracks->end(bxNumber); ++itL1MuCand) {
           auto& muCandTtTrackPtr = itL1MuCand->getTtTrackPtr();
           //edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > omtfTtTrackPtr(TTTrackHandle, omtfTTTrackIndex);
@@ -2082,10 +2114,13 @@ void MuCorrelatorAnalyzer::analyze(
             for(auto& effAnalys : efficiencyAnalysers)
               effAnalys.takeCanidate(itL1MuCand);
 
+            was = true;
             break;
           }
           //in principle for a given tracking particle there can be two (or more) matched ttTracks, but then most probably the OMTF will select only one, the second will be ghost busted
         }
+        if(!was)
+          LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" no correlator candidate!!!"<<endl;
       }
     }// end loop over matched ttTracks
 
@@ -2250,7 +2285,6 @@ void MuCorrelatorAnalyzer::analyze(
         continue;
     }*/
 
-    //do we really need the cut on the eta?
     if(abs(itL1MuCand->getEta()) >= etaCutFrom && abs(itL1MuCand->getEta() ) <= etaCutTo) {
     }
     else
