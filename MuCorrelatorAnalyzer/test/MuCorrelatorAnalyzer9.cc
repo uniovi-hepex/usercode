@@ -1261,8 +1261,8 @@ MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
   bayesMuCorrToken = consumes<l1t::BayesMuCorrTrackBxCollection>(edm::InputTag("simBayesMuCorrelatorTrackProducer", L1TMuonBayesMuCorrelatorTrackProducer::allTracksProductName)); //
   omtfToken = consumes<l1t::RegionalMuonCandBxCollection >(conf.getParameter<edm::InputTag>("L1OMTFInputTag"));
 
-  l1TkMuonToken = consumes<l1t::L1TkMuonParticleCollection>(edm::InputTag("L1TkMuonsTP")); //
-  cout<<" edm::InputTag(L1TkMuonsTP)) "<<edm::InputTag("L1TkMuonsTP")<<" l1TkMuonToken "<<l1TkMuonToken.index()<<std::endl;
+  l1TkMuonToken = consumes<l1t::L1TkMuonParticleCollection>(edm::InputTag("L1TkMuons")); //
+  cout<<" edm::InputTag(L1TkMuons)) "<<edm::InputTag("L1TkMuons")<<" l1TkMuonToken "<<l1TkMuonToken.index()<<std::endl;
 
   simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits")); //TODO which is correct?
   //simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimTrackSrc"));
