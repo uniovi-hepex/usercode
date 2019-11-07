@@ -141,8 +141,7 @@ public:
 
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getRegion() == 0 && abs(muCorrelatorTrack.getEta() ) < 0.82 ) ||
-           muCorrelatorTrack.getRegion() == 1 ) )
+        abs(muCorrelatorTrack.getEta() ) < 0.82)
       return true;
     return false;
   }
@@ -155,8 +154,7 @@ public:
 
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getRegion() == 0 && abs(muCorrelatorTrack.getEta()) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )  ||
-            muCorrelatorTrack.getRegion() == 2 ) )
+        abs(muCorrelatorTrack.getEta() ) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )
       return true;
     return false;
   }
@@ -169,8 +167,7 @@ public:
 
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getRegion() == 0 && abs(muCorrelatorTrack.getEta() ) >= 1.24 ) ||
-            muCorrelatorTrack.getRegion() == 3 ) )
+        abs(muCorrelatorTrack.getEta() ) >= 1.24 )
       return true;
     return false;
   }
@@ -223,7 +220,7 @@ public:
 //the same cuts as in the L1TMuonBayesMuCorrelatorTrackProducer::produce
 class SingleMuAlgoSoftCuts1: public TriggerAlgo {
 public:
-  SingleMuAlgoSoftCuts1(double ptCut): TriggerAlgo("SingleMuAlgoSoftCuts" + std::to_string((int)ptCut), ptCut) {};
+  SingleMuAlgoSoftCuts1(double ptCut): TriggerAlgo("SingleMuAlgoSoftCuts1_ptCut" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoSoftCuts1() {};
 
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
@@ -241,7 +238,7 @@ public:
 
 class SingleMuAlgoSoftCutsOverlap1: public TriggerAlgo {
 public:
-  SingleMuAlgoSoftCutsOverlap1(double ptCut): TriggerAlgo("SingleMuAlgoSoftCutsOverlap" + std::to_string((int)ptCut), ptCut) {};
+  SingleMuAlgoSoftCutsOverlap1(double ptCut): TriggerAlgo("SingleMuAlgoSoftCutsOverlap1_ptCut" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoSoftCutsOverlap1() {};
 
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
@@ -1834,7 +1831,6 @@ void MuCorrelatorAnalyzer::analyze(
       l1t::BayesMuCorrelatorTrack bayesTrack(l1TkMuonTrack.getTrkPtr());
       bayesTrack.setCandidateType(l1t::BayesMuCorrelatorTrack::CandidateType::fastTrack);
       bayesTrack.setHwQual(12);
-      bayesTrack.setRegion(l1TkMuonTrack.muonDetector());
 
       if(l1TkMuonTrack.muonDetector() == 2) //TODO omtf only !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
        l1TkMuonBayesTracks.push_back(0, bayesTrack);
