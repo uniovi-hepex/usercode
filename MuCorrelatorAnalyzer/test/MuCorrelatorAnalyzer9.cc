@@ -220,6 +220,44 @@ public:
   }
 };
 
+//the same cuts as in the L1TMuonBayesMuCorrelatorTrackProducer::produce
+class SingleMuAlgoSoftCuts1: public TriggerAlgo {
+public:
+  SingleMuAlgoSoftCuts1(double ptCut): TriggerAlgo("SingleMuAlgoSoftCuts" + std::to_string((int)ptCut), ptCut) {};
+  virtual ~SingleMuAlgoSoftCuts1() {};
+
+  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+    if( muCorrelatorTrack.hwQual() >= 12 &&
+        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1100) ||
+          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1400) ||
+           muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
+        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() )
+    )
+      return true;
+    return false;
+  }
+};
+
+class SingleMuAlgoSoftCutsOverlap1: public TriggerAlgo {
+public:
+  SingleMuAlgoSoftCutsOverlap1(double ptCut): TriggerAlgo("SingleMuAlgoSoftCutsOverlap" + std::to_string((int)ptCut), ptCut) {};
+  virtual ~SingleMuAlgoSoftCutsOverlap1() {};
+
+  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+    if( muCorrelatorTrack.hwQual() >= 12 &&
+        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1100) ||
+          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1400) ||
+           muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
+        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() ) &&
+        (abs(muCorrelatorTrack.getEta() ) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )
+    )
+      return true;
+    return false;
+  }
+};
+
 class SingleMuAlgoPdfSumSoftCuts: public TriggerAlgo {
 public:
   SingleMuAlgoPdfSumSoftCuts(double ptCut): TriggerAlgo("SingleMuAlgoPdfSumSoftCuts" + std::to_string((int)ptCut), ptCut) {};
@@ -1227,7 +1265,7 @@ MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
   omtfToken = consumes<l1t::RegionalMuonCandBxCollection >(conf.getParameter<edm::InputTag>("L1OMTFInputTag"));
 
   l1TkMuonToken = consumes<l1t::L1TkMuonParticleCollection>(edm::InputTag("L1TkMuonsTP")); //
-
+  cout<<" edm::InputTag(L1TkMuonsTP)) "<<edm::InputTag("L1TkMuonsTP")<<" l1TkMuonToken "<<l1TkMuonToken.index()<<std::endl;
 
   simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits")); //TODO which is correct?
   //simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimTrackSrc"));
@@ -1301,14 +1339,24 @@ void MuCorrelatorAnalyzer::beginJob()
   std::shared_ptr<TriggerAlgo> singleMuAlgo = std::make_shared<SingleMuAlgo>(20);
   std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCuts = std::make_shared<SingleMuAlgoSoftCuts>(20);
 
+  std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCuts1 = std::make_shared<SingleMuAlgoSoftCuts1>(20);
+
   std::shared_ptr<TriggerAlgo> singleMuAlgoPtCut10 = std::make_shared<SingleMuAlgo>(10);
   std::shared_ptr<TriggerAlgo> singleMuAlgoBarrelPtCut10 = std::make_shared<SingleMuAlgoBarrel>(10);
 
   std::shared_ptr<TriggerAlgo> singleMuAlgoPtCut5 = std::make_shared<SingleMuAlgo>(5);
   std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCutsPtCut5 = std::make_shared<SingleMuAlgoSoftCuts>(5);
 
+  std::shared_ptr<TriggerAlgo> singleMuAlgoPtCut0 = std::make_shared<SingleMuAlgo>(0);
+
   std::shared_ptr<TriggerAlgo> singleMuAlgoPtCut3 = std::make_shared<SingleMuAlgo>(3);
   std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCutsPtCut3 = std::make_shared<SingleMuAlgoSoftCuts>(3);
+
+  std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCuts1PtCut0 = std::make_shared<SingleMuAlgoSoftCuts1>(0);
+  std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCuts1PtCut3 = std::make_shared<SingleMuAlgoSoftCuts1>(3);
+  std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCuts1PtCut5 = std::make_shared<SingleMuAlgoSoftCuts1>(5);
+  std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCuts1PtCut10 = std::make_shared<SingleMuAlgoSoftCuts1>(10);
+  std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCuts1PtCut20 = std::make_shared<SingleMuAlgoSoftCuts1>(20);
 
   std::shared_ptr<TriggerAlgo> singleMuAlgoPdfSumSoftCuts = std::make_shared<SingleMuAlgoPdfSumSoftCuts>(20);
 
@@ -1317,6 +1365,7 @@ void MuCorrelatorAnalyzer::beginJob()
   std::shared_ptr<TriggerAlgo> singleMuAlgoEndcap = std::make_shared<SingleMuAlgoEndcap>(20);
 
   std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCutsOverlap = std::make_shared<SingleMuAlgoSoftCutsOverlap>(20);
+  std::shared_ptr<TriggerAlgo> singleMuAlgoSoftCutsOverlap1 = std::make_shared<SingleMuAlgoSoftCutsOverlap1>(20);
 
   //std::shared_ptr<TriggerAlgo> singleMuAlgoHardCuts = std::make_shared<SingleMuAlgoHardCuts>(20);
 
@@ -1333,6 +1382,7 @@ void MuCorrelatorAnalyzer::beginJob()
     rateAnalysers.emplace_back(singleMuAlgo, fs);
 
     rateAnalysers.emplace_back(singleMuAlgoSoftCuts, fs);
+    rateAnalysers.emplace_back(singleMuAlgoSoftCuts1, fs);
 
     rateAnalysers.emplace_back(singleMuAlgoPdfSumSoftCuts, fs);
 
@@ -1342,6 +1392,8 @@ void MuCorrelatorAnalyzer::beginJob()
     rateAnalysers.emplace_back(singleMuAlgoOverlap, fs);
     rateAnalysers.emplace_back(singleMuAlgoEndcap, fs);
     rateAnalysers.emplace_back(singleMuAlgoSoftCutsOverlap, fs);
+
+    rateAnalysers.emplace_back(singleMuAlgoSoftCutsOverlap1, fs);
 
     rateAnalysers.emplace_back(hscpAlgo20, fs);
 
@@ -1355,19 +1407,21 @@ void MuCorrelatorAnalyzer::beginJob()
     efficiencyAnalysers.emplace_back(singleMuAlgo, 25, 10000, fs);
 
     efficiencyAnalysers.emplace_back(singleMuAlgoSoftCuts, 25, 10000, fs);
+    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCuts1, 25, 10000, fs);
 
     efficiencyAnalysers.emplace_back(singleMuAlgoPdfSumSoftCuts, 25, 10000, fs);
 
-    efficiencyAnalysers.emplace_back(singleMuAlgoPtCut5, 7, 10, fs);
+    //efficiencyAnalysers.emplace_back(singleMuAlgoPtCut5, 7, 10, fs);
     //efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut5, 7, 15, fs);
 
     efficiencyAnalysers.emplace_back(singleMuAlgoPtCut5, 7, 15, fs);
     efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut5, 7, 15, fs);
+    efficiencyAnalysers.emplace_back(singleMuAlgoSoftCuts1PtCut5, 7, 15, fs);
 
-    efficiencyAnalysers.emplace_back(singleMuAlgoPtCut5, 7, 20, fs);
+    //efficiencyAnalysers.emplace_back(singleMuAlgoPtCut5, 7, 20, fs);
     //efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut5, 7, 20, fs);
 
-    efficiencyAnalysers.emplace_back(singleMuAlgoPtCut3, 5, 10, fs);
+    //efficiencyAnalysers.emplace_back(singleMuAlgoPtCut3, 5, 10, fs);
     //efficiencyAnalysers.emplace_back(singleMuAlgoSoftCutsPtCut3, 5, 10, fs);
 
     //efficiencyAnalysers.emplace_back(singleMuAlgoHardCuts, fs);
@@ -1377,7 +1431,7 @@ void MuCorrelatorAnalyzer::beginJob()
     //efficiencyAnalysers.emplace_back(hscpAlgo30, fs);
 
     //efficiencyAnalysers.emplace_back(hscpAlgoHardCuts20, fs);
-    efficiencyAnalysers.emplace_back(hscpAlgoSoftCuts20, 25, 10000, fs);
+    efficiencyAnalysers.emplace_back(hscpAlgoSoftCuts20, 20, 10000, fs);
     //efficiencyAnalysers.emplace_back(hscpAlgoPdfSumCuts20, fs);
   }
   else if(analysisType == "withTrackPart") {
@@ -1394,7 +1448,9 @@ void MuCorrelatorAnalyzer::beginJob()
   muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgoBarrelPtCut10, fs));
   muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgo, fs));
   muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgoSoftCuts, fs));
+  muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgoSoftCuts1, fs));
   muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgoPdfSumSoftCuts, fs));
+
   //muCandsMatchingAnalyzers.emplace_back(std::make_unique<MuCandsMatchingAnalyzer>(singleMuAlgoHardCuts, fs));
   //muCandsMatchingAnalyzers.emplace_back(hscpAlgo20, fs);
 

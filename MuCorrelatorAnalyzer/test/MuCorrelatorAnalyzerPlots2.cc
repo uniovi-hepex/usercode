@@ -56,7 +56,7 @@ int MuCorrelatorAnalyzerPlots2() {
 
 
   canvasCompare->Divide(2, 2);
-  int ptCut = 5;
+  int ptCut = 20;
 
   //ptCut = 18+1;
   //ptCut = 1+1;
@@ -105,10 +105,10 @@ int MuCorrelatorAnalyzerPlots2() {
 
   //makePlots("SingleNeutrino_PU200_t5", "singleNu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t5/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU200_t7", "singleNu", kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t7/results/muCorrelatorTTAnalysis1.root");
-  //makePlots("SingleNeutrino_PU200_t9",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t9/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("SingleNeutrino_PU200_t9",  "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t9/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU200_t10", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t10/results/muCorrelatorTTAnalysis1.root");
 
-  //makePlots("SingleNeutrino_PU200_mtd5_t11",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_mtd5_v1_t11/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("SingleNeutrino_PU200_mtd5_t11", "singleNu", kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_mtd5_v1_t11/results/muCorrelatorTTAnalysis1.root");
 
   //makePlots("DYToLL_mtd5_t11_1",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_DYToLL_mtd5_v1_t11_1/results/muCorrelatorTTAnalysis1.root");
 
@@ -127,14 +127,17 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("TauTo3Mu_PU200_v1_t11", "#tau #rightarrow 3#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_TauTo3Mu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
   //makePlots("BsToMuMu_PU200_v1_t11", "Bs #rightarrow #mu#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_BsToMuMu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
 
+  makePlots("MuFlatPt_PU200_t18", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t18/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_t12", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t12/results/muCorrelatorTTAnalysis1.root");
-  //makePlots("SingleNeutrino_PU200_t13", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t13/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("SingleNeutrino_PU200_t17", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t17/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU140_t13", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU140_v1_t13/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU250_t13", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU250_v1_t13/results/muCorrelatorTTAnalysis1.root");
 
-  makePlots("MuFlatPt_PU200_v1_t15_bayesOMTFonly", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t15_bayesOMTFonly/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("MuFlatPt_PU200_v1_t15_bayesOMTFonly", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t15_bayesOMTFonly/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP_withPR807", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP_withPR807/results/muCorrelatorTTAnalysis1.root");
 
-
+  //makePlots("SingleNeutrino_PU200_v1_t17_bayesOMTF_L1TkMuonsTP", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t17_bayesOMTF_L1TkMuonsTP/results/muCorrelatorTTAnalysis1.root");
 
   //makePlots("GluGluHToZZTo4L_NoPU gb4",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU_gb4.root");
   //makePlots("singleMu_sigma_2p8",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_singleMu_sigma_2p8.root");
@@ -150,6 +153,7 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("mtd5_BsToMuMu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_mtd5_BsToMuMu_SoftQCDnonD_NoPU.root");
 
   //makePlots("HSCP",  "HSCP",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1HSCP.root");
+  //makePlots("MuFlatPt_PU200_v1_t15_bayesOMTFonly", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/muCorrelatorTTAnalysis1.root");
 
 /*
   c0->cd();
@@ -187,7 +191,7 @@ void makePlots(const char* name, string label, int color, int ptCut, const char*
 
   makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, ptCut);
 
-  //makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
+  makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
 }
 
 void savePlot(string name, TVirtualPad* orgianlPad) {
@@ -547,6 +551,10 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         canvas1Eff->cd(2)->SetGridx();
         canvas1Eff->cd(2)->SetGridy();
         canvas1Eff->cd(2)->SetLeftMargin(0.12);
+        ttMuon_vs_ptGen_Ev0_Eff->SetMarkerStyle(22);
+        ttMuon_vs_ptGen_Ev0_Eff->SetMarkerColor(kBlue);
+        ttMuon_vs_ptGen_Ev0_Eff->SetMarkerSize(0.8);
+
         ttMuon_vs_ptGen_Ev0_Eff->Draw("APZ");
         canvas1Eff->cd(2)->Update();
         ttMuon_vs_ptGen_Ev0_Eff->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.7, 1.01);
@@ -569,10 +577,30 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
 
         title = ("muCand efficiency, Event 0, pT cut = " + to_string(ptCut) + " GeV" + "; generated p_{T} [GeV]; efficiency");
         TEfficiency* muCand_vs_ptGen_Ev0_Eff = makeEfficiency(*ptGenPtMuCandMuonsEv0Nom, *ptGenPtMuCandMuonsEv0Denom, title, kRed);
+
+        muCand_vs_ptGen_Ev0_Eff->SetMarkerStyle(23);
+        muCand_vs_ptGen_Ev0_Eff->SetMarkerSize(0.7);
+        muCand_vs_ptGen_Ev0_Eff->SetMarkerColor(kRed);
         muCand_vs_ptGen_Ev0_Eff->Draw("same PZ");
 
-        DrawLabel(canvas1Eff->cd(2), label);
-        savePlot(canvasName + "_effVsPt", canvas1Eff->cd(2) );
+        //DrawLabel(canvas1Eff->cd(2), label);
+
+        {
+          TLegend* leg = new TLegend(0.33, 0.13,0.77,0.38);
+          leg->SetHeader("#left|#eta^{gen}#right| < 2.4, L1 p_{T} #geq 20 GeV"); //TODO change according to the plot
+          //leg->SetBorderSize(0);
+          leg->SetFillStyle(0);
+          leg->SetBorderSize(0);
+          leg->SetTextSize(0.03);
+          leg->SetMargin(0.2);
+
+          leg->AddEntry(ttMuon_vs_ptGen_Ev0_Eff , "Tracking Trigger Track", "lep");
+          leg->AddEntry(muCand_vs_ptGen_Ev0_Eff , "Track + Stubs", "lep");
+
+          leg->Draw("same");
+        }
+
+        savePlot(canvasName + "_effVsPt_ttTrack_and_corr", canvas1Eff->cd(2) );
 
         //--------------------------------
         canvas1Eff->cd(1);
@@ -637,24 +665,45 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         canvas1Eff->cd(4)->SetGridy();
         canvas1Eff->cd(4)->SetLeftMargin(0.12);
         {
+          TLegend* leg = new TLegend(0.33, 0.13,0.77,0.38);
+          leg->SetHeader("p_{T}^{gen} > 25 GeV, L1 p_{T} #geq 20 GeV"); //TODO change according to the plot
+          //leg->SetBorderSize(0);
+          leg->SetFillStyle(0);
+          leg->SetBorderSize(0);
+          leg->SetTextSize(0.03);
+          leg->SetMargin(0.2);
+
           if(TEfficiency::CheckConsistency(*ttMuonGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts) )
           {
             TEfficiency* ttMuonEta_ptCut_Eff = makeEfficiency(*ttMuonGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts, title, kBlue);
 
             std::string title = ttMuonGenEtaMuons_withPtCuts->GetTitle();
             //title = std::regex_replace(title, std::regex("\\muCandGenEtaMuons"), "tagging efficiency");
+
+
+            ttMuonEta_ptCut_Eff->SetMarkerStyle(22);
+            ttMuonEta_ptCut_Eff->SetMarkerColor(kBlue);
+            ttMuonEta_ptCut_Eff->SetMarkerSize(0.8);
+
             ttMuonEta_ptCut_Eff->Draw("APZ");
             ttMuonEta_ptCut_Eff->SetTitle((title + "; generated #eta; efficiency").c_str());
             canvas1Eff->Update();
             ttMuonEta_ptCut_Eff->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.95, 1.01);
             ttMuonEta_ptCut_Eff->GetPaintedGraph()->GetXaxis()->SetRangeUser(-2.4, 2.4);
+
+            leg->AddEntry(ttMuonEta_ptCut_Eff , "Tracking Trigger Track", "lep");
           }
 
           if(TEfficiency::CheckConsistency(*muCandGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts) )
           {
             std::string title = " ";
             TEfficiency* muCandGenEtaMuons_ptCut_Eff = makeEfficiency(*muCandGenEtaMuons_withPtCuts, *gpMuonGenEtaMuons_withPtCuts , title, kRed);
+            muCandGenEtaMuons_ptCut_Eff->SetMarkerStyle(23);
+            muCandGenEtaMuons_ptCut_Eff->SetMarkerSize(0.7);
+            muCandGenEtaMuons_ptCut_Eff->SetMarkerColor(kRed);
             muCandGenEtaMuons_ptCut_Eff->Draw("same PZ");
+
+            leg->AddEntry(muCandGenEtaMuons_ptCut_Eff , "Track + Stubs", "lep");
 
             string fileName1 = (plotsDir + "/" + dirName + "_" + muCandGenEtaMuons_ptCut_Eff->GetName() + string(".root"));
             cout<<"saving hist as "<<fileName1<<endl;
@@ -692,10 +741,12 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
               //gpMuonGenEtaMuons_withPtCuts_overlap_abs->SaveAs(fileName1.c_str() );
             }
           }
+
+          leg->Draw("same");
         }
 
 
-        DrawLabel(canvas1Eff->cd(4), label);
+        //DrawLabel(canvas1Eff->cd(4), label);
         savePlot(canvasName + "_effVsEta", canvas1Eff->cd(4) );
       //------------------------
         //nominator
@@ -799,10 +850,11 @@ void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int co
         canvasRate1->cd(2)->SetGridx();
         canvasRate1->cd(2)->SetGridy();
 
-        ;
+        cout<<"eventsCnt "<<eventsCnt<<endl;
         double scale = 1./eventsCnt * lhcFreq * lhcFillingRatio;
+        muCandPt->Sumw2(false);
         TH1* muCandPt_rateCumul = muCandPt->GetCumulative(false, "_rate");
-
+        muCandPt_rateCumul->Sumw2(false);
         if(1) {
           TH1* muCandPt_rateCumul_copy = (TH1*)muCandPt_rateCumul->Clone( (muCandPt_rateCumul->GetName() + string("_copy")).c_str() );
           TH1* allEventsHist = (TH1*)muCandPt_rateCumul_copy->Clone("allEventsHist");
@@ -830,6 +882,11 @@ void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int co
             paintedGraph->GetY()[i] *= lhcFreq * lhcFillingRatio;
             paintedGraph->GetEYhigh()[i] *= lhcFreq * lhcFillingRatio;
             paintedGraph->GetEYlow()[i] *= lhcFreq * lhcFillingRatio;
+
+            if(paintedGraph->GetX()[i] == 20.25)
+            {
+              cout<<" rate at pt_cut "<< paintedGraph->GetX()[i] << "GeV "<<paintedGraph->GetY()[i] <<" error "<<paintedGraph->GetEYhigh()[i]<<endl;
+            }
           }
 
           canvasRate1->cd(4);
@@ -841,7 +898,6 @@ void makeRatePlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, int co
           paintedGraph->GetXaxis()->SetRangeUser(0, 100);
           paintedGraph->GetYaxis()->SetRangeUser(100, 50000000);
           canvasRate1->cd(4)->Update();
-
         }
 
 

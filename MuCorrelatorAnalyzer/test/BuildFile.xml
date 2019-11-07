@@ -73,7 +73,7 @@
     <use   name="DataFormats/Phase2TrackerDigi"/>
 
 <!-- <library   file="OmtfTTAnalyzer4.cc" name="OmtfTTAnalyzer"/> -->
-<library   file="MuCorrelatorAnalyzer9.cc" name="MuCorrelatorAnalyzer">
+<library   file="MuCorrelatorAnalyzer8.cc" name="MuCorrelatorAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
 
