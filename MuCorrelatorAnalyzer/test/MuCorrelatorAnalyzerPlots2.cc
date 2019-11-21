@@ -51,12 +51,14 @@ double lhcFreq = 40144896; //11264 * 3564
 
 double eventsCnt = 0;
 
+bool rebinTurnOn = true; //TODO
+
 int MuCorrelatorAnalyzerPlots2() {
   gStyle->SetOptStat(0);
 
 
   canvasCompare->Divide(2, 2);
-  int ptCut = 20;
+  int ptCut = 1;
 
   //ptCut = 18+1;
   //ptCut = 1+1;
@@ -116,7 +118,7 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("TTTo2L2Nu_PU200_t6",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_TTTo2L2Nu_v1_t6/results/muCorrelatorTTAnalysis1.root");
   //makePlots("TTTo2L2Nu_PU200_t7_1", "tt #rightarrow ll#nu#nu",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_TTTo2L2Nu_v1_t7_1/results/muCorrelatorTTAnalysis1.root");
   //makePlots("DYToMuMuorEleEle",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_DYToMuMuorEleEle_v1_t6/results/muCorrelatorTTAnalysis1.root");
-  //makePlots("DYToMuMuorEleEle_t11", "DY #rightarrow #mu#mu/ee",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_DYToMuMuorEleEle_v1_t11/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("DYToMuMuorEleEle_t18", "DY #rightarrow #mu#mu/ee",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_DYToMuMuorEleEle_v1_t18/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_t6",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t6/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_t7",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t7/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_t9",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t9/results/muCorrelatorTTAnalysis1.root");
@@ -127,7 +129,7 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("TauTo3Mu_PU200_v1_t11", "#tau #rightarrow 3#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_TauTo3Mu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
   //makePlots("BsToMuMu_PU200_v1_t11", "Bs #rightarrow #mu#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_BsToMuMu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
 
-  //makePlots("MuFlatPt_PU200_t18", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t18/results/muCorrelatorTTAnalysis1.root");
+  makePlots("MuFlatPt_PU200_t18", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t18/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_t12", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t12/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU200_t17", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t17/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU140_t13", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU140_v1_t13/results/muCorrelatorTTAnalysis1.root");
@@ -137,7 +139,12 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP_withPR807", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP_withPR807/results/muCorrelatorTTAnalysis1.root");
 
-  makePlots("SingleNeutrino_PU200_v1_t17_bayesOMTF_L1TkMuonsTP", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t17_bayesOMTF_L1TkMuonsTP/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("SingleNeutrino_PU140_v1_t19_bayesOMTF_L1TkMuons_v2_36_4", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU140_v1_t19_bayesOMTF_L1TkMuons_v2_36_4/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("SingleNeutrino_PU250_v1_t19_bayesOMTF_L1TkMuons_v2_36_4", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU250_v1_t19_bayesOMTF_L1TkMuons_v2_36_4/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("SingleNeutrino_PU200_v1_t19_bayesOMTF_L1TkMuons_v2_36_4", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t19_bayesOMTF_L1TkMuons_v2_36_4/results/muCorrelatorTTAnalysis1.root");
+
+  //>>makePlots("MuFlatPt_PU200_v1_t19_L1TkMuons_pr832", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t19_bayesOMTFonly_L1TkMuons_pr832/results/muCorrelatorTTAnalysis1.root");
+
 
   //makePlots("GluGluHToZZTo4L_NoPU gb4",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_GluGluHToZZTo4L_NoPU_gb4.root");
   //makePlots("singleMu_sigma_2p8",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_singleMu_sigma_2p8.root");
@@ -626,8 +633,13 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
         canvas1Eff->cd(3)->SetGridy();
 
         TH2I* ptGenPtMuCandMuonsEv0Overlap = (TH2I*)subdir->Get("ptGenPtMuCandMuonsEv0Overlap;1");
-        TH1D* ptGenPtMuCandMuonsEv0OverlapNom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapNom", ptGenPtMuCandMuonsEv0Overlap->GetYaxis()->FindBin(ptCut), -1);
-        TH1D* ptGenPtMuCandMuonsEv0OverlapDenom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapDenom", 0, -1);
+        TH1* ptGenPtMuCandMuonsEv0OverlapNom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapNom", ptGenPtMuCandMuonsEv0Overlap->GetYaxis()->FindBin(ptCut), -1);
+        TH1* ptGenPtMuCandMuonsEv0OverlapDenom = ptGenPtMuCandMuonsEv0Overlap->ProjectionX("ptGenPtMuCandMuonsEv0OverlapDenom", 0, -1);
+
+        if(rebinTurnOn) {
+          ptGenPtMuCandMuonsEv0OverlapNom = ptGenPtMuCandMuonsEv0OverlapNom->Rebin(2, (string(ptGenPtMuCandMuonsEv0OverlapNom->GetName() )+ "_rebin2").c_str() );
+          ptGenPtMuCandMuonsEv0OverlapDenom = ptGenPtMuCandMuonsEv0OverlapDenom->Rebin(2, (string(ptGenPtMuCandMuonsEv0OverlapDenom->GetName() )+ "_rebin2").c_str() );
+        }
 
         title = ("muCand efficiency overlap region, Event 0, pT cut = " + to_string(ptCut) + " GeV" + "; generated p_{T} [GeV]; efficiency");
         TEfficiency* muCandEv0Overlap_EffVsPtGen = makeEfficiency(*ptGenPtMuCandMuonsEv0OverlapNom, *ptGenPtMuCandMuonsEv0OverlapDenom, title, kRed);

@@ -498,7 +498,7 @@ public:
 
   EfficiencyAnalyser(std::shared_ptr<TriggerAlgo>& triggerAlgo, double ptGenFrom, double ptGenTo, edm::Service<TFileService>& fs): AnalyserBase(triggerAlgo), ptGenFrom(ptGenFrom), ptGenTo(ptGenTo) {
     const int ptBins = 1000;
-    const int etaBins = 96;
+    const int etaBins = 240;//96;
     const int phiBins = 360;
 
     TFileDirectory subDir = fs->mkdir( ("EfficiencyAnalyser_" + triggerAlgo->name + "_ptGenFrom_" + std::to_string( (int)ptGenFrom) + "_ptGenTo_" + std::to_string( (int)ptGenTo)).c_str());
