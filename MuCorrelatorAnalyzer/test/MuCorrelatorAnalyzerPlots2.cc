@@ -58,7 +58,7 @@ int MuCorrelatorAnalyzerPlots2() {
 
 
   canvasCompare->Divide(2, 2);
-  int ptCut = 1;
+  int ptCut = 3;
 
   //ptCut = 18+1;
   //ptCut = 1+1;
@@ -129,12 +129,16 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("TauTo3Mu_PU200_v1_t11", "#tau #rightarrow 3#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_TauTo3Mu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
   //makePlots("BsToMuMu_PU200_v1_t11", "Bs #rightarrow #mu#mu",    kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_BsToMuMu_PU200_v1_t11/results/muCorrelatorTTAnalysis1.root");
 
-  makePlots("MuFlatPt_PU200_t18", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t18/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("MuFlatPt_PU200_t21", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t21/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_t12", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t12/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU200_t17", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU200_v1_t17/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU140_t13", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU140_v1_t13/results/muCorrelatorTTAnalysis1.root");
   //makePlots("SingleNeutrino_PU250_t13", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_SingleNeutrino_PU250_v1_t13/results/muCorrelatorTTAnalysis1.root");
 
+  //makePlots("HSCPppstau_M_200_PU200_t21", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_HSCPppstau_M_200_PU200_v1_t21/results/muCorrelatorTTAnalysis1.root");
+  makePlots("HSCPppstau_M_871_PU200_t22", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_HSCPppstau_M_871_PU200_v1_t22/results/muCorrelatorTTAnalysis1.root");
+
+  //makePlots("MuFlatPt_PU200_v1_t21_bayesOMTF_L1TkMuons", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t21_bayesOMTF_L1TkMuons_v2_36_4/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_v1_t15_bayesOMTFonly", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t15_bayesOMTFonly/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP_withPR807", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t17_bayesOMTFonly_L1TkMuonsTP_withPR807/results/muCorrelatorTTAnalysis1.root");
@@ -161,6 +165,7 @@ int MuCorrelatorAnalyzerPlots2() {
 
   //makePlots("HSCP",  "HSCP",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1HSCP.root");
   //makePlots("MuFlatPt_PU200_v1_t15_bayesOMTFonly", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/muCorrelatorTTAnalysis1.root");
+  //makePlots("HSCP",  "HSCP",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_HSCPppstau_M_200_PU200.root");
 
 /*
   c0->cd();
@@ -192,13 +197,17 @@ void makePlots(const char* name, string label, int color, int ptCut, const char*
   plotsDir = string("plots_") + name;
   mkdir( plotsDir.c_str(), 0777);
 
-  //makeEffVsBeta(omtfTTAnalyzerDir, name);
+  makeEffVsBeta(omtfTTAnalyzerDir, name);
 
   //makeCandidatesMatchingPlots(omtfTTAnalyzerDir, name, eventsCnt);
 
-  makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, ptCut);
+  //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, ptCut);
 
-  makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
+  //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 3);
+  //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 10);
+  //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 20);
+
+  //makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
 }
 
 void savePlot(string name, TVirtualPad* orgianlPad) {
@@ -267,11 +276,11 @@ void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
   TIter next(omtfTTAnalyzerDir->GetListOfKeys());
   TKey* key;
   bool first = true;
-  int color = 2;
+  int color = 1;
 
   TH1D* l1MuVsBetaGenSingleMu = nullptr;
 
-  string singleMuAlgoName = "EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_20_ptGenTo_100000";
+  string singleMuAlgoName = "EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000";
 
   while ((key = (TKey*)next())) {
     if (key->IsFolder()) {
@@ -316,10 +325,14 @@ void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
 
         first = false;
         color++;
-        if(color == 5)
-          color = 6;
+        if(color == 5 || color == 10)
+          color++;
       }
     }
+  }
+
+  if(l1MuVsBetaGenSingleMu == nullptr) {
+    cout<<"l1MuVsBetaGenSingleMu == nullptr"<<endl;
   }
 
   canvasBetaPlost->cd(2);
@@ -329,7 +342,7 @@ void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
   canvasBetaPlost->cd(3)->SetGridy();
   first = true;
   next.Reset();
-  color = 2;
+  color = 1;
 
   while ((key = (TKey*)next())) {
     if (key->IsFolder()) {
@@ -337,7 +350,7 @@ void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
       string dirName = key->GetName();
       if(dirName.find("EfficiencyAnalyser_") != string::npos) {
         TDirectory* subdir = gDirectory;
-        cout<<"making beta  plots for "<<dirName<<endl;
+        cout<<"making sum beta  plots for "<<dirName<<endl;
 
         TH2I* betaGenBetaL1Mu = (TH2I*)subdir->Get("betaGenBetaL1Mu");
 
@@ -345,15 +358,20 @@ void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
         TH1D* l1MuVsBetaGen = betaGenBetaL1Mu->ProjectionX("l1MuVsBetaGen2", bin0, -1);
         TH1D* allVsBetaGen = betaGenBetaL1Mu->ProjectionX("allVsBetaGen2", -1, -1);
 
-        if(dirName != singleMuAlgoName) {
+        if(dirName.find("Hscp")  != string::npos ) {
+          cout<<"dirName "<<dirName<<endl;
           TH1D* l1MuVsBetaGenSum = (TH1D*)l1MuVsBetaGen->Clone("l1MuVsBetaGenSum");
           TH1D* allVsBetaGenSum = (TH1D*)allVsBetaGen->Clone("allVsBetaGenSum");
 
           l1MuVsBetaGenSum->Add(l1MuVsBetaGenSingleMu);
 
-
           l1MuVsBetaGenSum->Sumw2(false);
           allVsBetaGenSum->Sumw2(false);
+
+          l1MuVsBetaGenSum->SetLineColor(color);
+          allVsBetaGenSum->SetLineColor(color);
+          allVsBetaGenSum->SetFillColor(color);
+
           std::string title = ("HSCP efficiency; generated #beta; efficiency");
           TEfficiency* effVsBeta = makeEfficiency(*l1MuVsBetaGenSum, *allVsBetaGenSum, title, color);
 
@@ -383,8 +401,8 @@ void makeEffVsBeta(TDirectory* omtfTTAnalyzerDir, const char* nameLegend) {
         }
 
         color++;
-        if(color == 5)
-          color = 6;
+        if(color == 5 || color == 10)
+          color++;
       }
     }
   }
@@ -726,7 +744,7 @@ void makeEfficiencyPlots(TDirectory* omtfTTAnalyzerDir, const char* nameLegend, 
               TH1D* gpMuonGenEtaMuons_withPtCuts_overlap = (TH1D*)gpMuonGenEtaMuons_withPtCuts->Clone( (gpMuonGenEtaMuons_withPtCuts->GetName() + string("_overlap")).c_str() );
 
               for(int iBin = 1; iBin <= gpMuonGenEtaMuons_withPtCuts_overlap->GetNbinsX(); iBin++) {
-                if( abs(gpMuonGenEtaMuons_withPtCuts_overlap->GetBinCenter(iBin)) < 0.8 || abs(gpMuonGenEtaMuons_withPtCuts_overlap->GetBinCenter(iBin)) > 1.25) {
+                if( abs(gpMuonGenEtaMuons_withPtCuts_overlap->GetBinCenter(iBin)) < 0.8 || abs(gpMuonGenEtaMuons_withPtCuts_overlap->GetBinCenter(iBin)) > 1.3) {
                   gpMuonGenEtaMuons_withPtCuts_overlap->SetBinContent(iBin, 0);
                   muCandGenEtaMuons_withPtCuts_overlap->SetBinContent(iBin, 0);
                 }
