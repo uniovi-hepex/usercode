@@ -182,9 +182,9 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
         muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
-           muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
+        ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
+          (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
+           muCorrelatorTrack.getFiredLayerCnt() >= 4) &&
         ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
             ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
               muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
@@ -203,9 +203,9 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
         muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
-           muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
+        ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
+          (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
+           muCorrelatorTrack.getFiredLayerCnt() >= 4) &&
         ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
             ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
               muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
@@ -226,9 +226,9 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
         muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1100) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1400) ||
-           muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
+        ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1100) ||
+          (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1400) ||
+           muCorrelatorTrack.getFiredLayerCnt() >= 4) &&
         ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() )
     )
       return true;
@@ -244,9 +244,9 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
         muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1100) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1400) ||
-           muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
+        ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1100) ||
+          (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1400) ||
+           muCorrelatorTrack.getFiredLayerCnt() >= 4) &&
         ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() ) &&
         (abs(muCorrelatorTrack.getEta() ) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )
     )
@@ -263,9 +263,9 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
         muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
-           muCorrelatorTrack.getFiredLayerBits().count() >= 4) //&&
+        ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
+          (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
+           muCorrelatorTrack.getFiredLayerCnt() >= 4) //&&
         //( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2Red(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() )
     )
       return true;
@@ -281,9 +281,9 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
         muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1300) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1900) ||
-           muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
+        ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1300) ||
+          (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1900) ||
+           muCorrelatorTrack.getFiredLayerCnt() >= 4) &&
            ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
                ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
                  muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
@@ -314,9 +314,9 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
     if( muCorrelatorTrack.hwQual() >= 13 &&
         muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1800 && muCorrelatorTrack.getBetaLikelihood() >= 9) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 4 && muCorrelatorTrack.pdfSum() > 2000 && muCorrelatorTrack.getBetaLikelihood() >= 10) ||
-         muCorrelatorTrack.getFiredLayerBits().count() >= 5  ) &&
+        ( (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1800 && muCorrelatorTrack.getBetaLikelihood() >= 9) ||
+          (muCorrelatorTrack.getFiredLayerCnt() == 4 && muCorrelatorTrack.pdfSum() > 2000 && muCorrelatorTrack.getBetaLikelihood() >= 10) ||
+         muCorrelatorTrack.getFiredLayerCnt() >= 5  ) &&
          ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
              ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
                muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
@@ -337,12 +337,12 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
     if( muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
         muCorrelatorTrack.hwQual() >= 13 &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1300 && muCorrelatorTrack.getBetaLikelihood() >= 6) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1700 && muCorrelatorTrack.getBetaLikelihood() >= 7) ||
-          (muCorrelatorTrack.getFiredLayerBits().count() == 4 && muCorrelatorTrack.pdfSum() > 2200 && muCorrelatorTrack.getBetaLikelihood() >= 9) ||
-           muCorrelatorTrack.getFiredLayerBits().count() >= 5) &&
+        ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1000 && muCorrelatorTrack.getBetaLikelihood() >= 6) ||
+          (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1100 && muCorrelatorTrack.getBetaLikelihood() >= 7) ||
+          (muCorrelatorTrack.getFiredLayerCnt() == 4 && muCorrelatorTrack.pdfSum() > 1200 && muCorrelatorTrack.getBetaLikelihood() >= 9) ||
+           muCorrelatorTrack.getFiredLayerCnt() >= 5) &&
        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
-           ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 200 ) ||
+           ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
              muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
           muCorrelatorTrack.getTtTrackPtr().isNull() )
       )
@@ -361,10 +361,10 @@ public:
   virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
     if( muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
         muCorrelatorTrack.hwQual() >= 13 &&
-        ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1300) || // && muCorrelatorTrack.getBetaLikelihood() >= 6
-          (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1700) || // && muCorrelatorTrack.getBetaLikelihood() >= 7
-          (muCorrelatorTrack.getFiredLayerBits().count() == 4 && muCorrelatorTrack.pdfSum() > 2200) || // && muCorrelatorTrack.getBetaLikelihood() >= 9
-           muCorrelatorTrack.getFiredLayerBits().count() >= 5) &&
+        ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1000) || // && muCorrelatorTrack.getBetaLikelihood() >= 6
+          (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1100) || // && muCorrelatorTrack.getBetaLikelihood() >= 7
+          (muCorrelatorTrack.getFiredLayerCnt() == 4 && muCorrelatorTrack.pdfSum() > 1200) || // && muCorrelatorTrack.getBetaLikelihood() >= 9
+           muCorrelatorTrack.getFiredLayerCnt() >= 5) &&
        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
            ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
              muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
@@ -393,7 +393,7 @@ std::ostream & operator<< (std::ostream &out, const l1t::BayesMuCorrelatorTrack&
   <<" type "<<muCand.getCandidateType()
   <<" beta "<<muCand.getBeta()
   <<" betaLikelihood "<<muCand.getBetaLikelihood()
-  <<" "<<muCand.getFiredLayerBits();
+  <<" "<<muCand.getFiredLayerBits(30);
 
   return out;
 }
@@ -597,7 +597,7 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
       muCandGenEtaMuons_withPtCuts->Fill(trackParticle->eta());
 
 
-      auto& layerHitBits = bestL1MuCand->getFiredLayerBits();
+      auto& layerHitBits = bestL1MuCand->getFiredLayerBits(30);
       int firedLayers = layerHitBits.count();
       int pdfSum = bestL1MuCand->pdfSum();
       muonsPdfSumFiredPlanes->Fill(pdfSum, firedLayers);
@@ -769,7 +769,7 @@ void RateAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrac
     edm::Ptr< TrackingParticle > tpMatchedToBestL1MuCand = MCTruthTTTrackHandle->findTrackingParticlePtr(ttTrackPtr);
 
 
-    auto& layerHitBits = bestL1MuCand->getFiredLayerBits();
+    auto& layerHitBits = bestL1MuCand->getFiredLayerBits(30);
     int firedLayers = layerHitBits.count();
     int pdfSum = (int)bestL1MuCand->pdfSum();
 
@@ -896,7 +896,7 @@ public:
 
       candPt->Fill(pt);
 
-      auto& layerHitBits = l1MuCand.getFiredLayerBits();
+      auto& layerHitBits = l1MuCand.getFiredLayerBits(30);
       if( passesPtCut) {
         candEta->Fill(eta);
         int firedLayers = layerHitBits.count();
@@ -1371,7 +1371,7 @@ void MuCorrelatorAnalyzer::beginJob()
 
   std::shared_ptr<TriggerAlgo> hscpAlgoHardCuts20 = std::make_shared<HscpAlgoHardCuts>(20);
   std::shared_ptr<TriggerAlgo> hscpAlgoSoftCuts20 = std::make_shared<HscpAlgoSoftCuts>(20);
-  //std::shared_ptr<TriggerAlgo> hscpAlgoPdfSumCuts20 = std::make_shared<HscpAlgoPdfSumCuts>(20);
+  std::shared_ptr<TriggerAlgo> hscpAlgoPdfSumCuts20 = std::make_shared<HscpAlgoPdfSumCuts>(20);
 
 
 
@@ -1607,7 +1607,7 @@ void MuCorrelatorAnalyzer::hscpAnalysis(const edm::Event& event, edm::Ptr< Track
           l1MuBeta = 0.99;
         betaGenBetaL1Mu->Fill(l1MuCandSimTrackPtr->p4().Beta(), l1MuBeta);
 
-        betaLikelihoodFiredPlanesMuons->Fill(itL1MuCand->getBetaLikelihood(), itL1MuCand->getFiredLayerBits().count());
+        betaLikelihoodFiredPlanesMuons->Fill(itL1MuCand->getBetaLikelihood(), itL1MuCand->getFiredLayerCnt());
 
         wasL1MuCand = true; //by definition there can be only candidate for a given tracking particle
         break;
@@ -1744,6 +1744,7 @@ void MuCorrelatorAnalyzer::analyze(
 {
   //const unsigned int omtflayersCnt = muCorrConfig.nLayers();
   LogTrace("l1tMuBayesEventPrint") << "\n\nMuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" new event "<<event.id()<<" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"<< endl;
+
 
   edm::Handle<edm::SimTrackContainer> simTraksHandle;
   event.getByToken(simTrackToken, simTraksHandle);

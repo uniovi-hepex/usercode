@@ -22,7 +22,7 @@
 using namespace std;
 
 bool showTkMu = true;
-bool showBayes = false;
+bool showBayes = true;
 
 //string outPlotsdir = "omtf_correlator_plots_L1TkMuons_v2_36_4/";
 string outPlotsdir = "omtf_correlator_plots_L1TkMuons_v2_36_4_noBayes/";
@@ -394,11 +394,14 @@ void MakePlots()
     TFile* tdr_rates = new TFile("fromCarlos/tdr_rates_pu.root");
     TGraphAsymmErrors* omtfRateVsPu = (TGraphAsymmErrors*)tdr_rates->Get("mc_rates_pu_pt20__q12");
 
-    TGraphAsymmErrors* muCorrRateVsPu = new TGraphAsymmErrors(3);
+    TGraphAsymmErrors* muCorrRateVsPu = new TGraphAsymmErrors(4);
 
     muCorrRateVsPu->SetPoint(0, 140, 1453.33/1000.);  muCorrRateVsPu->SetPointError(0, 0, 0, 303.04/1000., 303.04/1000.);
     muCorrRateVsPu->SetPoint(1, 200, 2114.03/1000.);  muCorrRateVsPu->SetPointError(1, 0, 0, 362.553/1000., 362.553/1000.); //20GeV 2114.03 error 362.553
     muCorrRateVsPu->SetPoint(2, 250, 3171.04/1000.);  muCorrRateVsPu->SetPointError(2, 0, 0, 444.035/1000., 444.035/1000.);
+    muCorrRateVsPu->SetPoint(2, 300, 3571.54/1000.);  muCorrRateVsPu->SetPointError(2, 0, 0, 538.43/1000., 538.43/1000.); // SingleNeutrino_PU300_v1_t23  RateAnalyzer_SingleMuAlgoOverlap20 rate at pt_cut 20GeV 3571.54 error 538.43
+
+
 
     //muCorrRateVsPu->SetPoint(4, -100, -100);  muCorrRateVsPu->SetPointError(4, 0.1, 0.1, 0.1, 0.1);
 
@@ -408,13 +411,15 @@ void MakePlots()
     l1TkMuonsRateVsPu->SetPoint(0, 140, 1305.72/1000.);  l1TkMuonsRateVsPu->SetPointError(0, 0, 0, 284.932/1000., 284.932/1000.); //20GeV 1305.72 error 284.932
     l1TkMuonsRateVsPu->SetPoint(1, 200, 2176.2 /1000.);  l1TkMuonsRateVsPu->SetPointError(1, 0, 0, 367.846/1000., 367.846/1000.); //20GeV 2176.2 error 367.846
     l1TkMuonsRateVsPu->SetPoint(2, 250, 3606.28/1000.);  l1TkMuonsRateVsPu->SetPointError(2, 0, 0, 473.528/1000., 473.528/1000.);  //20GeV 3606.28 error 473.528
+    l1TkMuonsRateVsPu->SetPoint(2, 300, 5600.83/1000.);  l1TkMuonsRateVsPu->SetPointError(2, 0, 0, 702.393/1000., 702.393/1000.);  //RateAnalyzer_SingleMuAlgoOverlap20 rate at pt_cut 20.25GeV 5600.83 error 702.393
+
 
 
     TCanvas* canvas = CreateCanvas(plotNamePrefix + "_ratesVsPu", false, true);
 
     canvas->cd();
 
-    omtfRateVsPu->RemovePoint(4);
+    //omtfRateVsPu->RemovePoint(4);
     omtfRateVsPu->SetLineColor(kBlack);
     omtfRateVsPu->SetLineWidth(lineWidth);
     omtfRateVsPu->SetMarkerStyle(20);

@@ -1754,7 +1754,7 @@ void MuCorrelatorAnalyzer::analyze(
 
   LogTrace("l1tMuBayesEventPrint") << "\nMuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" vertexSim "<<simVx->size()<< endl;
 
-  analyzeSimTracks(simTraksHandle, genPartHandle); //muCorrTracksHandle
+  //analyzeSimTracks(simTraksHandle, genPartHandle); //muCorrTracksHandle
 
 
   // L1 tracks
