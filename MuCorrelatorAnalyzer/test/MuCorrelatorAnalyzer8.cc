@@ -526,7 +526,7 @@ public:
 
     betaLikelihoodFiredPlanesMuons = subDir.make<TH2I>("betaLikelihoodFiredPlanesMuons", "betaLikelihoodFiredPlanesMuons; betaLikelihood; firedPlanes; #", 100, 0, 100, 19, -0.5, 18.5);
     muCandBetaMuons = subDir.make<TH1I>("muCandBetaMuons", "muCandBetaMuons; beta measured; #events", 22, 0., 1.1);
-    betaGenBetaL1Mu = subDir.make<TH2I>("betaGenBetaL1Mu", "betaGenBetaL1Mu; betaGen; Beta L1MuCand; #", 20, 0., 1., 42, -1., 1.1);
+    betaGenBetaL1Mu = subDir.make<TH2I>("betaGenBetaL1Mu", "betaGenBetaL1Mu, staus; betaGen; Beta L1MuCand; #", 20, 0., 1., 42, -1., 1.1);
 
     lostTtMuonPt = subDir.make<TH1D>("lostTtMuonPt", "lostTtMuonPt; ttMuonPt [GeV]; #events", ptBins, 0., 500.);;
     lostTtMuonEta_ptGen20GeV = subDir.make<TH1D>("lostTtMuonEta_ptGen20GeV", "lostTtMuonEta_ptGen20GeV; eta; #events", etaBins, -2.4, 2.4);
@@ -603,7 +603,13 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
       double l1MuBeta = bestL1MuCand->getBeta();
       if(l1MuBeta >= 1)
         l1MuBeta = 0.99;
-      betaGenBetaL1Mu->Fill(trackParticle->p4().Beta(), l1MuBeta);
+
+      if(abs(trackParticle->pdgId()) == 1000015 ) //TODO only status are selected here
+        betaGenBetaL1Mu->Fill(trackParticle->p4().Beta(), l1MuBeta);
+    }
+    else {//no candidate with pt > ptCut
+      if(abs(trackParticle->pdgId()) == 1000015 ) //TODO only status are selected here
+        betaGenBetaL1Mu->Fill(trackParticle->p4().Beta(), -1);
     }
   }
 
@@ -633,7 +639,7 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
       ptGenPtMuCandMuonsPu->Fill(trackParticle->pt(), muCandPt);
     }
   }
-  else {//no cnaidate
+  else {//no candidate
     if(trackParticle->eventId().event() == 0) {
       ptGenPtMuCandMuonsEv0->Fill(trackParticle->pt(), 0);
 
@@ -666,8 +672,6 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
         edm::LogImportant("l1tMuBayesEventPrint")<<" "<<triggerAlgo->name<<" lost high pT muon due to algo cuts, correlator candidate:\n"<<toString(*notAcceptedL1MuCand)<<endl;
         edm::LogImportant("l1tMuBayesEventPrint")<< printTrackigParticleShort(trackParticle)<<endl<<endl; //<<"Line: "<<__LINE__<<". "
       }*/
-
-      betaGenBetaL1Mu->Fill(trackParticle->p4().Beta(), -1);
     }
   }
 }
@@ -1417,13 +1421,13 @@ void MuCorrelatorAnalyzer::beginJob()
 
     //efficiencyAnalysers.emplace_back(singleMuAlgoHardCuts, fs);
 
-    efficiencyAnalysers.emplace_back(hscpAlgo20, 20, 10000, fs);
+    efficiencyAnalysers.emplace_back(hscpAlgo20, 25, 10000, fs);
 
     //efficiencyAnalysers.emplace_back(hscpAlgo30, fs);
 
     //efficiencyAnalysers.emplace_back(hscpAlgoHardCuts20, fs);
-    efficiencyAnalysers.emplace_back(hscpAlgoSoftCuts20, 20, 10000, fs);
-    efficiencyAnalysers.emplace_back(hscpAlgoPdfSumCuts20, 20, 10000, fs);
+    efficiencyAnalysers.emplace_back(hscpAlgoSoftCuts20, 25, 10000, fs);
+    efficiencyAnalysers.emplace_back(hscpAlgoPdfSumCuts20, 25, 10000, fs);
   }
   else if(analysisType == "withTrackPart") {
     efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(singleMuAlgo, 20, 100000, fs);

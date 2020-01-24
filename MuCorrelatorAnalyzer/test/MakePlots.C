@@ -504,6 +504,9 @@ void MakePlots()
   }
 
   {
+    //string plots_HSCPDir = "plots_HSCPppstau_M_871_PU200_t24";
+    string plots_HSCPDir = "plots_HSCP";
+
     string canvasName = "bayesCorr_HSCP_efficiecny_vs_beta";
     TCanvas* canvas = CreateCanvas(canvasName.c_str(), false, true);
     canvas->cd();
@@ -517,7 +520,7 @@ void MakePlots()
     leg->SetTextSize(0.025);
 
 
-    TFile* totalEffFile = new TFile("plots_HSCP/EfficiencyAnalyser_HscpAlgoSoftCuts20_ptGenFrom_20_ptGenTo_100000_allVsBetaGenSum_clone_totalEff_.root");
+    TFile* totalEffFile = new TFile( (plots_HSCPDir + "/EfficiencyAnalyser_HscpAlgoSoftCuts20_ptGenFrom_20_ptGenTo_10000_allVsBetaGenSum_clone_totalEff_.root").c_str());
     TEfficiency* totalEff = (TEfficiency*)totalEffFile->Get("allVsBetaGenSum_clone");
     totalEff->SetTitle(";Generated stau #beta;Efficiency"); //#tilde{#tau}
     totalEff->SetLineColor(kBlack);
@@ -536,7 +539,7 @@ void MakePlots()
     DrawPuLabel(canvas, "no PU");
 
 
-    TFile* hscpAlgoEffFile = new TFile("plots_HSCP/EfficiencyAnalyser_HscpAlgoSoftCuts20_ptGenFrom_20_ptGenTo_100000_allVsBetaGen_clone_algoEff_.root");
+    TFile* hscpAlgoEffFile = new TFile(( plots_HSCPDir + "/EfficiencyAnalyser_HscpAlgoSoftCuts20_ptGenFrom_20_ptGenTo_10000_allVsBetaGen_clone_algoEff_.root").c_str());
     TEfficiency* hscpAlgoEff = (TEfficiency*)hscpAlgoEffFile->Get("allVsBetaGen_clone");
     hscpAlgoEff->SetLineColor(kBlue);
     hscpAlgoEff->SetLineWidth(lineWidth);
@@ -547,7 +550,7 @@ void MakePlots()
     leg->AddEntry(hscpAlgoEff, "HSCP candidates, tight cuts, L1 p_{T} #geq 20 GeV", "lep");
 
 
-    TFile* sinleMuAlgoEffFile = new TFile("plots_HSCP/EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_20_ptGenTo_100000_allVsBetaGen_clone_algoEff_.root");
+    TFile* sinleMuAlgoEffFile = new TFile( (plots_HSCPDir + "/EfficiencyAnalyser_SingleMuAlgo20_ptGenFrom_25_ptGenTo_10000_allVsBetaGen_clone_algoEff_.root").c_str());
     TEfficiency* sinleMuAlgoEff = (TEfficiency*)sinleMuAlgoEffFile->Get("allVsBetaGen_clone");
     sinleMuAlgoEff->SetLineColor(kRed);
     sinleMuAlgoEff->SetMarkerStyle(23);
