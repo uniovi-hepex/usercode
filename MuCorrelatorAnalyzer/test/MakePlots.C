@@ -22,7 +22,7 @@
 using namespace std;
 
 bool showTkMu = true;
-bool showBayes = true;
+bool showBayes = false;
 
 //string outPlotsdir = "omtf_correlator_plots_L1TkMuons_v2_36_4/";
 string outPlotsdir = "omtf_correlator_plots_L1TkMuons_v2_36_4_noBayes/";
@@ -399,19 +399,19 @@ void MakePlots()
     muCorrRateVsPu->SetPoint(0, 140, 1453.33/1000.);  muCorrRateVsPu->SetPointError(0, 0, 0, 303.04/1000., 303.04/1000.);
     muCorrRateVsPu->SetPoint(1, 200, 2114.03/1000.);  muCorrRateVsPu->SetPointError(1, 0, 0, 362.553/1000., 362.553/1000.); //20GeV 2114.03 error 362.553
     muCorrRateVsPu->SetPoint(2, 250, 3171.04/1000.);  muCorrRateVsPu->SetPointError(2, 0, 0, 444.035/1000., 444.035/1000.);
-    muCorrRateVsPu->SetPoint(2, 300, 3571.54/1000.);  muCorrRateVsPu->SetPointError(2, 0, 0, 538.43/1000., 538.43/1000.); // SingleNeutrino_PU300_v1_t23  RateAnalyzer_SingleMuAlgoOverlap20 rate at pt_cut 20GeV 3571.54 error 538.43
+    muCorrRateVsPu->SetPoint(3, 300, 3571.54/1000.);  muCorrRateVsPu->SetPointError(3, 0, 0, 538.43/1000., 538.43/1000.); // SingleNeutrino_PU300_v1_t23  RateAnalyzer_SingleMuAlgoOverlap20 rate at pt_cut 20GeV 3571.54 error 538.43
 
 
 
     //muCorrRateVsPu->SetPoint(4, -100, -100);  muCorrRateVsPu->SetPointError(4, 0.1, 0.1, 0.1, 0.1);
 
 
-    TGraphAsymmErrors* l1TkMuonsRateVsPu = new TGraphAsymmErrors(3);
+    TGraphAsymmErrors* l1TkMuonsRateVsPu = new TGraphAsymmErrors(4);
 
     l1TkMuonsRateVsPu->SetPoint(0, 140, 1305.72/1000.);  l1TkMuonsRateVsPu->SetPointError(0, 0, 0, 284.932/1000., 284.932/1000.); //20GeV 1305.72 error 284.932
     l1TkMuonsRateVsPu->SetPoint(1, 200, 2176.2 /1000.);  l1TkMuonsRateVsPu->SetPointError(1, 0, 0, 367.846/1000., 367.846/1000.); //20GeV 2176.2 error 367.846
     l1TkMuonsRateVsPu->SetPoint(2, 250, 3606.28/1000.);  l1TkMuonsRateVsPu->SetPointError(2, 0, 0, 473.528/1000., 473.528/1000.);  //20GeV 3606.28 error 473.528
-    l1TkMuonsRateVsPu->SetPoint(2, 300, 5600.83/1000.);  l1TkMuonsRateVsPu->SetPointError(2, 0, 0, 702.393/1000., 702.393/1000.);  //RateAnalyzer_SingleMuAlgoOverlap20 rate at pt_cut 20.25GeV 5600.83 error 702.393
+    l1TkMuonsRateVsPu->SetPoint(3, 300, 5600.83/1000.);  l1TkMuonsRateVsPu->SetPointError(3, 0, 0, 702.393/1000., 702.393/1000.);  //RateAnalyzer_SingleMuAlgoOverlap20 rate at pt_cut 20.25GeV 5600.83 error 702.393
 
 
 
@@ -504,8 +504,8 @@ void MakePlots()
   }
 
   {
-    //string plots_HSCPDir = "plots_HSCPppstau_M_871_PU200_t24";
-    string plots_HSCPDir = "plots_HSCP";
+    string plots_HSCPDir = "plots_HSCPppstau_M_871_PU200_t25"; //TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+    //string plots_HSCPDir = "plots_HSCP";
 
     string canvasName = "bayesCorr_HSCP_efficiecny_vs_beta";
     TCanvas* canvas = CreateCanvas(canvasName.c_str(), false, true);
@@ -514,13 +514,13 @@ void MakePlots()
     //TLegend* leg = new TLegend(0.13, 0.45,0.46,0.65);
     TLegend* leg = new TLegend(0.3, 0.7, 0.65, 0.9);
     //leg->SetHeader("#splitline{#tilde{#tau} m = 494 and 1599 GeV}{#left|#eta^{gen}#right|<2.4}");
-    leg->SetHeader("#tilde{#tau} m = 494 and 1599 GeV #left|#eta^{gen}#right|<2.4");
+    leg->SetHeader("#tilde{#tau} m = 871 GeV, #left|#eta^{gen}#right|<2.4");
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.025);
 
 
-    TFile* totalEffFile = new TFile( (plots_HSCPDir + "/EfficiencyAnalyser_HscpAlgoSoftCuts20_ptGenFrom_20_ptGenTo_10000_allVsBetaGenSum_clone_totalEff_.root").c_str());
+    TFile* totalEffFile = new TFile( (plots_HSCPDir + "/EfficiencyAnalyser_HscpAlgoSoftCuts20_ptGenFrom_25_ptGenTo_10000_allVsBetaGenSum_clone_totalEff_.root").c_str());
     TEfficiency* totalEff = (TEfficiency*)totalEffFile->Get("allVsBetaGenSum_clone");
     totalEff->SetTitle(";Generated stau #beta;Efficiency"); //#tilde{#tau}
     totalEff->SetLineColor(kBlack);
@@ -536,10 +536,10 @@ void MakePlots()
     leg->AddEntry(totalEff , "total efficiency", "lep");
 
     DrawCmsSimulationLabel(canvas);
-    DrawPuLabel(canvas, "no PU");
+    DrawPuLabel(canvas, "200 PU");
 
 
-    TFile* hscpAlgoEffFile = new TFile(( plots_HSCPDir + "/EfficiencyAnalyser_HscpAlgoSoftCuts20_ptGenFrom_20_ptGenTo_10000_allVsBetaGen_clone_algoEff_.root").c_str());
+    TFile* hscpAlgoEffFile = new TFile(( plots_HSCPDir + "/EfficiencyAnalyser_HscpAlgoSoftCuts20_ptGenFrom_25_ptGenTo_10000_allVsBetaGen_clone_algoEff_.root").c_str());
     TEfficiency* hscpAlgoEff = (TEfficiency*)hscpAlgoEffFile->Get("allVsBetaGen_clone");
     hscpAlgoEff->SetLineColor(kBlue);
     hscpAlgoEff->SetLineWidth(lineWidth);
@@ -639,6 +639,29 @@ void MakePlots()
     canvas->SaveAs( (outPlotsdir + canvaseNAme + ".root").c_str());
   }
 
+  {
+    TFile* rpcTimingHistFile = new TFile( "timingHist_layer_13_roll_5_eta_1.root" );
+    TH2* rpcTimingHist = (TH2*)rpcTimingHistFile->Get("timingHist_layer_13_roll_5_eta_1");
+
+    string canvaseNAme = "rpcTiming_HSCP";
+    TCanvas* canvas = CreateCanvas(canvaseNAme.c_str(), false, true);
+    canvas->cd();
+    canvas->SetLogz();
+    canvas->SetRightMargin(0.15);
+    rpcTimingHist->SetTitle("");
+    rpcTimingHist->GetXaxis()->SetTitle("RPC hit timing");
+    rpcTimingHist->GetYaxis()->SetTitle("(1/#beta - 1) #times4 + 1");
+
+    rpcTimingHist->Draw("colz");
+
+    DrawCmsSimulationLabel(canvas);
+    DrawPuLabel(canvas, "no PU");
+    canvas->Update();
+
+    canvas->SaveAs( (outPlotsdir + canvaseNAme + ".pdf").c_str());
+    canvas->SaveAs( (outPlotsdir + canvaseNAme + ".png").c_str());
+    canvas->SaveAs( (outPlotsdir + canvaseNAme + ".root").c_str());
+  }
 
   return;
 
