@@ -1,0 +1,21 @@
+<!-- <library file="*.cc" name="L1MuonAnalyzer"> 
+  <use name="L1Trigger/L1TMuonBayes"/>
+  <use name="CondFormats/L1TObjects"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="CondCore/DBOutputService"/>
+  <use name="SimDataFormats/Track"/>
+  <use name="root"/>
+  <flags EDM_PLUGIN="1"/>
+  <flags LDFLAGS="-lXMLIO"/>
+</library> -->
+
+<library   file="L1MuonAnalyzerOmtf.cc" name="usercodeL1MuonAnalyzerOmtfPlugin">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<use ame="FWCore/PluginManager"/>
+<use name="DataFormats/L1Trigger" />
+<use name="DataFormats/HepMCCandidate" />
+<use name="L1Trigger/L1TMuon" />
+<use name="usercode/L1MuonAnalyzer" />
