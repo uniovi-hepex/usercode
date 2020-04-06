@@ -18,8 +18,10 @@ def makeEfficiency(passed, total, title, lineColor):
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
-histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2.root' )
+#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v28_10Files.root' )
+histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t27/results/omtfAnalysis2.root' )
+
 #histFile.ls()
 
 efficiencyDir = histFile.Get("L1MuonAnalyzerOmtf/efficiency")
@@ -68,9 +70,9 @@ def makeEfficiencyPlots(ptCutGev, lineColor) :
     c1.cd(4).SetGridy()
     effHist2 = accpetedVsPtGen.Rebin(rebin, accpetedVsPtGen.GetName() + "_2")
     allVsPtGen2 = allVsPtGen.Rebin(rebin, allVsPtGen.GetName() + "_2")
-    allVsPtGen2.GetYaxis().SetRangeUser(0, 1.05)
     effHist2.Divide(allVsPtGen2)
     effHist2.SetLineColor(lineColor)
+    effHist2.GetYaxis().SetRangeUser(0, 1.05)
     effHist2.Draw("hist")
     efficienciesHist2.append(effHist2)        
     canvases.append(c1)
@@ -82,22 +84,22 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
     if isinstance(ptGenVsPtCand, TH2D):
         #makeEfficiencyPlots(5)
         lineColor = 2
-        ptCut = 20
+        ptCut = 21
         if iAlgo < 2 :
             lineColor = 1
             ptCut = 20
-        makeEfficiencyPlots(1, lineColor)
+        makeEfficiencyPlots(ptCut, lineColor)
         #makeEfficiencyPlots(0, lineColor)
         
 for iAlgo, canvas in enumerate(canvases ) :
     if iAlgo >= 2 :
         canvas.cd(3)
-        efficienciesHist1[0].Draw("same")
+        efficienciesHist1[0].DrawCopy("same hist")
         canvas.cd(3).Modified()
         canvas.Update()
         
         canvas.cd(4)
-        efficienciesHist2[0].Draw("same")
+        efficienciesHist2[0].DrawCopy("same hist")
         canvas.cd(4).Modified()
         canvas.Update()
 

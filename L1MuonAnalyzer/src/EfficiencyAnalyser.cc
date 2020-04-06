@@ -39,14 +39,14 @@ PtGenVsPtCand::PtGenVsPtCand(TFileDirectory& subDir, std::string name, double et
 }
 
 void PtGenVsPtCand::fill(double ptGen, double etaGen, double phiGen, L1MuonCand& l1MuonCand) {
-  if(ptGen > ptGenVsPtCand->GetXaxis()->GetXmax())
+  if(ptGen >= ptGenVsPtCand->GetXaxis()->GetXmax())
     ptGen = ptGenVsPtCand->GetXaxis()->GetXmax() - 0.01;
 
   if( (etaFrom <= fabs(etaGen) ) && (fabs(etaGen) <= etaTo) ) {
     if(l1MuonCand.hwQual >= qualityCut) {
 
       double candPt = l1MuonCand.ptGev;
-      if(candPt > ptGenVsPtCand->GetYaxis()->GetXmax())
+      if(candPt >= ptGenVsPtCand->GetYaxis()->GetXmax())
         candPt = ptGenVsPtCand->GetYaxis()->GetXmax() - 0.01;
 
       ptGenVsPtCand->Fill(ptGen, candPt);

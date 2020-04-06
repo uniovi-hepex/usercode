@@ -77,7 +77,7 @@
 
 
 #include "usercode/L1MuonAnalyzer/interface/EfficiencyAnalyser.h"
-
+#include "usercode/L1MuonAnalyzer/interface/RateAnalyser.h"
 
 #include "TProfile.h"
 #include "TH1D.h"
@@ -97,6 +97,10 @@ public:
   //edm filter plugin specific functions
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+  virtual void analyzeEfficiency(const edm::Event&, const edm::EventSetup&);
+  virtual void analyzeRate(const edm::Event&, const edm::EventSetup&);
+
   virtual void endJob();
 
   double getDeltaR(const edm::Ptr< SimTrack >& simTrackPtr, const l1t::RegionalMuonCand& omtfCand);
@@ -104,12 +108,19 @@ public:
   bool matched(const edm::Ptr< SimTrack >& simTrackPtr, const l1t::RegionalMuonCand& omtfCand);
 
 private:
+  std::string analysisType;
+
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection > omtfToken;
 
   std::vector<std::unique_ptr<EfficiencyAnalyser> > omtfEfficiencyAnalysers;
 
   std::vector<std::unique_ptr<EfficiencyAnalyser> > omtfNNEfficiencyAnalysers;
+
+
+  std::vector<std::unique_ptr<RateAnalyser> > omtfRateAnalysers;
+
+  std::vector<std::unique_ptr<RateAnalyser> > omtfNNRateAnalysers;
 
 
   double maxDeltaR = 0.3;
@@ -122,6 +133,8 @@ private:
   double hwPtToPtGeV(int hwPt) {
     return ( (hwPt - 1.)/2.);
   }
+
+  TH1* candPerEvent = nullptr;
 };
 
 }

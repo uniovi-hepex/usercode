@@ -22,7 +22,7 @@ public:
 
   virtual void fill(L1MuonCand& l1MuonCand);
 
-  virtual void write() = 0;
+  virtual void write();
 
 private:
   int qualityCut = 0;
@@ -32,7 +32,7 @@ private:
 
   TH1* candEtaPtCut1 = nullptr;
   TH1* candEtaPtCut10 = nullptr;
-  TH1* candEtaPtCut22 = nullptr;
+  TH1* candEtaPtCut20 = nullptr;
 
 };
 

@@ -18,17 +18,22 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
 
   edm::Service<TFileService> fs;
 
-  TFileDirectory subDir = fs->mkdir("efficiency");
-  omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtfHighQ", 0.82, 1.24, 12, 200, 0, 200));
-  omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtfHighQ", 0.82, 1.24, 12, 10., 1, 100));
-  omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtfHighQ", 12, 10., 1, 100));
+  candPerEvent = fs->make<TH1D>("candPerEvent", "candPerEvent", 21, -0.5, 20.5);
 
-  omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtfLowQ",  0.82, 1.24, 1, 200, 0, 200));
-  omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtfLowQ", 0.82, 1.24, 12, 10., 1, 100));
-  omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtfLowQ", 12, 10., 1, 100));
+  analysisType = edmCfg.getParameter< string >("analysisType");
 
-  if(edmCfg.exists("nn_pThresholds") ) {
+  if(edmCfg.exists("nn_pThresholds") )
     nn_pThresholds = edmCfg.getParameter<vector<double> >("nn_pThresholds");
+
+  if(analysisType == "eff") {
+    TFileDirectory subDir = fs->mkdir("efficiency");
+    omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtfHighQ", 0.82, 1.24, 12, 200, 0, 200));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtfHighQ", 0.82, 1.24, 12, 10., 1, 100));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtfHighQ", 12, 10., 1, 100));
+
+    omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtfLowQ",  0.82, 1.24, 1, 200, 0, 200));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtfLowQ", 0.82, 1.24, 1, 10., 1, 100));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtfLowQ", 1, 10., 1, 100));
 
     for(auto& nn_pThreshold : nn_pThresholds) {
       std::ostringstream ostr;
@@ -37,6 +42,25 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
       edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNEfficiencyAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
       omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, ostr.str().c_str(), 0.82, 1.24, 12, 10., 1, 100));
       omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, ostr.str().c_str(), 12, 10., 1, 100));
+    }
+  }
+
+  else if(analysisType == "rate") {
+    TFileDirectory subDirRate = fs->mkdir("rate");
+
+    TFileDirectory subDir = subDirRate.mkdir("omtfHighQ");
+    omtfRateAnalysers.emplace_back(new  RateAnalyser(subDir, "", 12, 200, 0, 100));
+
+    subDir = subDirRate.mkdir("omtfLowQ");
+    omtfRateAnalysers.emplace_back(new  RateAnalyser(subDir, "", 1, 200, 0, 100));
+
+    for(auto& nn_pThreshold : nn_pThresholds) {
+      std::ostringstream ostr;
+      ostr<<"omtf_nn_pTresh_"<<nn_pThreshold;
+
+      subDir = subDirRate.mkdir(ostr.str().c_str());
+      omtfNNRateAnalysers.emplace_back(new RateAnalyser(subDir, "", 1, 200, 0, 100));
+      edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNEfficiencyAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
     }
   }
 }
@@ -51,7 +75,16 @@ void L1MuonAnalyzerOmtf::beginJob() {
 }
 
 void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup& es) {
-  LogTrace("l1tMuBayesEventPrint") <<"analyzeSimTracks"<<std::endl;
+  if(analysisType == "eff") {
+    analyzeEfficiency(event, es);
+  }
+  else if(analysisType == "rate") {
+    analyzeRate(event, es);
+  }
+}
+
+void L1MuonAnalyzerOmtf::analyzeEfficiency(const edm::Event& event, const edm::EventSetup& es) {
+  LogTrace("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyzeEfficiency"<<std::endl;
 
   edm::Handle<edm::SimTrackContainer> simTraksHandle;
   event.getByToken(simTrackToken, simTraksHandle);
@@ -69,7 +102,7 @@ void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup&
     else
       continue;
 
-/*    if (tpPtr->pt() < TP_minPt) TODO
+    /*    if (tpPtr->pt() < TP_minPt) TODO
       continue;
     if (fabs(tpPtr->eta()) > TP_maxEta)
       continue;*/
@@ -79,10 +112,10 @@ void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup&
     else
       continue;
 
-/*
+    /*
     if(tpPtr->vertex().rho() > TP_maxRho)
       continue;
-*/
+     */
 
     if(simTrackPtr->eventId().bunchCrossing() != 0)
       continue;
@@ -94,7 +127,7 @@ void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup&
     unsigned int bestCandFiredLayersCnt = 0;
 
     for(l1t::RegionalMuonCandBxCollection::const_iterator omtfCand = l1omtfHandle.product()->begin(0);
-         omtfCand != l1omtfHandle.product()->end(0); ++omtfCand) {
+        omtfCand != l1omtfHandle.product()->end(0); ++omtfCand) {
       int refLayer = (int)omtfCand->trackAddress().at(1);
       int layerHits = (int)omtfCand->trackAddress().at(0);
       std::bitset<18> layerHitBits(layerHits);
@@ -207,6 +240,88 @@ bool L1MuonAnalyzerOmtf::matched(const edm::Ptr< SimTrack >& simTrackPtr, const 
   }
   return false;
 }
+
+
+
+void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, const edm::EventSetup& es) {
+  LogTrace("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyzeRate"<<std::endl;
+
+  /*edm::Handle<edm::SimTrackContainer> simTraksHandle;
+  event.getByToken(simTrackToken, simTraksHandle); */
+
+  edm::Handle<l1t::RegionalMuonCandBxCollection> l1omtfHandle;
+  event.getByToken(omtfToken, l1omtfHandle);
+
+  candPerEvent->Fill(l1omtfHandle.product()->size(0));
+
+  const l1t::RegionalMuonCand* bestOmtfCand = nullptr;
+  unsigned int bestCandFiredLayersCnt = 0;
+
+  for(l1t::RegionalMuonCandBxCollection::const_iterator omtfCand = l1omtfHandle.product()->begin(0);
+      omtfCand != l1omtfHandle.product()->end(0); ++omtfCand) {
+    int refLayer = (int)omtfCand->trackAddress().at(1);
+    int layerHits = (int)omtfCand->trackAddress().at(0);
+    std::bitset<18> layerHitBits(layerHits);
+
+    double globalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi( omtfCand->hwPhi(), omtfCand->trackFinderType(), omtfCand->processor() )* 2. * M_PI / 576;
+    if(globalPhi > M_PI)
+      globalPhi = globalPhi -(2.*M_PI);
+    LogTrace("l1tMuBayesEventPrint") << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__
+        <<" omtf pt "<<omtfCand->hwPt()<<" omtf qual "<<omtfCand->hwQual()<<" omtf hwEta "<<omtfCand->hwEta()<<" omtf hwPhi "<<omtfCand->hwPhi()
+        <<" eta "<< (omtfCand->hwEta()*0.010875)
+        <<" phi "<<globalPhi
+        <<" refLayer "<<refLayer<<" "<<layerHitBits<<endl;
+
+    if(!bestOmtfCand) {
+      bestOmtfCand = &(*omtfCand);
+      bestCandFiredLayersCnt = layerHitBits.count();
+    }
+    else {
+      if(omtfCand->hwQual() > bestOmtfCand->hwQual() ) {
+        bestOmtfCand = &(*omtfCand);
+        bestCandFiredLayersCnt = layerHitBits.count();
+      }
+      else if(omtfCand->hwQual() == bestOmtfCand->hwQual() ) {
+        if(layerHitBits.count() > bestCandFiredLayersCnt ) {
+          bestOmtfCand = &(*omtfCand);
+          bestCandFiredLayersCnt = layerHitBits.count();
+        }
+        else if(layerHitBits.count() == bestCandFiredLayersCnt ) {
+          if(omtfCand->hwPt() > bestOmtfCand->hwPt() ) {
+            bestOmtfCand = &(*omtfCand);
+            bestCandFiredLayersCnt = layerHitBits.count();
+          }
+        }
+      }
+    }
+  }
+
+  L1MuonCand l1MuonCand;  //empty cand
+  if(bestOmtfCand) {
+    L1MuonCand l1MuonCand1(*bestOmtfCand, bestCandFiredLayersCnt);
+    l1MuonCand = l1MuonCand1;
+    l1MuonCand.ptGev = hwPtToPtGeV(bestOmtfCand->hwPt() ); //TODO
+  }
+  else {
+    LogTrace("l1tMuBayesEventPrint") <<" no matching candidate!!!!!!!!!!!!!!!!!" <<std::endl;
+  }
+
+  for(auto& omtfRateAnalyser : omtfRateAnalysers) {
+    omtfRateAnalyser->fill(l1MuonCand);
+  }
+
+  for(unsigned int i = 0; i < omtfNNRateAnalysers.size(); i++) {
+    if(bestOmtfCand) {
+      l1MuonCand.ptGev = fabs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + i) ) ); //TODO check if abs is in the proper place, TODO watch aout the i
+    }
+    omtfNNRateAnalysers[i]->fill( l1MuonCand);
+  }
+
+
+}
+
+
+
 
 void L1MuonAnalyzerOmtf::endJob() {
 
