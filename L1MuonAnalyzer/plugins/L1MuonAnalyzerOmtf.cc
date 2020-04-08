@@ -31,9 +31,9 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
     omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtfHighQ", 0.82, 1.24, 12, 10., 1, 100));
     omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtfHighQ", 12, 10., 1, 100));
 
-    omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtfLowQ",  0.82, 1.24, 1, 200, 0, 200));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtfLowQ", 0.82, 1.24, 1, 10., 1, 100));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtfLowQ", 1, 10., 1, 100));
+    omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtfLowQ",  0.82, 1.24, 4, 200, 0, 200));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtfLowQ", 0.82, 1.24, 4, 10., 1, 100));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtfLowQ", 4, 10., 1, 100));
 
     for(auto& nn_pThreshold : nn_pThresholds) {
       std::ostringstream ostr;
