@@ -56,10 +56,21 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
 
     for(auto& nn_pThreshold : nn_pThresholds) {
       std::ostringstream ostr;
-      ostr<<"omtf_nn_pTresh_"<<nn_pThreshold;
-
+      ostr<<"omtf_q1_nn_pTresh_"<<nn_pThreshold;
       subDir = subDirRate.mkdir(ostr.str().c_str());
       omtfNNRateAnalysers.emplace_back(new RateAnalyser(subDir, "", 1, 200, 0, 100));
+      edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNEfficiencyAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
+
+      ostr.str("");
+      ostr<<"omtf_q4_nn_pTresh_"<<nn_pThreshold;
+      subDir = subDirRate.mkdir(ostr.str().c_str());
+      omtfNNRateAnalysers.emplace_back(new RateAnalyser(subDir, "", 4, 200, 0, 100));
+      edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNEfficiencyAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
+
+      ostr.str("");
+      ostr<<"omtf_q12_nn_pTresh_"<<nn_pThreshold;
+      subDir = subDirRate.mkdir(ostr.str().c_str());
+      omtfNNRateAnalysers.emplace_back(new RateAnalyser(subDir, "", 12, 200, 0, 100));
       edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNEfficiencyAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
     }
   }
@@ -312,7 +323,7 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, const edm::EventSe
 
   for(unsigned int i = 0; i < omtfNNRateAnalysers.size(); i++) {
     if(bestOmtfCand) {
-      l1MuonCand.ptGev = fabs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + i) ) ); //TODO check if abs is in the proper place, TODO watch aout the i
+      l1MuonCand.ptGev = fabs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + i/3) ) ); //TODO check if abs is in the proper place, TODO watch aout the i
     }
     omtfNNRateAnalysers[i]->fill( l1MuonCand);
   }

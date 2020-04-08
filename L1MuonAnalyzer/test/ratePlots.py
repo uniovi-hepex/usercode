@@ -19,9 +19,9 @@ def makeEfficiency(passed, total, title, lineColor):
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
-histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2.root' )
+histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_rate_v0006.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v28_10Files.root' )
-#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t27/results/omtfAnalysis2.root' )
+#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t28/results/omtfAnalysis2.root' )
 
 #histFile.ls()
 
@@ -35,6 +35,10 @@ print ("candPerEvent " + str(type(candPerEvent) ))
 
 eventCnt = candPerEvent.Integral() 
 scale = 1./eventCnt * lhcFreq * lhcFillingRatio;
+
+print ("eventCnt " + str(eventCnt) );
+print ("scale " + str(scale) );
+
 
 rateDir = histFile.Get("L1MuonAnalyzerOmtf/rate")
 rateDir.ls()
@@ -62,7 +66,6 @@ def makeRatePlots(algoDir, lineColor) :
             candPt.SetLineColor(lineColor)
             candPt.Draw("")
 
-            print ("eventCnt " + str(eventCnt) );
 
             candPt.Sumw2(False);
             candPt_rateCumul = candPt.GetCumulative(False, "_rate");
