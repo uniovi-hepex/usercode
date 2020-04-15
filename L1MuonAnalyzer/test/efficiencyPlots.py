@@ -18,9 +18,9 @@ def makeEfficiency(passed, total, title, lineColor):
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
-#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v31.root' )
+histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v31.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v28_10Files.root' )
-histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t32/results/omtfAnalysis2.root' )
+#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t33/results/omtfAnalysis2.root' )
 
 print (histFile)
 
@@ -33,14 +33,17 @@ efficiencies = []
 efficienciesHist1 = []
 efficienciesHist2 = []
 
+efficienciesOnThresh = []
+
 def makeEfficiencyPlots(ptCutGev, lineColor) :
-    print (ptGenVsPtCand)
-    ptGenVsPtCand.GetName()
-    c1 = TCanvas('canvas_' + ptGenVsPtCand.GetName() + "_" + str(ptCutGev), ptGenVsPtCand.GetName()+ "_" + str(ptCutGev), 200, 10, 700, 900)
+    #print (ptGenVsPtCand)
+    #ptGenVsPtCand.GetName()
+    canvasTitle = ptGenVsPtCand.GetName()[ : ptGenVsPtCand.GetName().find("ptGenVsPtCand")] + "ptCut_" + str(ptCutGev) + "GeV"
+    c1 = TCanvas('canvas_' + ptGenVsPtCand.GetName() + "_" + str(ptCutGev), canvasTitle, 200, 10, 700, 900)
     c1.Divide(2, 2)
     c1.cd(1).SetGridx()
     c1.cd(1).SetGridy()
-    print ('created canvas ' + c1.GetName())
+    #print ('created canvas ' + c1.GetName())
     ptGenVsPtCand.Draw('colz')
     # c1.Draw()
     ##########################
@@ -64,7 +67,7 @@ def makeEfficiencyPlots(ptCutGev, lineColor) :
     effHist1.Draw("hist")
     effHist1.GetYaxis().SetRangeUser(0, 1.05)
     efficienciesHist1.append(effHist1)
-    print ("effHist1 " + effHist1.GetName())
+    #print ("effHist1 " + effHist1.GetName())
 
     ##########################
     rebin = 2
@@ -78,22 +81,39 @@ def makeEfficiencyPlots(ptCutGev, lineColor) :
     effHist2.Draw("hist")
     efficienciesHist2.append(effHist2)        
     canvases.append(c1)
-
     
+    #################### calulating efficiency on the plataou
+    platCutGev = 25
+    platCutBin = allVsPtGen.GetXaxis().FindBin(platCutGev)
+    allIntegrated = allVsPtGen.Integral(platCutBin, -1);
+    
+    accpetedIntegrated = accpetedVsPtGen.Integral(platCutBin, -1);
+    #print (ptGenVsPtCand.GetName() +  " " + str(accpetedIntegrated / allIntegrated) ) 
+    print("%s - %.3f" % (ptGenVsPtCand.GetName(), (accpetedIntegrated / allIntegrated) ) ) # 4.000000
+    efficienciesOnThresh.append(accpetedIntegrated / allIntegrated)
+
+ 
         
 for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
     ptGenVsPtCand = obj.ReadObj()
     if isinstance(ptGenVsPtCand, TH2D):
         #makeEfficiencyPlots(5)
         lineColor = 2
-        ptCut = 21
+        ptCut = 21.5
         if iAlgo < 2 :
             lineColor = 1
             ptCut = 20
         makeEfficiencyPlots(ptCut, lineColor)
         #makeEfficiencyPlots(0, lineColor)
+
+    
+    
+efficienciesOnThreshHist = TH1D("efficienciesOnThresh", "efficienciesOnThresh", efficienciesOnThresh.__len__(), 0, efficienciesOnThresh.__len__())   
         
 for iAlgo, canvas in enumerate(canvases ) :
+    efficienciesOnThreshHist.Fill( iAlgo, efficienciesOnThresh[iAlgo])
+    efficienciesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() )
+    
     if iAlgo >= 2 :
         canvas.cd(3)
         efficienciesHist1[0].DrawCopy("same hist")
@@ -104,6 +124,17 @@ for iAlgo, canvas in enumerate(canvases ) :
         efficienciesHist2[0].DrawCopy("same hist")
         canvas.cd(4).Modified()
         canvas.Update()
+            
+canvasComapre = TCanvas('canvasComapre' , "compare", 200, 10, 1000, 700)    
+canvasComapre.cd()
+   
+canvasComapre.SetLeftMargin(0.4)
+canvasComapre.SetGridx()
+canvasComapre.SetGridy()
+efficienciesOnThreshHist.GetYaxis().SetRangeUser(0.93, 0.97)
+efficienciesOnThreshHist.SetFillColor(0)
+efficienciesOnThreshHist.SetFillStyle(3001)
+efficienciesOnThreshHist.Draw("HBAR")
 
 #pad1 = TPad( 'pad1', 'The pad with the function',  0.03, 0.62, 0.50, 0.92, 21 )
 #pad2 = TPad( 'pad2', 'The pad with the histogram', 0.51, 0.62, 0.98, 0.92, 21 )

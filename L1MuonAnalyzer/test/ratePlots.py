@@ -17,12 +17,14 @@ def makeEfficiency(passed, total, title, lineColor):
         exit(1);
     
 
+version = "v2_t34"
+
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_rate_v0006.root' )
-#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v28_10Files.root' )
+#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v31.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t30/results/omtfAnalysis2.root' )
-histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_v2_t31/results/omtfAnalysis2.root' )
+histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_' + version + '/results/omtfAnalysis2.root' )
 
 
 #histFile.ls()
@@ -98,24 +100,56 @@ for iAlgo, obj in enumerate(rateDir.GetListOfKeys() ) :
             lineColor = 4
         makeRatePlots(algoDir, lineColor)
         
+        
+ratesOnThreshHist = TH1D("ratesOnThreshHist", "ratesOnThreshHist", rateCumuls.__len__(), 0, rateCumuls.__len__()) 
+relativeRatesOnThreshHist = TH1D("relativeRatesOnThreshHist", "relativeRatesOnThreshHist", rateCumuls.__len__(), 0, rateCumuls.__len__()) 
+        
 for iAlgo, canvas in enumerate(canvases ) :
     if iAlgo >= 1 :
         canvas.cd(2)
         rateCumuls[0].DrawCopy("same hist")
         canvas.cd(2).Modified()
         canvas.Update()
-         
-#         canvas.cd(4)
-#         efficienciesHist2[0].DrawCopy("same hist")
-#         canvas.cd(4).Modified()
-#         canvas.Update()
+    
+    ptCutGev = 21.5
+    if iAlgo < 2 :
+        ptCutGev = 20
+    
+    ptCutBin = rateCumuls[iAlgo].GetXaxis().FindBin(ptCutGev)        
+    rateOnThresh = rateCumuls[iAlgo].GetBinContent(ptCutBin)   
+    ratesOnThreshHist.Fill( iAlgo, rateOnThresh)
+    ratesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() )   
+    
 
-#pad1 = TPad( 'pad1', 'The pad with the function',  0.03, 0.62, 0.50, 0.92, 21 )
-#pad2 = TPad( 'pad2', 'The pad with the histogram', 0.51, 0.62, 0.98, 0.92, 21 )
-#pad3 = TPad( 'pad3', 'The pad with the histogram', 0.03, 0.02, 0.97, 0.57, 21 )
-#pad1.Draw()
-#pad2.Draw()
-#pad3.Draw()
+    relativeRatesOnThresh = rateOnThresh / ratesOnThreshHist.GetBinContent(1)
+
+    relativeRatesOnThreshHist.Fill( iAlgo, relativeRatesOnThresh)
+    relativeRatesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() + " ptCut " + str(ptCutGev) + "GeV")    
+
+canvasComapre = TCanvas('canvasComapre' , "compare", 200, 10, 1400, 700)    
+canvasComapre.Divide(2, 1)
+
+canvasComapre.cd(1)
+   
+canvasComapre.cd(1).SetLeftMargin(0.4)
+canvasComapre.cd(1).SetGridx()
+canvasComapre.cd(1).SetGridy()
+ratesOnThreshHist.GetYaxis().SetRangeUser(8000, 15000)
+ratesOnThreshHist.GetYaxis().SetLabelSize(0.02)
+ratesOnThreshHist.SetFillColor(0)
+ratesOnThreshHist.SetFillStyle(3001)
+ratesOnThreshHist.Draw("HBAR")
+
+canvasComapre.cd(2)
+   
+canvasComapre.cd(2).SetLeftMargin(0.4)
+canvasComapre.cd(2).SetGridx()
+canvasComapre.cd(2).SetGridy()
+relativeRatesOnThreshHist.GetYaxis().SetRangeUser(0.5, 1)
+relativeRatesOnThreshHist.GetYaxis().SetLabelSize(0.02)
+relativeRatesOnThreshHist.SetFillColor(0)
+relativeRatesOnThreshHist.SetFillStyle(3001)
+relativeRatesOnThreshHist.Draw("HBAR")
 
 #%jsroot on
 #from ROOT import gROOT 
