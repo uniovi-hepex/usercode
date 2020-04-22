@@ -22,6 +22,9 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
 
   analysisType = edmCfg.getParameter< string >("analysisType");
 
+  int binsCnt = (1<<18)-1;
+  firedPlanesEventCntOmtf = fs->make<TH1S>("firedPlanesEventCntOmtf", "firedPlanesEventCntOmtf", binsCnt, 0, binsCnt);
+
   if(edmCfg.exists("nn_pThresholds") )
     nn_pThresholds = edmCfg.getParameter<vector<double> >("nn_pThresholds");
 
@@ -53,6 +56,8 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
   }
 
   else if(analysisType == "rate") {
+    firedPlanesEventCntNN = fs->make<TH1S>("firedPlanesEventCntNN", "firedPlanesEventCntNN", binsCnt, 0, binsCnt);
+
     TFileDirectory subDirRate = fs->mkdir("rate");
 
     TFileDirectory subDir = subDirRate.mkdir("omtf_q12");
@@ -193,6 +198,10 @@ void L1MuonAnalyzerOmtf::analyzeEfficiency(const edm::Event& event, const edm::E
       L1MuonCand l1MuonCand1(*bestOmtfCand, bestCandFiredLayersCnt);
       l1MuonCand = l1MuonCand1;
       l1MuonCand.ptGev = hwPtToPtGeV(bestOmtfCand->hwPt() ); //TODO
+
+      if(simTrackPtr->momentum().pt() >= 20) {
+        firedPlanesEventCntOmtf->AddBinContent(bestOmtfCand->trackAddress().at(0)+1);
+      }
     }
     else {
       LogTrace("l1tMuBayesEventPrint") <<" no matching candidate!!!!!!!!!!!!!!!!!" <<std::endl;
@@ -322,6 +331,15 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, const edm::EventSe
     L1MuonCand l1MuonCand1(*bestOmtfCand, bestCandFiredLayersCnt);
     l1MuonCand = l1MuonCand1;
     l1MuonCand.ptGev = hwPtToPtGeV(bestOmtfCand->hwPt() ); //TODO
+
+    if(abs(l1MuonCand.ptGev) >= 20) {
+      firedPlanesEventCntOmtf->AddBinContent(bestOmtfCand->trackAddress().at(0)+1);
+    }
+
+    if( abs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + 2) ) ) >= 20) {//TODO nn pt for the p threshold 0.45, change if other is needed
+      firedPlanesEventCntNN->AddBinContent(bestOmtfCand->trackAddress().at(0)+1);
+    }
+
   }
   else {
     LogTrace("l1tMuBayesEventPrint") <<" no matching candidate!!!!!!!!!!!!!!!!!" <<std::endl;

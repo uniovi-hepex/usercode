@@ -135,7 +135,10 @@ private:
   }
 
   TH1* candPerEvent = nullptr;
-};
+
+  TH1* firedPlanesEventCntOmtf = nullptr;
+  TH1* firedPlanesEventCntNN = nullptr;
+ };
 
 }
 #endif /* PLUGINS_L1MUONANALYZEROMTF_H_ */

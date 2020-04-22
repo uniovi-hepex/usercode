@@ -17,7 +17,7 @@ def makeEfficiency(passed, total, title, lineColor):
         exit(1);
     
 
-version = "v2_t34"
+version = "v2_t" + sys.argv[0]
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
@@ -126,7 +126,7 @@ for iAlgo, canvas in enumerate(canvases ) :
     relativeRatesOnThreshHist.Fill( iAlgo, relativeRatesOnThresh)
     relativeRatesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() + " ptCut " + str(ptCutGev) + "GeV")    
 
-canvasComapre = TCanvas('canvasComapre' , "compare", 200, 10, 1400, 700)    
+canvasComapre = TCanvas('canvasComapre' , "compare " + version, 200, 10, 1400, 700)    
 canvasComapre.Divide(2, 1)
 
 canvasComapre.cd(1)
@@ -155,4 +155,4 @@ relativeRatesOnThreshHist.Draw("HBAR")
 #from ROOT import gROOT 
 gROOT.GetListOfCanvases().Draw()
 
-#execfile('efficiencyPlots.py')
+#execfile('ratePlots.py')
