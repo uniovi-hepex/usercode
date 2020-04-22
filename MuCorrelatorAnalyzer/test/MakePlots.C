@@ -649,7 +649,7 @@ void MakePlots()
     canvas->SetLogz();
     canvas->SetRightMargin(0.15);
     rpcTimingHist->SetTitle("");
-    rpcTimingHist->GetXaxis()->SetTitle("RPC hit timing");
+    rpcTimingHist->GetXaxis()->SetTitle("RPC hit timing [ns]");
     rpcTimingHist->GetYaxis()->SetTitle("(1/#beta - 1) #times4 + 1");
 
     rpcTimingHist->Draw("colz");

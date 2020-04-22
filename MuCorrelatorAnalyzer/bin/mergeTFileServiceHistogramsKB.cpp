@@ -39,7 +39,11 @@ static const char * const kWeightsCommandOpt = "weights,w";
 
 vector<double> weights;
 
+unsigned int totalEntries = 0;
+
 int main(int argc, char * argv[]) {
+  totalEntries = 0;
+
   string programName(argv[0]);
   string descString(programName);
   descString += " [options] ";
@@ -124,6 +128,7 @@ int main(int argc, char * argv[]) {
   bool empty = true;
   for(size_t i = 0; i < fileNames.size(); ++i) {
     string fileName = fileNames[i];
+    cout<<"doing file "<<fileName<<std::endl;
     TFile file(fileName.c_str(), "read");
     if(!file.IsOpen()) {
       cerr << "can't open input file: " << fileName <<endl;
@@ -150,6 +155,7 @@ int main(int argc, char * argv[]) {
   out.Write();
   out.Close();
 
+  cout<<"totalEntries "<<totalEntries<<std::endl;
   return 0;
 }
 
@@ -158,9 +164,11 @@ void make(TDirectory & out, TObject * o) {
   TH1F * th1f;
   TH1D * th1d;
   TH1I * th1i;
+  TH1S * th1s;
   TH2F * th2f;
   TH2D * th2d;
   TH2I * th2i;
+  TH2S * th2s;
   out.cd();
   if((dir = dynamic_cast<TDirectory*>(o)) != 0) {
     TDirectory * outDir = out.mkdir(dir->GetName(), dir->GetTitle());
@@ -191,6 +199,11 @@ void make(TDirectory & out, TObject * o) {
     h->Reset();
     h->Sumw2();
     h->SetDirectory(&out);
+  } else if((th1s = dynamic_cast<TH1S*>(o)) != 0) {
+    TH1S *h = (TH1S*) th1s->Clone();
+    h->Reset();
+    h->Sumw2();
+    h->SetDirectory(&out);
   } else if((th2f = dynamic_cast<TH2F*>(o)) != 0) {
     TH2F *h = (TH2F*) th2f->Clone();
     h->Reset();
@@ -206,6 +219,11 @@ void make(TDirectory & out, TObject * o) {
     h->Reset();
     h->Sumw2();
     h->SetDirectory(&out);
+  } else if((th2s = dynamic_cast<TH2S*>(o)) != 0) {
+    TH2S *h = (TH2S*) th2s->Clone();
+    h->Reset();
+    h->Sumw2();
+    h->SetDirectory(&out);
   }
 }
 
@@ -214,9 +232,12 @@ void fill(TDirectory & out, TObject * o, double w) {
   TH1F * th1f;
   TH1D * th1d;
   TH1I * th1i;
+  TH1S * th1s;
   TH2F * th2f;
   TH2D * th2d;
   TH2I * th2i;
+  TH2S * th2s;
+
   if((dir  = dynamic_cast<TDirectory*>(o)) != 0) {
     const char * name = dir->GetName();
     TDirectory * outDir = dynamic_cast<TDirectory*>(out.Get(name));
@@ -264,6 +285,15 @@ void fill(TDirectory & out, TObject * o, double w) {
     }
     outTh1i->Add(th1i, w);
   }
+  else if((th1s = dynamic_cast<TH1S*>(o)) != 0) {
+    const char * name = th1s->GetName();
+    TH1S * outTh1s = dynamic_cast<TH1S*>(out.Get(name));
+    if(outTh1s == 0) {
+      cerr <<"error: histogram TH1D" << name << " not found in directory " << out.GetName() << endl;
+      exit(-1);
+    }
+    outTh1s->Add(th1s, w);
+  }
   else if((th2f = dynamic_cast<TH2F*>(o)) != 0) {
     const char * name = th2f->GetName();
     TH2F * outTh2f = dynamic_cast<TH2F*>(out.Get(name));
@@ -290,6 +320,23 @@ void fill(TDirectory & out, TObject * o, double w) {
       exit(-1);
     }
     outTh2i->Add(th2i, w);
+  }
+  else if((th2s = dynamic_cast<TH2S*>(o)) != 0) {
+    const char * name = th2s->GetName();
+    TH2S * outTh2s = dynamic_cast<TH2S*>(out.Get(name));
+    if(outTh2s == 0) {
+      cerr <<"error: histogram TH2I" << name << " not found in directory " << out.GetName() << endl;
+      exit(-1);
+    }
+    outTh2s->Add(th2s, w);
+  }
+
+  TH1* th1 = nullptr;
+  if((th1 = dynamic_cast<TH1*>(o)) != 0 ) {
+    if( std::string( th1->GetName()) == "candPerEvent") {
+      cout<<"doing hist "<<th1->GetName()<<" Entries "<<th1->GetEntries()<<std::endl;
+      totalEntries += th1->GetEntries();
+    }
   }
 }
 

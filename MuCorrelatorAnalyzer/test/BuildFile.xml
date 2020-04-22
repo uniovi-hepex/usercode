@@ -59,7 +59,6 @@
     <use   name="Geometry/CaloTopology"/>    
     <use   name="Geometry/CaloGeometry"/>
     <use   name="FastSimulation/Particle"/>
-    <use   name="FastSimulation/BaseParticlePropagator"/>
     <use   name="SimTracker/TrackerHitAssociation"/>
     <use   name="SimTracker/TrackTriggerAssociation"/>
     <use   name="DataFormats/TrackerRecHit2D"/>
