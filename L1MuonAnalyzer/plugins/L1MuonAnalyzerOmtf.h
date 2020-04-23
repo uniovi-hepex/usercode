@@ -136,8 +136,8 @@ private:
 
   TH1* candPerEvent = nullptr;
 
-  TH1* firedPlanesEventCntOmtf = nullptr;
-  TH1* firedPlanesEventCntNN = nullptr;
+  TH1* firedLayersEventCntOmtf = nullptr;
+  TH1* firedLayersEventCntNN = nullptr;
  };
 
 }

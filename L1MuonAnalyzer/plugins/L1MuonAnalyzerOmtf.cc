@@ -23,7 +23,8 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
   analysisType = edmCfg.getParameter< string >("analysisType");
 
   int binsCnt = (1<<18)-1;
-  firedPlanesEventCntOmtf = fs->make<TH1S>("firedPlanesEventCntOmtf", "firedPlanesEventCntOmtf", binsCnt, 0, binsCnt);
+  firedLayersEventCntOmtf = fs->make<TH1S>("firedLayersEventCntOmtf", "firedLayersEventCntOmtf", binsCnt, 0, binsCnt);
+  firedLayersEventCntNN = fs->make<TH1S>("firedLayersEventCntNN", "firedLayersEventCntNN", binsCnt, 0, binsCnt);
 
   if(edmCfg.exists("nn_pThresholds") )
     nn_pThresholds = edmCfg.getParameter<vector<double> >("nn_pThresholds");
@@ -56,8 +57,6 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
   }
 
   else if(analysisType == "rate") {
-    firedPlanesEventCntNN = fs->make<TH1S>("firedPlanesEventCntNN", "firedPlanesEventCntNN", binsCnt, 0, binsCnt);
-
     TFileDirectory subDirRate = fs->mkdir("rate");
 
     TFileDirectory subDir = subDirRate.mkdir("omtf_q12");
@@ -199,8 +198,17 @@ void L1MuonAnalyzerOmtf::analyzeEfficiency(const edm::Event& event, const edm::E
       l1MuonCand = l1MuonCand1;
       l1MuonCand.ptGev = hwPtToPtGeV(bestOmtfCand->hwPt() ); //TODO
 
-      if(simTrackPtr->momentum().pt() >= 20) {
-        firedPlanesEventCntOmtf->AddBinContent(bestOmtfCand->trackAddress().at(0)+1);
+      if(simTrackPtr->momentum().pt() >= 22) {
+        if(l1MuonCand.hwQual > 0) {//removes candidates with abs(eta) > 1.24
+          int firedLayers = bestOmtfCand->trackAddress().at(0);
+          if(l1MuonCand.ptGev >= 20) {
+            firedLayersEventCntOmtf->AddBinContent(firedLayers +1);
+          }
+
+          if( abs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + 2) ) ) >= 20) {//TODO nn pt for the p threshold 0.45, change if other is needed
+            firedLayersEventCntNN->AddBinContent(firedLayers +1);
+          }
+        }
       }
     }
     else {
@@ -332,12 +340,15 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, const edm::EventSe
     l1MuonCand = l1MuonCand1;
     l1MuonCand.ptGev = hwPtToPtGeV(bestOmtfCand->hwPt() ); //TODO
 
-    if(abs(l1MuonCand.ptGev) >= 20) {
-      firedPlanesEventCntOmtf->AddBinContent(bestOmtfCand->trackAddress().at(0)+1);
-    }
+    if(l1MuonCand.hwQual > 0) {//removes candidates with abs(eta) > 1.24
+      int firedLayers = bestOmtfCand->trackAddress().at(0);
+      if(abs(l1MuonCand.ptGev) >= 20) {
+        firedLayersEventCntOmtf->AddBinContent(firedLayers +1);
+      }
 
-    if( abs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + 2) ) ) >= 20) {//TODO nn pt for the p threshold 0.45, change if other is needed
-      firedPlanesEventCntNN->AddBinContent(bestOmtfCand->trackAddress().at(0)+1);
+      if( abs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + 2) ) ) >= 20) {//TODO nn pt for the p threshold 0.45, change if other is needed
+        firedLayersEventCntNN->AddBinContent(firedLayers +1);
+      }
     }
 
   }

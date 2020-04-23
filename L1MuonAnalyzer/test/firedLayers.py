@@ -34,18 +34,18 @@ print ("eventCnt " + str(eventCnt) );
 print ("scale " + str(scale) );
 
 
-#firedPlanesEventCntOmtfRate = analyzerOmtfDirRate.Get("firedPlanesEventCntOmtf")
-firedPlanesEventCntOmtfRate = analyzerOmtfDirRate.Get("firedPlanesEventCntNN")
+#firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntOmtf")
+firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedPlanesEventCntNN") #firedLayersEventCntNN
 
-firedPlanesEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedPlanesEventCntOmtf")
-effNorm = firedPlanesEventCntOmtfEff.Integral() 
+firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedPlanesEventCntOmtf") #firedLayersEventCntOmtf
+effNorm = firedLayersEventCntOmtfEff.Integral() 
 
-firedPlanesStat = []
+firedLayersStat = []
 
 fullRate = 0
-for firedPlanes in range(0, firedPlanesEventCntOmtfRate.GetNbinsX(), 1) : 
-    rate = firedPlanesEventCntOmtfRate.GetBinContent(firedPlanes +1) * scale
-    eff = firedPlanesEventCntOmtfEff.GetBinContent(firedPlanes +1) / effNorm
+for firedLayers in range(0, firedLayersEventCntOmtfRate.GetNbinsX(), 1) : 
+    rate = firedLayersEventCntOmtfRate.GetBinContent(firedLayers +1) * scale
+    eff = firedLayersEventCntOmtfEff.GetBinContent(firedLayers +1) / effNorm
     
     fullRate += rate
     eff_rate = 10000000
@@ -57,19 +57,19 @@ for firedPlanes in range(0, firedPlanesEventCntOmtfRate.GetNbinsX(), 1) :
 
     if rate > 0 or eff > 0:
         #if rate > 100:
-            firedPlanesStat.append( (firedPlanes, rate, eff, eff_rate) )
-            print("%8i %018i %f" % (firedPlanes, firedPlanes,  rate) ) 
+            firedLayersStat.append( (firedLayers, rate, eff, eff_rate) )
+            print("%8i %018i %f" % (firedLayers, firedLayers,  rate) ) 
 
-firedPlanesStat.sort(key = lambda x: x[3], reverse = False)  
+firedLayersStat.sort(key = lambda x: x[3], reverse = False)  
 
 totalRateDrop = 0
 totalEff = 0
-for firedPlaneStat in firedPlanesStat :
-    #print (format(firedPlaneStat[0], '018b'), firedPlaneStat)
-    totalRateDrop += firedPlaneStat[1]
-    totalEff  += firedPlaneStat[2]
-    #if firedPlaneStat[1] > 0: #rate > 0
-    print("%8i %s rate: %8.1f eff: %.5f ratio %f totalEff %f totalRateDrop %f fullRate %f " % (firedPlaneStat[0], format(firedPlaneStat[0], '018b'),  firedPlaneStat[1], firedPlaneStat[2], firedPlaneStat[3], totalEff, totalRateDrop, fullRate - totalRateDrop) ) 
-    #print("%s" % (format(firedPlaneStat[0], '018b')) ) 
+for firedLayerStat in firedLayersStat :
+    #print (format(firedLayerStat[0], '018b'), firedLayerStat)
+    totalRateDrop += firedLayerStat[1]
+    totalEff  += firedLayerStat[2]
+    if firedLayerStat[1] > 100: #rate > 100
+        print("%8i %s rate: %8.1f eff: %.5f ratio %f totalEff %f totalRateDrop %f fullRate %f " % (firedLayerStat[0], format(firedLayerStat[0], '018b'),  firedLayerStat[1], firedLayerStat[2], firedLayerStat[3], totalEff, totalRateDrop, fullRate - totalRateDrop) ) 
+        #print("%s" % (format(firedLayerStat[0], '018b')) ) 
 
 #execfile('ratePlots.py')

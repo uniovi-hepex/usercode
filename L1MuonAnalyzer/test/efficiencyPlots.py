@@ -16,7 +16,7 @@ def makeEfficiency(passed, total, title, lineColor):
         exit(1);
     
 
-version = "v2_t37"
+version = "v2_t38"
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v36efficiency.root' )
@@ -102,7 +102,7 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
     if isinstance(ptGenVsPtCand, TH2D):
         #makeEfficiencyPlots(5)
         lineColor = 2
-        ptCut = 21.5
+        ptCut = 21.0
         if iAlgo < 2 :
             lineColor = 1
             ptCut = 20
