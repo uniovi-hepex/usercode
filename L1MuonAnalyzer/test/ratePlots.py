@@ -1,7 +1,10 @@
 from ROOT import TCanvas, TPad, TFile, TPaveLabel, TPaveText, TH1D, TEfficiency, TH2D
 from ROOT import gROOT
-from libPyROOT import TDirectory
+from ROOT import gStyle
 
+from libPyROOT import TDirectory
+import os
+import sys
 
 def makeEfficiency(passed, total, title, lineColor):
     if TEfficiency.CheckConsistency(passed, total) :
@@ -17,14 +20,16 @@ def makeEfficiency(passed, total, title, lineColor):
         exit(1);
     
 
-version = "v2_t" + sys.argv[0]
+version = "v2_t" + sys.argv[1]
+inputResults = 'SingleNeutrino_PU200_' + version 
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_rate_v0006.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v31.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t30/results/omtfAnalysis2.root' )
-histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_' + version + '/results/omtfAnalysis2.root' )
+#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_' + version + '/results/omtfAnalysis2.root' )
+histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
 
 
 #histFile.ls()
@@ -53,6 +58,13 @@ rateCumuls = []
 efficienciesHist1 = []
 efficienciesHist2 = []
 
+gStyle.SetOptStat(111111111)
+
+if not os.path.exists(inputResults):
+    os.mkdir(inputResults)
+    
+outFile = TFile(inputResults + "/efficiencyPlots.root", "RECREATE")
+
 def makeRatePlots(algoDir, lineColor) :
     print (algoDir.GetName())
     algoDir.ls()
@@ -73,7 +85,20 @@ def makeRatePlots(algoDir, lineColor) :
 
 
             candPt.Sumw2(False);
-            candPt_rateCumul = candPt.GetCumulative(False, "_rate");
+            candPt_rateCumul = candPt.GetCumulative(False, "_");
+            
+#             trying to ge agreement woth Carlos plot, but it is not so easy, the last bin contains both pt 100 GeV and overflows, 
+#             corr = candPt.GetBinContent(200)
+#             print ("corr " + str(corr))
+#             for iBin in range(0, candPt_rateCumul.GetNbinsX(), 1) : 
+#                 candPt_rateCumul.AddBinContent(iBin, -corr)
+            
+            candPt_rateCumul.SetName(algoDir.GetName() + "_" + candPt_rateCumul.GetName().replace("candPt", "rate") + "_" + version)
+            candPt_rateCumul.SetTitle(algoDir.GetName() + " " + candPt_rateCumul.GetTitle().replace("cand pt", "rate") + " " + version)
+            candPt_rateCumul.Scale(0.001)
+            candPt_rateCumul.GetYaxis().SetTitle("rate [kHz]")
+            
+            print("candPt: " + obj.GetName() + " candPt_rateCumul " + candPt_rateCumul.GetName() )
             candPt_rateCumul.SetBinContent(1, 0);
             #candPt_rateCumul.Sumw2(False);
             candPt_rateCumul.Scale(scale) #TODO maybe it should be before Sumw2
@@ -125,6 +150,11 @@ for iAlgo, canvas in enumerate(canvases ) :
 
     relativeRatesOnThreshHist.Fill( iAlgo, relativeRatesOnThresh)
     relativeRatesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() + " ptCut " + str(ptCutGev) + "GeV")    
+    
+    
+    outFile.cd()
+    rateCumuls[iAlgo].Write()
+    canvas.Write()
 
 canvasComapre = TCanvas('canvasComapre' , "compare " + version, 200, 10, 1400, 700)    
 canvasComapre.Divide(2, 1)
@@ -134,7 +164,7 @@ canvasComapre.cd(1)
 canvasComapre.cd(1).SetLeftMargin(0.4)
 canvasComapre.cd(1).SetGridx()
 canvasComapre.cd(1).SetGridy()
-ratesOnThreshHist.GetYaxis().SetRangeUser(8000, 15000)
+ratesOnThreshHist.GetYaxis().SetRangeUser(7, 15)
 ratesOnThreshHist.GetYaxis().SetLabelSize(0.02)
 ratesOnThreshHist.SetFillColor(0)
 ratesOnThreshHist.SetFillStyle(3001)
@@ -151,8 +181,14 @@ relativeRatesOnThreshHist.SetFillColor(0)
 relativeRatesOnThreshHist.SetFillStyle(3001)
 relativeRatesOnThreshHist.Draw("HBAR")
 
+outFile.cd()
+canvasComapre.Write()
 #%jsroot on
 #from ROOT import gROOT 
 gROOT.GetListOfCanvases().Draw()
+
+#outFile.Close()
+
+raw_input("Press ENTER to exit")
 
 #execfile('ratePlots.py')

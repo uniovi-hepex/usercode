@@ -1,5 +1,6 @@
 from ROOT import TCanvas, TPad, TFile, TPaveLabel, TPaveText, TH1D, TEfficiency, TH2D
 from ROOT import gROOT
+import sys
 
 
 def makeEfficiency(passed, total, title, lineColor):
@@ -16,7 +17,9 @@ def makeEfficiency(passed, total, title, lineColor):
         exit(1);
     
 
-version = "v2_t38"
+version = "v2_t" + sys.argv[1]
+inputResults = 'SingleNeutrino_PU200_' + version 
+
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
 histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v36efficiency.root' )
@@ -150,4 +153,5 @@ efficienciesOnThreshHist.Draw("HBAR")
 #from ROOT import gROOT 
 gROOT.GetListOfCanvases().Draw()
 
+raw_input("Press ENTER to exit")
 #execfile('efficiencyPlots.py')
