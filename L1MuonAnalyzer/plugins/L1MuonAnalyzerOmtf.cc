@@ -35,6 +35,10 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
     omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q12", 0.82, 1.24, 12, 10., 1, 100));
     omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q12", 12, 10., 1, 100));
 
+    omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtf_q8",  0.82, 1.24, 8, 200, 0, 200));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q8", 0.82, 1.24, 8, 10., 1, 100));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q8", 8, 10., 1, 100));
+
     omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtf_q4",  0.82, 1.24, 4, 200, 0, 200));
     omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q4", 0.82, 1.24, 4, 10., 1, 100));
     omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q4", 4, 10., 1, 100));
@@ -72,6 +76,9 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
 
     TFileDirectory subDir = subDirRate.mkdir("omtf_q12");
     omtfRateAnalysers.emplace_back(new  RateAnalyser(subDir, "", 12, 200, 0, 100));
+
+    subDir = subDirRate.mkdir("omtf_q8");
+    omtfRateAnalysers.emplace_back(new  RateAnalyser(subDir, "", 8, 200, 0, 100));
 
     subDir = subDirRate.mkdir("omtf_q4");
     omtfRateAnalysers.emplace_back(new  RateAnalyser(subDir, "", 4, 200, 0, 100));

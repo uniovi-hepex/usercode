@@ -6,6 +6,8 @@ from libPyROOT import TDirectory
 import os
 import sys
 
+gStyle.SetOptStat(0)
+
 def makeEfficiency(passed, total, title, lineColor):
     if TEfficiency.CheckConsistency(passed, total) :
         efficiency = TEfficiency(passed, total)
@@ -20,8 +22,9 @@ def makeEfficiency(passed, total, title, lineColor):
         exit(1);
     
 
-version = "v2_t" + sys.argv[1]
-inputResults = 'SingleNeutrino_PU200_' + version 
+#version = "PU200_v2_t" + sys.argv[1] #PU200_mtd5_v2_t
+version = sys.argv[1] 
+inputResults = 'SingleNeutrino_' + version 
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
@@ -58,18 +61,62 @@ rateCumuls = []
 efficienciesHist1 = []
 efficienciesHist2 = []
 
-gStyle.SetOptStat(111111111)
+rateCumul_withTEffs = []
+paintedGraphs = []
+#gStyle.SetOptStat(111111111)
 
 if not os.path.exists(inputResults):
     os.mkdir(inputResults)
     
-outFile = TFile(inputResults + "/efficiencyPlots.root", "RECREATE")
+outFile = TFile(inputResults + "/ratePlots.root", "RECREATE")
+
+
+
+
+def makeRatePlotWithEff(candPt_rateCumul_copy, lineColor, canvasRate1, canvasRate2) :
+    allEventsHist = candPt_rateCumul_copy.Clone(candPt_rateCumul_copy.GetName() + "_allEventsHist");
+    for iBin in range(0, allEventsHist.GetNbinsX() ) :
+        allEventsHist.SetBinContent(iBin, eventCnt)
+    
+    candPt_rateCumul_copy.Sumw2(False);
+    allEventsHist.Sumw2(False);
+    
+    title = ("; ttTrack p_{T} [GeV]; rate [kHz]");
+    rateCumul_withTEff = makeEfficiency(candPt_rateCumul_copy, allEventsHist, title, lineColor)
+    
+    canvasRate1.cd()
+    rateCumul_withTEff.Draw("APZ")
+    canvasRate1.Update()
+    rateCumul_withTEff.GetPaintedGraph().GetXaxis().SetRangeUser(0, 100)
+    
+    paintedGraph = rateCumul_withTEff.GetPaintedGraph().Clone(rateCumul_withTEff.GetName() + "_copy" ) 
+    scalekHz = 0.001
+    for i in range(0, paintedGraph.GetN()) :
+        paintedGraph.GetY()[i] *= lhcFreq * lhcFillingRatio * scalekHz
+        paintedGraph.GetEYhigh()[i] *= lhcFreq * lhcFillingRatio * scalekHz
+        paintedGraph.GetEYlow()[i] *= lhcFreq * lhcFillingRatio * scalekHz
+          
+    canvasRate2.cd()     
+    canvasRate2.SetGridx()
+    canvasRate2.SetGridy()   
+    canvasRate2.SetLogy()
+    paintedGraph.Draw("APZ")
+    canvasRate2.Update();
+    paintedGraph.GetXaxis().SetRangeUser(0, 100);
+    #paintedGraph.GetYaxis().SetRangeUser(10 * scalekHz, 50000000 * scalekHz);
+    paintedGraph.GetYaxis().SetRangeUser(1, 1000);
+    canvasRate2.Update();     
+          
+    print ("createad rateCumul_withTEff "  + rateCumul_withTEff.GetName() )           
+    print ("createad paintedGraph       "  + paintedGraph.GetName() )       
+    return rateCumul_withTEff , paintedGraph
+
 
 def makeRatePlots(algoDir, lineColor) :
     print (algoDir.GetName())
     algoDir.ls()
     
-    c1 = TCanvas('canvas_' + algoDir.GetName(), algoDir.GetName(), 200, 10, 700, 900)
+    c1 = TCanvas('canvas_' + algoDir.GetName(), algoDir.GetName().replace("_", " "), 200, 10, 700, 900)
     c1.Divide(2, 2)
     c1.cd(1).SetGridx()
     c1.cd(1).SetGridy()
@@ -93,12 +140,22 @@ def makeRatePlots(algoDir, lineColor) :
 #             for iBin in range(0, candPt_rateCumul.GetNbinsX(), 1) : 
 #                 candPt_rateCumul.AddBinContent(iBin, -corr)
             
-            candPt_rateCumul.SetName(algoDir.GetName() + "_" + candPt_rateCumul.GetName().replace("candPt", "rate") + "_" + version)
-            candPt_rateCumul.SetTitle(algoDir.GetName() + " " + candPt_rateCumul.GetTitle().replace("cand pt", "rate") + " " + version)
+            candPt_rateCumul.SetName(algoDir.GetName() + "_" + candPt_rateCumul.GetName().replace("candPt_", "rate") ) #+ "_" + version
+            candPt_rateCumul.SetTitle(algoDir.GetName().replace("_", " ") + ", " + version)
+            
+            
+            c1.cd(3).SetGridx()
+            c1.cd(3).SetGridy()   
+            c1.cd(3).SetLogy()
+            
+            rateCumul_withTEff, paintedGraph = makeRatePlotWithEff(candPt_rateCumul.Clone(candPt_rateCumul.GetName() + "_copy"), lineColor, c1.cd(3), c1.cd(4))
+            rateCumul_withTEffs.append(rateCumul_withTEff)
+            paintedGraphs.append(paintedGraph)
+            
             candPt_rateCumul.Scale(0.001)
             candPt_rateCumul.GetYaxis().SetTitle("rate [kHz]")
             
-            print("candPt: " + obj.GetName() + " candPt_rateCumul " + candPt_rateCumul.GetName() )
+            print("candPt: " + obj.GetName() + " candPt_rateCumul " + candPt_rateCumul.GetName() + " " + candPt_rateCumul.GetTitle() )
             candPt_rateCumul.SetBinContent(1, 0);
             #candPt_rateCumul.Sumw2(False);
             candPt_rateCumul.Scale(scale) #TODO maybe it should be before Sumw2
@@ -110,9 +167,10 @@ def makeRatePlots(algoDir, lineColor) :
             candPt_rateCumul.Draw("")
             
             rateCumuls.append(candPt_rateCumul)
+            print ("created rate plot " + candPt_rateCumul.GetName() + " name: " + candPt_rateCumul.GetTitle() )
        
     canvases.append(c1) 
-       
+# makeRatePlots #######################################################################       
 
 for iAlgo, obj in enumerate(rateDir.GetListOfKeys() ) :
     algoDir = obj.ReadObj()
@@ -126,9 +184,11 @@ for iAlgo, obj in enumerate(rateDir.GetListOfKeys() ) :
         makeRatePlots(algoDir, lineColor)
         
         
-ratesOnThreshHist = TH1D("ratesOnThreshHist", "ratesOnThreshHist", rateCumuls.__len__(), 0, rateCumuls.__len__()) 
+ratesOnThreshHist = TH1D("ratesOnThreshHist", inputResults.replace("_", " "), rateCumuls.__len__(), 0, rateCumuls.__len__()) 
 relativeRatesOnThreshHist = TH1D("relativeRatesOnThreshHist", "relativeRatesOnThreshHist", rateCumuls.__len__(), 0, rateCumuls.__len__()) 
-        
+ratesOnThreshHist.GetYaxis().SetTitle("rate [kHz]")
+relativeRatesOnThreshHist.GetYaxis().SetTitle("rate [kHz]")
+
 for iAlgo, canvas in enumerate(canvases ) :
     if iAlgo >= 1 :
         canvas.cd(2)
@@ -137,26 +197,30 @@ for iAlgo, canvas in enumerate(canvases ) :
         canvas.Update()
     
     ptCutGev = 21.5
-    if iAlgo < 2 :
-        ptCutGev = 20
+        
+    if ptGenVsPtCand.GetName().find("nn_omtf") :
+        ptCut = 21.5
+    else :
+        lineColor = 1
+        ptCut = 20    
     
     ptCutBin = rateCumuls[iAlgo].GetXaxis().FindBin(ptCutGev)        
     rateOnThresh = rateCumuls[iAlgo].GetBinContent(ptCutBin)   
     ratesOnThreshHist.Fill( iAlgo, rateOnThresh)
-    ratesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() )   
+    ratesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() + " ptCut " + str(ptCutGev) + "GeV" )   
     
 
     relativeRatesOnThresh = rateOnThresh / ratesOnThreshHist.GetBinContent(1)
 
     relativeRatesOnThreshHist.Fill( iAlgo, relativeRatesOnThresh)
     relativeRatesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() + " ptCut " + str(ptCutGev) + "GeV")    
-    
-    
+        
     outFile.cd()
     rateCumuls[iAlgo].Write()
+    rateCumul_withTEffs[iAlgo].Write()
     canvas.Write()
 
-canvasComapre = TCanvas('canvasComapre' , "compare " + version, 200, 10, 1400, 700)    
+canvasComapre = TCanvas('canvasComapre' , "compare_ " + inputResults, 200, 10, 1400, 700)    
 canvasComapre.Divide(2, 1)
 
 canvasComapre.cd(1)
@@ -164,7 +228,7 @@ canvasComapre.cd(1)
 canvasComapre.cd(1).SetLeftMargin(0.4)
 canvasComapre.cd(1).SetGridx()
 canvasComapre.cd(1).SetGridy()
-ratesOnThreshHist.GetYaxis().SetRangeUser(7, 15)
+ratesOnThreshHist.GetYaxis().SetRangeUser(7, 20)
 ratesOnThreshHist.GetYaxis().SetLabelSize(0.02)
 ratesOnThreshHist.SetFillColor(0)
 ratesOnThreshHist.SetFillStyle(3001)
@@ -182,6 +246,7 @@ relativeRatesOnThreshHist.SetFillStyle(3001)
 relativeRatesOnThreshHist.Draw("HBAR")
 
 outFile.cd()
+ratesOnThreshHist.Write()
 canvasComapre.Write()
 #%jsroot on
 #from ROOT import gROOT 
