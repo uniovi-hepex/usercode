@@ -198,11 +198,11 @@ for iAlgo, canvas in enumerate(canvases ) :
     
     ptCutGev = 21.5
         
-    if ptGenVsPtCand.GetName().find("nn_omtf") :
-        ptCut = 21.5
+    if rateCumuls[iAlgo].GetName().find("nn_omtf") >= 0:
+        ptCutGev = 21.5
     else :
         lineColor = 1
-        ptCut = 20    
+        ptCutGev = 20    
     
     ptCutBin = rateCumuls[iAlgo].GetXaxis().FindBin(ptCutGev)        
     rateOnThresh = rateCumuls[iAlgo].GetBinContent(ptCutBin)   
