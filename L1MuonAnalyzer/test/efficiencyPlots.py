@@ -50,7 +50,7 @@ efficienciesHist2 = []
 
 efficienciesOnThresh = []
 
-def makeEfficiencyPlots(ptCutGev, lineColor) :
+def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
     #print (ptGenVsPtCand)
     #ptGenVsPtCand.GetName()
     canvasTitle = ptGenVsPtCand.GetName()[ : ptGenVsPtCand.GetName().find("ptGenVsPtCand")] + "ptCut " + str(ptCutGev) + "GeV" #+ "_" + version
@@ -105,7 +105,6 @@ def makeEfficiencyPlots(ptCutGev, lineColor) :
     canvases.append(c1)
     
     #################### calulating efficiency on the plataou
-    platCutGev = 25
     platCutBin = allVsPtGen.GetXaxis().FindBin(platCutGev)
     allIntegrated = allVsPtGen.Integral(platCutBin, -1);
     
@@ -124,13 +123,29 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
         ptCut = 21.5
         
         if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
-            ptCut = 21.5 +3
+            ptCut = 21.5 #+3
         else :
             lineColor = 1
-            ptCut = 20 +5
+            ptCut = 20 #+5
             
-        makeEfficiencyPlots(ptCut, lineColor)
+        makeEfficiencyPlots(ptCut, 25, lineColor)
         #makeEfficiencyPlots(0, lineColor)
+        
+        if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
+            ptCut = 21.5 + 3
+        else :
+            lineColor = 1
+            ptCut = 20 + 5
+            
+        makeEfficiencyPlots(ptCut, 30, lineColor)
+        
+        if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
+            ptCut = 21.5 + 20
+        else :
+            lineColor = 1
+            ptCut = 20 + 20
+            
+        makeEfficiencyPlots(ptCut, 45, lineColor)
 
     
     
@@ -164,7 +179,8 @@ canvasComapre.cd()
 canvasComapre.SetLeftMargin(0.42)
 canvasComapre.SetGridx()
 canvasComapre.SetGridy()
-efficienciesOnThreshHist.GetYaxis().SetRangeUser(0.93, 0.97)
+efficienciesOnThreshHist.GetXaxis().SetLabelSize(0.02)
+efficienciesOnThreshHist.GetYaxis().SetRangeUser(0.92, 0.97)
 efficienciesOnThreshHist.GetYaxis().SetLabelSize(0.02)
 efficienciesOnThreshHist.GetYaxis().SetTitle("efficiency")
 efficienciesOnThreshHist.SetFillColor(0)

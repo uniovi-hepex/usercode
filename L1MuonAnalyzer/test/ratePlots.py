@@ -189,6 +189,8 @@ relativeRatesOnThreshHist = TH1D("relativeRatesOnThreshHist", "relativeRatesOnTh
 ratesOnThreshHist.GetYaxis().SetTitle("rate [kHz]")
 relativeRatesOnThreshHist.GetYaxis().SetTitle("rate [kHz]")
 
+referenceRate = 13.679002  #omtf q12, PU200_v2_t35
+
 for iAlgo, canvas in enumerate(canvases ) :
     if iAlgo >= 1 :
         canvas.cd(2)
@@ -210,7 +212,9 @@ for iAlgo, canvas in enumerate(canvases ) :
     ratesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() + " ptCut " + str(ptCutGev) + "GeV" )   
     
 
-    relativeRatesOnThresh = rateOnThresh / ratesOnThreshHist.GetBinContent(1)
+    relativeRatesOnThresh = rateOnThresh / referenceRate
+
+    print("%s50 rate %f realitve rate %f " % (ratesOnThreshHist.GetXaxis().GetBinLabel(iAlgo +1), rateOnThresh, relativeRatesOnThresh) )
 
     relativeRatesOnThreshHist.Fill( iAlgo, relativeRatesOnThresh)
     relativeRatesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() + " ptCut " + str(ptCutGev) + "GeV")    
@@ -218,6 +222,7 @@ for iAlgo, canvas in enumerate(canvases ) :
     outFile.cd()
     rateCumuls[iAlgo].Write()
     rateCumul_withTEffs[iAlgo].Write()
+    paintedGraphs[iAlgo].Write()
     canvas.Write()
 
 canvasComapre = TCanvas('canvasComapre' , "compare_ " + inputResults, 200, 10, 1400, 700)    
@@ -228,7 +233,7 @@ canvasComapre.cd(1)
 canvasComapre.cd(1).SetLeftMargin(0.4)
 canvasComapre.cd(1).SetGridx()
 canvasComapre.cd(1).SetGridy()
-ratesOnThreshHist.GetYaxis().SetRangeUser(7, 20)
+ratesOnThreshHist.GetYaxis().SetRangeUser(6, 20)
 ratesOnThreshHist.GetYaxis().SetLabelSize(0.02)
 ratesOnThreshHist.SetFillColor(0)
 ratesOnThreshHist.SetFillStyle(3001)
