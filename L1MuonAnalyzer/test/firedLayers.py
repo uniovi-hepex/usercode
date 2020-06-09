@@ -5,7 +5,7 @@ import sys
     
 
 #version = "v2_t" + sys.argv[0]
-version = "v2_t42" 
+version = "v2_t52" 
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
@@ -37,11 +37,11 @@ print ("eventCnt " + str(eventCnt) );
 print ("scale " + str(scale) );
 
 
-#firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntOmtf")
-firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntNN") #firedLayersEventCntNN firedPlanesEventCntNN
+firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntOmtf")
+#firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntNN") #firedLayersEventCntNN firedPlanesEventCntNN
 
-#firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntOmtf")
-firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntNN") #firedLayersEventCntOmtf firedPlanesEventCntOmtf
+firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntOmtf")
+#firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntNN") #firedLayersEventCntOmtf firedPlanesEventCntOmtf
 
 print("rate hist " + firedLayersEventCntOmtfRate.GetName() )
 print("eff  hist " + firedLayersEventCntOmtfEff.GetName() )
@@ -78,7 +78,7 @@ totalRateDrop = 0
 totalEff = 0
 for firedLayerStat in firedLayersStat :
     #print (format(firedLayerStat[0], '018b'), firedLayerStat)
-    if (firedLayerStat[1] > 60) :
+    if (firedLayerStat[1] > -1) :
     #if (firedLayerStat[1] > 150) or (firedLayerStat[2] < 0.0001 and firedLayerStat[1] > 100): #rate > 100
         totalRateDrop += firedLayerStat[1]
         totalEff  += firedLayerStat[2]

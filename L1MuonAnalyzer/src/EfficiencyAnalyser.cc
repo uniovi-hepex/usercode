@@ -108,7 +108,7 @@ EfficiencyVsEta::EfficiencyVsEta(TFileDirectory& subDir, std::string name, int q
   histTitle.str("");
   histTitle<<name<<" allCands eta: "<<" quality >= "<<qualityCut<<" ptGenCut "<<ptGenCut<<" ptL1Cut "<<ptL1Cut<<";eta; entries";
 
-  aceptedCands = subDir.make<TH1D>(histName.str().c_str(), histTitle.str().c_str(), nBins, -2.4, 2.4);
+  aceptedCands = subDir.make<TH1D>(histName.str().c_str(), histTitle.str().c_str(), nBins, -2.1, 2.1);
 }
 
 void EfficiencyVsEta::fill(double ptGen, double etaGen, double phiGen, L1MuonCand& l1MuonCand) {

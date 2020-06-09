@@ -33,19 +33,19 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
     TFileDirectory subDir = fs->mkdir("efficiency");
     omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtf_q12", 0.82, 1.24, 12, 200, 0, 200));
     omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q12", 0.82, 1.24, 12, 10., 1, 100));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q12", 12, 10., 1, 100));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q12", 12, 10., 1, 210));
 
     omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtf_q8",  0.82, 1.24, 8, 200, 0, 200));
     omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q8", 0.82, 1.24, 8, 10., 1, 100));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q8", 8, 10., 1, 100));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q8", 8, 10., 1, 210));
 
     omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtf_q4",  0.82, 1.24, 4, 200, 0, 200));
     omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q4", 0.82, 1.24, 4, 10., 1, 100));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q4", 4, 10., 1, 100));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q4", 4, 10., 1, 210));
 
     omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtf_q1",  0.82, 1.24, 1, 200, 0, 200));
     omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q1", 0.82, 1.24, 1, 10., 1, 100));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q1", 1, 10., 1, 100));
+    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q1", 1, 10., 1, 210));
 
     for(auto& nn_pThreshold : nn_pThresholds) {
       std::ostringstream ostr;
@@ -53,21 +53,21 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg) {
       omtfNNEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, ostr.str().c_str(), 0.82, 1.24, 1, 200, 0, 200));
       edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNEfficiencyAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
       omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, ostr.str().c_str(), 0.82, 1.24, 1, 10., 1, 100));
-      omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, ostr.str().c_str(), 1, 10., 1, 100));
+      omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, ostr.str().c_str(), 1, 10., 1, 210));
 
       ostr.str("");
       ostr<<"nn_omtf_q4_pTresh_"<<nn_pThreshold;
       omtfNNEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, ostr.str().c_str(), 0.82, 1.24, 4, 200, 0, 200));
       edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNEfficiencyAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
       omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, ostr.str().c_str(), 0.82, 1.24, 4, 10., 1, 100));
-      omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, ostr.str().c_str(), 4, 10., 1, 100));
+      omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, ostr.str().c_str(), 4, 10., 1, 210));
 
       ostr.str("");
       ostr<<"nn_omtf_q12_pTresh_"<<nn_pThreshold;
       omtfNNEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, ostr.str().c_str(), 0.82, 1.24, 12, 200, 0, 200));
       edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNEfficiencyAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
       omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, ostr.str().c_str(), 0.82, 1.24, 12, 10., 1, 100));
-      omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, ostr.str().c_str(), 12, 10., 1, 100));
+      omtfNNEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, ostr.str().c_str(), 12, 10., 1, 210));
     }
   }
 
