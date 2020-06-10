@@ -26,10 +26,10 @@ inputResults = 'MuFlatPt_' + version #+ "_test"
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
-#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v45efficiency.root' )
+histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v55efficiency.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v28_10Files.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t33/results/omtfAnalysis2.root' )
-histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
+#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
 
 
 print (histFile)
@@ -50,16 +50,19 @@ efficienciesHist2 = []
 
 efficienciesOnThresh = []
 
+efficienciesVsEta = []
+
 def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
     #print (ptGenVsPtCand)
     #ptGenVsPtCand.GetName()
     canvasTitle = ptGenVsPtCand.GetName()[ : ptGenVsPtCand.GetName().find("ptGenVsPtCand")] + "ptCut " + str(ptCutGev) + "GeV" #+ "_" + version
     canvasTitle = canvasTitle.replace("_", " ")
-    c1 = TCanvas('canvas_' + ptGenVsPtCand.GetName() + "_" + str(ptCutGev), canvasTitle, 200, 10, 700, 900)
+    c1 = TCanvas('canvas_' + ptGenVsPtCand.GetName() + "_" + str(ptCutGev), canvasTitle, 200, 10, 900, 900)
     c1.Divide(2, 2)
     c1.cd(1).SetGridx()
     c1.cd(1).SetGridy()
     #print ('created canvas ' + c1.GetName())
+    
     ptGenVsPtCand.Draw('colz')
     # c1.Draw()
     ##########################
@@ -84,6 +87,7 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
     effHist1.SetLineColor(lineColor)
     effHist1.Draw("hist")
     effHist1.GetYaxis().SetTitle("efficiency")
+    effHist1.GetXaxis().SetRangeUser(0, 100)
     effHist1.GetYaxis().SetRangeUser(0, 1.05)
     effHist1.SetTitle(effName)
     efficienciesHist1.append(effHist1)
@@ -93,15 +97,37 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
     rebin = 2
     c1.cd(4).SetGridx()
     c1.cd(4).SetGridy()
+
+    
     effHist2 = accpetedVsPtGen.Rebin(rebin, effHistName + "_2")
     allVsPtGen2 = allVsPtGen.Rebin(rebin, allVsPtGen.GetName() + "_2")
     effHist2.Divide(allVsPtGen2)
     effHist2.SetLineColor(lineColor)
+    effHist2.GetXaxis().SetRangeUser(2, 100)
     effHist2.GetYaxis().SetRangeUser(0, 1.05)
     effHist2.GetYaxis().SetTitle("efficiency")
-    effHist2.Draw("hist")
     effHist2.SetTitle(effName)
-    efficienciesHist2.append(effHist2)        
+    efficienciesHist2.append(effHist2)   
+    #c1.cd(4).SetLogx()
+    #effHist2.Draw("hist")
+
+    # efficiency vs eta inseed of the above turn on curve
+    #omtf_q12_ptGenVsPtCand_eta_0.82_1.24_qualityCut_12
+    #omtf_q12_allCandsEta__qualityCut_12_ptGenCut_10
+#omtf_q12_allCandsEta__qualityCut_12_ptGenCut_25
+#omtf_q12_aceptedCandsEta__qualityCut_12_ptGenCut_25_ptL1Cut_20
+    
+    allCandsEtaName = ptGenVsPtCand.GetName().replace("ptGenVsPtCand_eta_0.82_1.24", "allCandsEta_") + "_ptGenCut_25"
+    print ("allCandsEtaName " + allCandsEtaName)
+    allCandsEta = efficiencyDir.Get(allCandsEtaName)
+    
+    aceptedCandsEtaName = ptGenVsPtCand.GetName().replace("ptGenVsPtCand_eta_0.82_1.24", "aceptedCandsEta_") + "_ptGenCut_25_ptL1Cut_20"
+    aceptedCandsEta = efficiencyDir.Get(aceptedCandsEtaName)
+    if aceptedCandsEta :
+        effVsEta = makeEfficiency(aceptedCandsEta, allCandsEta, "efficiency " + aceptedCandsEta.GetTitle(), lineColor)
+        effVsEta.Draw("")
+        efficienciesVsEta.append(effVsEta)
+    
     canvases.append(c1)
     
     #################### calulating efficiency on the plataou
@@ -113,39 +139,49 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
     print("%s - %.3f" % (ptGenVsPtCand.GetName(), (accpetedIntegrated / allIntegrated) ) ) # 4.000000
     efficienciesOnThresh.append(accpetedIntegrated / allIntegrated)
 
- 
         
 for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
     ptGenVsPtCand = obj.ReadObj()
     if isinstance(ptGenVsPtCand, TH2D):
         #makeEfficiencyPlots(5)
         lineColor = 2
-        ptCut = 21.5
+        ptCut = 22
         
         if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
-            ptCut = 21.5 #+3
+            ptCut = 22 #+3
         else :
             lineColor = 1
-            ptCut = 20 #+5
+            ptCut = 18 #+5
             
         makeEfficiencyPlots(ptCut, 25, lineColor)
         #makeEfficiencyPlots(0, lineColor)
         
         if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
-            ptCut = 21.5 + 3
+            ptCut = 22 + 2
         else :
             lineColor = 1
-            ptCut = 20 + 5
+            ptCut = 20
             
         makeEfficiencyPlots(ptCut, 30, lineColor)
         
         if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
-            ptCut = 21.5 + 20
+            ptCut = 26 + 2
         else :
             lineColor = 1
-            ptCut = 20 + 20
+            ptCut = 24
+        
+        makeEfficiencyPlots(ptCut, 34, lineColor)
+            
+        if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
+            ptCut = 22 + 20
+        else :
+            lineColor = 1
+            ptCut = 40
             
         makeEfficiencyPlots(ptCut, 45, lineColor)
+
+        ptGenVsPtCand.GetXaxis().SetRangeUser(0, 100)
+        ptGenVsPtCand.GetYaxis().SetRangeUser(0, 100)
 
     
     
@@ -169,7 +205,7 @@ for iAlgo, canvas in enumerate(canvases ) :
         canvas.Update()
         
         canvas.cd(4)
-        efficienciesHist2[0].DrawCopy("same hist")
+        #efficienciesHist2[0].DrawCopy("same hist")
         canvas.cd(4).Modified()
         canvas.Update()
             
@@ -180,7 +216,7 @@ canvasComapre.SetLeftMargin(0.42)
 canvasComapre.SetGridx()
 canvasComapre.SetGridy()
 efficienciesOnThreshHist.GetXaxis().SetLabelSize(0.02)
-efficienciesOnThreshHist.GetYaxis().SetRangeUser(0.92, 0.97)
+efficienciesOnThreshHist.GetYaxis().SetRangeUser(0.92, 0.98)
 efficienciesOnThreshHist.GetYaxis().SetLabelSize(0.02)
 efficienciesOnThreshHist.GetYaxis().SetTitle("efficiency")
 efficienciesOnThreshHist.SetFillColor(0)

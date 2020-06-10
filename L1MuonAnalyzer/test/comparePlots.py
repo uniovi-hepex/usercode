@@ -215,6 +215,8 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
 
 #OMTF 2018+
 #c1.cd(1)
+drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack)
+
 drawEffs('MuFlatPt_PU200_v2_t51/', "omtf", "12", kGreen+1)
 
 #drawEffs('MuFlatPt_PU200_v2_t46/', "omtf", "12", kGreen+1)
