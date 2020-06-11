@@ -95,6 +95,30 @@ def drawEff(effFile, type, quality, ptCut, lineColor, legend, pTresh = "0.5") :
          
 ###################################################
 
+firstEtaPlot = True
+def drawEffVsEta(effFile, type, quality, lineColor) :
+    global firstEtaPlot 
+    
+    #mtf_q12_efficiencyVsEta__qualityCut_12_ptGenCut_25
+    
+    if type == "nn_omtf" :
+        effHistName = type + "_q" + quality + "_pTresh_" + pTresh + "_efficiencyVsEta__qualityCut_" + quality + "_ptGenCut_25"
+    else :
+        effHistName = type + "_q" + quality + "_efficiencyVsEta__qualityCut_" + quality + "_ptGenCut_25"
+        #omtf_q12_eta_0.82_1.24_qualityCut_12_effOnPtCut_20_GeV_1
+       
+    effHist = effFile.Get(effHistName)
+    print ("line 109 ", effHistName, effHist)   
+    if effHist :    
+        effHist.SetLineColor(lineColor)
+        print ("first " + str(first) )
+        if firstEtaPlot :
+            #effHist.GetPaintedGraph().GetYaxis().SetRangeUser(0.8, 1.05)
+            effHist.Draw("")
+            firstEtaPlot =  False
+        else:
+            effHist.Draw("same")   
+
 
 rateFiles = []
 fillPat = 3002
@@ -159,6 +183,15 @@ c2.cd(1).cd()
 c2.cd(2).SetGridx()
 c2.cd(2).SetGridy()
 
+c3 = TCanvas('canvas_efficiency_3', 'canvas_efficiency_3', 200, 510, 950, 500)
+c3.Divide(1, 1)
+c3.cd(1).SetGridx()
+c3.cd(1).SetGridy()
+c3.cd(1).cd()
+
+c3.cd(2).SetGridx()
+c3.cd(2).SetGridy()
+
 #legendEff1 = TLegend(0.06, 0.8, 0.57, 0.997)
 legendEff1 = TLegend(0.21, 0.12, 0.75, 0.25)
 
@@ -211,6 +244,24 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
         eff_c3.cd()
         drawEff(effFile, type, quality, "41.5", lineColor, legendEff3, pTresh)
     
+    if type == "omtf_patsKB" :
+        logScalePadNum = 0
+        eff_c1.cd()
+        drawEff(effFile, "omtf", "12", "18", lineColor, legendEff1)
+        logScalePadNum = 1
+        eff_c2.cd()
+        drawEff(effFile, "omtf", "12", "20", lineColor, legendEff2)
+        logScalePadNum = 2
+        eff_c3.cd()
+        drawEff(effFile, "omtf", "12", "24", lineColor, legendEff3)
+        
+    c3.cd(1)
+    
+    if type == "omtf_patsKB" :
+        drawEffVsEta(effFile, "omtf", quality, lineColor)
+    else  :    
+        drawEffVsEta(effFile, type, quality, lineColor)
+        
     first = False
 
 #OMTF 2018+
@@ -219,21 +270,16 @@ drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack)
 
 drawEffs('MuFlatPt_PU200_v2_t51/', "omtf", "12", kGreen+1)
 
+
+drawEffs('MuFlatPt_PU200_v2_t55a/', "omtf_patsKB", "12", kRed)
+drawEffs('MuFlatPt_PU200_v2_t56/', "omtf_patsKB", "12", kBlue)
+
 #drawEffs('MuFlatPt_PU200_v2_t46/', "omtf", "12", kGreen+1)
 
 #OMTF 2018
 #drawEffs('MuFlatPt_PU200_v2_t52/', "omtf", "12", kGreen+1)
-effFile = TFile(plotsDir + 'MuFlatPt_PU200_v2_t55/' + 'efficiencyPlots.root' )
-effFiles.append(effFile)
-logScalePadNum = 0
-eff_c1.cd()
-drawEff(effFile, "omtf", "12", "18", kRed, legendEff1)
-logScalePadNum = 1
-eff_c2.cd()
-drawEff(effFile, "omtf", "12", "20", kRed, legendEff2)
-logScalePadNum = 2
-eff_c3.cd()
-drawEff(effFile, "omtf", "12", "24", kRed, legendEff3)
+effFile = TFile(plotsDir + 'MuFlatPt_PU200_v2_t56/' + 'efficiencyPlots.root' )
+
 
 #drawEffs('MuFlatPt_PU200_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
 #drawEffs('MuFlatPt_PU200_v2_t41/', "nn_omtf", "12", kRed, "0.5")
@@ -286,24 +332,28 @@ legend.SetTextSize(0.03)
 legend.SetMargin(0.2)
  
 #OMTF 2018+ 
-drawRate('SingleNeutrino_PU200_v2_t35/', "omtf", "12", kBlack)
+#drawRate('SingleNeutrino_PU200_v2_t35/', "omtf", "12", kBlack)
 #drawRate('SingleNeutrino_PU200_v2_t35/', "nn_omtf", 12, kRed)
 
 #drawRate('SingleNeutrino_PU200_v2_t46/', "omtf", "12", kGreen+1) 
-drawRate('SingleNeutrino_PU200_v2_t51/', "omtf", "12", kGreen+1)
+#drawRate('SingleNeutrino_PU200_v2_t51/', "omtf", "12", kGreen+1)
  
 
-drawRate('SingleNeutrino_PU200_v2_t55/', "omtf", "12", kRed)
+#drawRate('SingleNeutrino_PU200_v2_t55/', "omtf", "12", kRed)
+
+#drawRate('SingleNeutrino_PU200_v2_t56/', "omtf", "12", kBlue)
  
 #drawRate('SingleNeutrino_PU200_v2_t41/', "nn_omtf", "12", "0.4", kRed)
 
 
-#drawRate('SingleNeutrino_PU200_mtd5_v2_t44/', "omtf", "12", kBlack)
+drawRate('SingleNeutrino_PU200_mtd5_v2_t44/', "omtf", "12", kBlack)
 #drawRate('SingleNeutrino_PU200_v2_t35/', "nn_omtf", 12, kRed)
  
 #drawRate('SingleNeutrino_PU200_mtd5_v2_t47/', "omtf", "12", kBlue)
 
-#drawRate('SingleNeutrino_PU200_mtd5_v2_t51/', "omtf", "12", kGreen+1)
+drawRate('SingleNeutrino_PU200_mtd5_v2_t51/', "omtf", "12", kGreen+1)
+
+drawRate('SingleNeutrino_PU200_mtd5_v2_t55/', "omtf", "12", kRed)
  
 #drawRate('SingleNeutrino_PU200_mtd5_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
 #drawRate('SingleNeutrino_PU200_mtd5_v2_t41/', "nn_omtf", "12", kRed, "0.5")
@@ -325,11 +375,15 @@ c1.Update()
 c2.Modified()
 c2.Update()
 
+c3.Modified()
+c3.Update()
+
 if True :
     fileName = makeUniqueFileName("/eos/user/k/kbunkow/public/omtf_nn_plots/", "eff_rate_curves_.png")
     print ("saving as " + fileName)
     c1.SaveAs(fileName)
     c2.SaveAs(fileName.replace("eff_rate_", "eff_eff_"))
+    c3.SaveAs(fileName.replace("eff_rate_", "effVsEta_"))
 
 # c3 = TCanvas('canvas_efficiency_rate_1', 'canvas_efficiency_rate_1', 200, 10, 950, 500)
 # c3.Divide(2, 1)
