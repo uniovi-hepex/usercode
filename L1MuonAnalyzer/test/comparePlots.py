@@ -236,13 +236,16 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
         drawEff(effFile, type, "12", "26", lineColor, legendEff3)
         
     if type == "nn_omtf" :
+        logScalePadNum = 0
         print (eff_c1.GetName() )
         eff_c1.cd()
-        drawEff(effFile, type, quality, "21.5", lineColor, legendEff1, pTresh)
+        drawEff(effFile, type, quality, "22", lineColor, legendEff1, pTresh)
+        logScalePadNum = 1
         eff_c2.cd()
-        drawEff(effFile, type, quality, "24.5", lineColor, legendEff2, pTresh)
+        drawEff(effFile, type, quality, "24", lineColor, legendEff2, pTresh)
+        logScalePadNum = 2
         eff_c3.cd()
-        drawEff(effFile, type, quality, "41.5", lineColor, legendEff3, pTresh)
+        drawEff(effFile, type, quality, "42", lineColor, legendEff3, pTresh)
     
     if type == "omtf_patsKB" :
         logScalePadNum = 0
@@ -257,34 +260,34 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
         
     c3.cd(1)
     
-    if type == "omtf_patsKB" :
-        drawEffVsEta(effFile, "omtf", quality, lineColor)
-    else  :    
-        drawEffVsEta(effFile, type, quality, lineColor)
+#     if type == "omtf_patsKB" :
+#         drawEffVsEta(effFile, "omtf", quality, lineColor)
+#     else  :    
+#         drawEffVsEta(effFile, type, quality, lineColor)
         
     first = False
 
 #OMTF 2018+
 #c1.cd(1)
-drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack)
+#drawEffs('MuFlatPt_PU200_v2_t44/', "omtf", "12", kBlack)
 
-drawEffs('MuFlatPt_PU200_v2_t51/', "omtf", "12", kGreen+1)
+#drawEffs('MuFlatPt_PU200_v2_t51/', "omtf", "12", kGreen+1)
 
 
-drawEffs('MuFlatPt_PU200_v2_t55a/', "omtf_patsKB", "12", kRed)
-drawEffs('MuFlatPt_PU200_v2_t56/', "omtf_patsKB", "12", kBlue)
+#drawEffs('MuFlatPt_PU200_v2_t55a/', "omtf_patsKB", "12", kRed)
+#drawEffs('MuFlatPt_PU200_v2_t56/', "omtf_patsKB", "12", kBlue)
 
 #drawEffs('MuFlatPt_PU200_v2_t46/', "omtf", "12", kGreen+1)
 
 #OMTF 2018
 #drawEffs('MuFlatPt_PU200_v2_t52/', "omtf", "12", kGreen+1)
-effFile = TFile(plotsDir + 'MuFlatPt_PU200_v2_t56/' + 'efficiencyPlots.root' )
+#effFile = TFile(plotsDir + 'MuFlatPt_PU200_v2_t56/' + 'efficiencyPlots.root' )
 
 
 #drawEffs('MuFlatPt_PU200_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
-#drawEffs('MuFlatPt_PU200_v2_t41/', "nn_omtf", "12", kRed, "0.5")
+drawEffs('MuFlatPt_PU200_v2_t41/', "nn_omtf", "12", kRed, "0.5")
 
-#drawEffs('MuFlatPt_PU300_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
+drawEffs('MuFlatPt_PU300_v2_t41/', "nn_omtf", "12", kGreen+1, "0.5")
 
 
 #drawEff(effFile_t42_pu200, "nn_omtf", "12", "21.5", kRed)
@@ -332,7 +335,8 @@ legend.SetTextSize(0.03)
 legend.SetMargin(0.2)
  
 #OMTF 2018+ 
-#drawRate('SingleNeutrino_PU200_v2_t35/', "omtf", "12", kBlack)
+drawRate('SingleNeutrino_PU200_mtd5_v2_t44/', "omtf", "12", kBlack)
+#drawRate('SingleNeutrino_PU200_v2_t44/', "omtf", "12", kBlack)
 #drawRate('SingleNeutrino_PU200_v2_t35/', "nn_omtf", 12, kRed)
 
 #drawRate('SingleNeutrino_PU200_v2_t46/', "omtf", "12", kGreen+1) 
@@ -346,17 +350,21 @@ legend.SetMargin(0.2)
 #drawRate('SingleNeutrino_PU200_v2_t41/', "nn_omtf", "12", "0.4", kRed)
 
 
-drawRate('SingleNeutrino_PU200_mtd5_v2_t44/', "omtf", "12", kBlack)
+#drawRate('SingleNeutrino_PU200_mtd5_v2_t44/', "omtf", "12", kBlack)
 #drawRate('SingleNeutrino_PU200_v2_t35/', "nn_omtf", 12, kRed)
  
 #drawRate('SingleNeutrino_PU200_mtd5_v2_t47/', "omtf", "12", kBlue)
 
-drawRate('SingleNeutrino_PU200_mtd5_v2_t51/', "omtf", "12", kGreen+1)
+#drawRate('SingleNeutrino_PU200_mtd5_v2_t51/', "omtf", "12", kGreen+1)
 
-drawRate('SingleNeutrino_PU200_mtd5_v2_t55/', "omtf", "12", kRed)
+#drawRate('SingleNeutrino_PU200_mtd5_v2_t55/', "omtf", "12", kRed)
  
 #drawRate('SingleNeutrino_PU200_mtd5_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
-#drawRate('SingleNeutrino_PU200_mtd5_v2_t41/', "nn_omtf", "12", kRed, "0.5")
+drawRate('SingleNeutrino_PU200_mtd5_v2_t41/', "nn_omtf", "12", kRed, "0.5")
+
+#drawRate('SingleNeutrino_PU200_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
+#drawRate('SingleNeutrino_PU200_v2_t44/', "nn_omtf", "12", kRed, "0.5")
+
 
 #OMTF 2018+
 #drawRate('SingleNeutrino_PU250_v2_t45/', "omtf", "12", kGreen+1)

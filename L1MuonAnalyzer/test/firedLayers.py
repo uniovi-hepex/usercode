@@ -5,14 +5,14 @@ import sys
     
 
 #version = "v2_t" + sys.argv[0]
-version = "v2_t55" 
+version = "v2_t52" 
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_rate_v0006.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v31.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t30/results/omtfAnalysis2.root' )
-rateHistFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_'+ version + '/results/omtfAnalysis2.root' )
+rateHistFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_SingleNeutrino_PU250_'+ version + '/results/omtfAnalysis2.root' )
 
 #version = "v2_t44" 
 effHistFile =  TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_' + version + '/results/omtfAnalysis2.root' )
@@ -37,11 +37,11 @@ print ("eventCnt " + str(eventCnt) );
 print ("scale " + str(scale) );
 
 
-firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntOmtf")
-#firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntNN") #firedLayersEventCntNN firedPlanesEventCntNN
+#firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntOmtf")
+firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntNN") #firedLayersEventCntNN firedPlanesEventCntNN
 
-firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntOmtf")
-#firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntNN") #firedLayersEventCntOmtf firedPlanesEventCntOmtf
+#firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntOmtf")
+firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntNN") #firedLayersEventCntOmtf firedPlanesEventCntOmtf
 
 print("rate hist " + firedLayersEventCntOmtfRate.GetName() )
 print("eff  hist " + firedLayersEventCntOmtfEff.GetName() )
@@ -76,6 +76,9 @@ firedLayersStat.sort(key = lambda x: x[3], reverse = False)
 
 totalRateDrop = 0
 totalEff = 0
+
+totalEff10 = 0
+
 for firedLayerStat in firedLayersStat :
     #print (format(firedLayerStat[0], '018b'), firedLayerStat)
     if (firedLayerStat[1] > -1) :
@@ -84,5 +87,17 @@ for firedLayerStat in firedLayersStat :
         totalEff  += firedLayerStat[2]
         print("%8i %s rate: %8.1f eff: %.5f ratio %f totalEff %f totalRateDrop %f fullRate %f " % (firedLayerStat[0], format(firedLayerStat[0], '018b'),  firedLayerStat[1], firedLayerStat[2], firedLayerStat[3], totalEff, totalRateDrop, fullRate - totalRateDrop) ) 
         #print("%s" % (format(firedLayerStat[0], '018b')) ) 
+        if ((firedLayerStat[0] & 0x3) ^ 0x2 ) == 0:
+            print("aaaaaaaaaaaaaaaaaaaaa")
+            totalEff10 += firedLayerStat[2]
 
+        if ((firedLayerStat[0] & 0b1100) ^ 0b1000 ) == 0:
+            print("aaaaaaaaaaaaaaaaaaaaa")
+            totalEff10 += firedLayerStat[2]
+            
+        if ((firedLayerStat[0] & 0b110000) ^ 0b100000 ) == 0:
+            print("aaaaaaaaaaaaaaaaaaaaa")
+            totalEff10 += firedLayerStat[2]
+
+print ("totalEff10 " , totalEff10) 
 #execfile('ratePlots.py')

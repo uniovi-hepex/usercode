@@ -201,7 +201,7 @@ for iAlgo, canvas in enumerate(canvases ) :
     ptCutGev = 21.5
         
     if rateCumuls[iAlgo].GetName().find("nn_omtf") >= 0:
-        ptCutGev = 21.5
+        ptCutGev = 22
     elif version.find("t58") >= 0:
         ptCutGev = 18
     else :

@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -75,7 +74,7 @@
 
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
-
+#include "usercode/L1MuonAnalyzer/interface/MuonMatcher.h"
 #include "usercode/L1MuonAnalyzer/interface/EfficiencyAnalyser.h"
 #include "usercode/L1MuonAnalyzer/interface/RateAnalyser.h"
 
@@ -86,6 +85,8 @@
 #include <sstream>
 #include <string>
 #include <stddef.h>
+#include "boost/dynamic_bitset.hpp"
+
 
 namespace L1MuAn {
 
@@ -98,10 +99,14 @@ public:
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void analyzeEfficiency(const edm::Event&, const edm::EventSetup&);
+  virtual void analyzeEfficiency(const edm::Event&, std::vector<MatchingResult>& matchingResults);
   virtual void analyzeRate(const edm::Event&, const edm::EventSetup&);
 
   virtual void endJob();
+
+  //simplified ghost busting
+  //only candidates in the bx=0 are included
+  std::vector<const l1t::RegionalMuonCand*> ghostBust(const l1t::RegionalMuonCandBxCollection* mtfCands);
 
   double getDeltaR(const edm::Ptr< SimTrack >& simTrackPtr, const l1t::RegionalMuonCand& omtfCand);
 
@@ -111,7 +116,14 @@ private:
   std::string analysisType;
 
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
+
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertexesToken;
+
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection > omtfToken;
+
+
+  MuonMatcher muonMatcher;
+
 
   std::vector<std::unique_ptr<EfficiencyAnalyser> > omtfEfficiencyAnalysers;
 

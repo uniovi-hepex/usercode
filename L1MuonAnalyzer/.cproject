@@ -21,14 +21,15 @@
 							<builder id="cdt.managedbuild.target.gnu.builder.base.2128969307" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1434935920" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1721157874" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.144111754" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.144111754" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${CMSSW_BASE}/src&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CMSSW_FWLITE_INCLUDE_PATH}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ROOTSYS}/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CMSSW_RELEASE_BASE}/src&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CMS_PATH}/${SCRAM_ARCH}/external/xerces-c/3.1.3/include/&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CMS_PATH}/${SCRAM_ARCH}/external/clhep/2.4.0.0-pafccj/include&quot;"/>
 								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.722958749" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.722958749" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
 									<listOptionValue builtIn="false" value="__cplusplus=201103L"/>
 								</option>

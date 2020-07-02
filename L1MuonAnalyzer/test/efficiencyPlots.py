@@ -27,10 +27,10 @@ inputResults = 'MuFlatPt_' + version #+ "_test"
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
-#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v56efficiency.root' )
+histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v57_1efficiency.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v28_10Files.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t33/results/omtfAnalysis2.root' )
-histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
+#histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
 
 
 print (histFile)
@@ -119,7 +119,7 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
 #omtf_q12_aceptedCandsEta__qualityCut_12_ptGenCut_25_ptL1Cut_20
     
     allCandsEtaName = ptGenVsPtCand.GetName().replace("ptGenVsPtCand_eta_0.82_1.24", "allCandsEta_") + "_ptGenCut_25"
-    print ("allCandsEtaName " + allCandsEtaName)
+    #print ("allCandsEtaName " + allCandsEtaName)
     allCandsEta = efficiencyDir.Get(allCandsEtaName)
     
     aceptedCandsEtaName = ptGenVsPtCand.GetName().replace("ptGenVsPtCand_eta_0.82_1.24", "aceptedCandsEta_") + "_ptGenCut_25_ptL1Cut_20"
@@ -155,7 +155,7 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
             ptCut = 22 #+3
         else :
             lineColor = 1
-            ptCut = 18 #+5
+            ptCut = 20 #+5
             
         makeEfficiencyPlots(ptCut, 25, lineColor)
         #makeEfficiencyPlots(0, lineColor)
@@ -164,7 +164,7 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
             ptCut = 22 + 2
         else :
             lineColor = 1
-            ptCut = 20
+            ptCut = 22
             
         makeEfficiencyPlots(ptCut, 30, lineColor)
         
@@ -172,7 +172,7 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
             ptCut = 26 + 2
         else :
             lineColor = 1
-            ptCut = 24
+            ptCut = 26
         
         makeEfficiencyPlots(ptCut, 34, lineColor)
             
@@ -201,8 +201,10 @@ for iAlgo, canvas in enumerate(canvases ) :
     efficienciesHist1[iAlgo].Write()
     efficienciesHist2[iAlgo].Write()
     #if outFile.FindObject(efficienciesVsEta[iAlgo].GetName() ) == None :
-    if efficienciesVsEta[iAlgo].GetName() != efficienciesVsEta[iAlgo -1].GetName():
-        efficienciesVsEta[iAlgo].Write()
+    if efficienciesVsEta.__len__() > 0:
+        if (iAlgo == 0) or (efficienciesVsEta[iAlgo].GetName() != efficienciesVsEta[iAlgo -1].GetName() ) :
+            efficienciesVsEta[iAlgo].Write()
+        
     canvas.Write()
     
     if iAlgo >= 1 :

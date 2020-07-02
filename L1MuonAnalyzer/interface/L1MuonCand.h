@@ -22,7 +22,7 @@ public:
 
   L1MuonCand();
 
-  L1MuonCand(const l1t::RegionalMuonCand& muCand, unsigned int firedLayerCnt):
+  L1MuonCand(const l1t::RegionalMuonCand& muCand):
     ptGev( (muCand.hwPt()-1)/2.), //TODO watch out!!!!
     hwPt(muCand.hwPt()),
     hwEta(muCand.hwEta()),
@@ -30,8 +30,8 @@ public:
     hwQual(muCand.hwQual()),
     hwSign(muCand.hwSign() ),
     hwBeta(0),
-    firedLayerBits(muCand.trackAddress().at(0)),
-    firedLayerCnt(firedLayerCnt)
+    firedLayerBits(muCand.trackAddress().at(0))
+    //firedLayerCnt(firedLayerCnt)
     {
     }
 
@@ -52,7 +52,7 @@ public:
 
   //boost::dynamic_bitset<> firedLayerBits;
   unsigned int firedLayerBits = 0;
-  unsigned int firedLayerCnt = 0;
+  //unsigned int firedLayerCnt = 0;
 
   int pdfSum = 0;
 };
