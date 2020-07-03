@@ -7,6 +7,8 @@
 
 #include "usercode/L1MuonAnalyzer/interface/EfficiencyAnalyser.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -120,5 +122,25 @@ void EfficiencyVsEta::fill(double ptGen, double etaGen, double phiGen, L1MuonCan
   }
 }
 
+
+
+LikelihoodDistribution::LikelihoodDistribution(TFileDirectory& subDir, std::string name, int qualityCut, double ptGenCut, double ptL1Cut, int nBins):
+  qualityCut(qualityCut), ptGenCut(ptGenCut), ptL1Cut(ptL1Cut) {
+  std::ostringstream histName;
+  histName<<name<<"_likelihood_"<<"_qualityCut_"<<qualityCut<<"_ptGenCut_"<<ptGenCut<<"_ptL1Cut_"<<ptL1Cut;
+  std::ostringstream histTitle;
+  histTitle<<name<<" Likelihood Distribution "<<" quality >= "<<qualityCut<<" ptGenCut "<<ptGenCut<<" ptL1Cut "<<ptL1Cut<<";Likelihood; refLayer";
+
+  distribution = subDir.make<TH2I>(histName.str().c_str(), histTitle.str().c_str(), nBins, 0, 1200, 8, -0.5, 7.5); //TODO change the bins if needed
+}
+
+void LikelihoodDistribution::fill(double ptGen, double etaGen, double phiGen, L1MuonCand& l1MuonCand) {
+  if( ptGen >= ptGenCut ) {
+    if(l1MuonCand.hwQual >= qualityCut && l1MuonCand.ptGev >=  ptL1Cut) {
+      distribution->Fill(l1MuonCand.likelihood, l1MuonCand.refLayer);
+      LogTrace("l1tMuBayesEventPrint") <<" LikelihoodDistribution::fill likelihood "<<l1MuonCand.likelihood<<" refLayer "<<l1MuonCand.refLayer <<std::endl;
+    }
+  }
+}
 
 } /* namespace L1MuAn */

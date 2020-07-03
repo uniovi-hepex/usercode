@@ -30,7 +30,9 @@ public:
     hwQual(muCand.hwQual()),
     hwSign(muCand.hwSign() ),
     hwBeta(0),
-    firedLayerBits(muCand.trackAddress().at(0))
+    firedLayerBits(muCand.trackAddress().at(0)),
+    refLayer(muCand.trackAddress().at(1)),
+    likelihood(muCand.trackAddress().at(2))
     //firedLayerCnt(firedLayerCnt)
     {
     }
@@ -53,8 +55,9 @@ public:
   //boost::dynamic_bitset<> firedLayerBits;
   unsigned int firedLayerBits = 0;
   //unsigned int firedLayerCnt = 0;
-
-  int pdfSum = 0;
+  //int pdfSum = 0;
+  int refLayer = 0;
+  float likelihood = 0;
 };
 
 } /* namespace L1MuAn */

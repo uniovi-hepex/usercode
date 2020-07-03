@@ -93,6 +93,25 @@ private:
   TH1* aceptedCands = nullptr;
 };
 
+class LikelihoodDistribution : public EfficiencyAnalyser {
+public:
+  LikelihoodDistribution(TFileDirectory& subDir, std::string name, int qualityCut, double ptGenCut, double ptL1Cut, int nBins);
+
+  virtual void fill(double ptGen, double etaGen, double phiGen, L1MuonCand& l1MuonCand);
+
+  virtual void write() {
+    distribution->Write();
+  }
+
+private:
+  int qualityCut = 0;
+
+  double ptGenCut = 0;
+  double ptL1Cut = 0;
+
+  TH2* distribution = nullptr;
+};
+
 
 } /* namespace L1MuAn */
 

@@ -38,21 +38,17 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg): muonMat
     double ptGenCut = 25;
     double ptL1Cut = 20;
     TFileDirectory subDir = fs->mkdir("efficiency");
-    omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtf_q12", 0.82, 1.24, 12, 200, 0, 200));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q12", 0.82, 1.24, 12, ptGenCut, ptL1Cut, 100));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q12", 12, ptGenCut, ptL1Cut, 210));
+    auto addOmtfAnalysers = [&](TFileDirectory& subDir, std::string name, int qualityCut) {
+      omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, name, 0.82, 1.24, qualityCut, 200, 0, 200));
+      omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, name, 0.82, 1.24, qualityCut, ptGenCut, ptL1Cut, 100));
+      omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, name, qualityCut, ptGenCut, ptL1Cut, 210));
+      omtfEfficiencyAnalysers.emplace_back(new LikelihoodDistribution(subDir, name, qualityCut, ptGenCut, ptL1Cut, 120));
+    };
 
-    omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtf_q8",  0.82, 1.24, 8, 200, 0, 200));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q8", 0.82, 1.24, 8, ptGenCut, ptL1Cut, 100));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q8", 8, ptGenCut, ptL1Cut, 210));
-
-    omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtf_q4",  0.82, 1.24, 4, 200, 0, 200));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q4", 0.82, 1.24, 4, ptGenCut, ptL1Cut, 100));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q4", 4, ptGenCut, ptL1Cut, 210));
-
-    omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, "omtf_q1",  0.82, 1.24, 1, 200, 0, 200));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, "omtf_q1", 0.82, 1.24, 1, ptGenCut, ptL1Cut, 100));
-    omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, "omtf_q1", 1, ptGenCut, ptL1Cut, 210));
+    addOmtfAnalysers(subDir, "omtf_q12", 12);
+    addOmtfAnalysers(subDir, "omtf_q8", 8);
+    addOmtfAnalysers(subDir, "omtf_q4", 4);
+    addOmtfAnalysers(subDir, "omtf_q1", 1);
 
     for(auto& nn_pThreshold : nn_pThresholds) {
       std::ostringstream ostr;
