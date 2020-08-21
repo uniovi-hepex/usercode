@@ -100,6 +100,10 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   virtual void analyzeEfficiency(const edm::Event&, std::vector<MatchingResult>& matchingResults);
+
+  //virtual void analyzeRate(const edm::Event& event, std::vector<MatchingResult>& matchingResults, const edm::SimVertexContainer* simVertices);
+  virtual void analyzeRate(const edm::Event& event, std::vector<MatchingResult>& matchingResults);
+
   virtual void analyzeRate(const edm::Event&, const edm::EventSetup&);
 
   virtual void endJob();
@@ -119,6 +123,8 @@ private:
 
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexesToken;
 
+  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken;
+
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection > omtfToken;
 
 
@@ -134,6 +140,10 @@ private:
 
   std::vector<std::unique_ptr<RateAnalyser> > omtfNNRateAnalysers;
 
+
+  std::vector<std::unique_ptr<CandsMatchingAnalyser> > omtfCandsMatchingAnalysers;
+
+  std::vector<std::unique_ptr<CandsMatchingAnalyser> > omtfNNCandsMatchingAnalysers;
 
   double maxDeltaR = 0.3;
 

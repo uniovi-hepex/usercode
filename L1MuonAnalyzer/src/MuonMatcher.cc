@@ -95,7 +95,7 @@ void MuonMatcher::saveHists() {
     deltaPhiPropCand->Write();
     deltaPhiVertexProp->Write();
 
-    for(int iBin = 0; iBin <= deltaPhiPropCand->GetXaxis()->GetNbins(); iBin++) {
+    for(int iBin = 0; iBin <= deltaPhiPropCand->GetXaxis()->GetNbins() +1; iBin++) {
       auto projection = deltaPhiPropCand->ProjectionY( (std::string("deltaPhiPropCand") + std::to_string(iBin)).c_str(), iBin, iBin);
 
       double mean = 0;
@@ -117,6 +117,11 @@ void MuonMatcher::saveHists() {
 
     deltaPhiPropCandMean->Write();
     deltaPhiPropCandStdDev->Write();
+
+    TH1* deltaPhiPropCandStdDevSmooth = (TH1*)deltaPhiPropCandStdDev->Clone("deltaPhiPropCandStdDevSmooth");
+    deltaPhiPropCandStdDevSmooth->GetXaxis()->SetRangeUser(3, 100);
+    deltaPhiPropCandStdDevSmooth->Smooth(1, "R");
+    deltaPhiPropCandStdDevSmooth->Write();
   }
 }
 
@@ -159,6 +164,27 @@ FreeTrajectoryState MuonMatcher::simTrackToFts(const SimTrack& simTrackPtr, cons
   return FreeTrajectoryState(tPars) ;
 }
 
+FreeTrajectoryState MuonMatcher::simTrackToFts(const TrackingParticle& trackingParticle) {
+  int charge = trackingParticle.pdgId() > 0 ? -1 : 1; //works for muons
+
+  CLHEP::Hep3Vector p3T(trackingParticle.momentum().x(), trackingParticle.momentum().y(), trackingParticle.momentum().z());
+  //if (p3T.mag()< 2.) continue;
+
+  CLHEP::Hep3Vector  r3T = CLHEP::Hep3Vector(trackingParticle.vx(), trackingParticle.vy(), trackingParticle.vz());
+
+
+  GlobalVector p3GV(p3T.x(), p3T.y(), p3T.z());
+  GlobalPoint r3GP(r3T.x(), r3T.y(), r3T.z());
+
+  GlobalTrajectoryParameters tPars(r3GP, p3GV, charge, &*magField);
+
+  //CartesianTrajectoryError tCov(cov);
+
+  //return cov.kRows == 6 ? FreeTrajectoryState(tPars, tCov) : FreeTrajectoryState(tPars) ;
+
+  return FreeTrajectoryState(tPars) ;
+}
+
 TrajectoryStateOnSurface MuonMatcher::propagate(const SimTrack& simTrack, const edm::SimVertexContainer* simVertices) {
   SimVertex simVertex;
   int vtxInd = simTrack.vertIndex();
@@ -167,6 +193,10 @@ TrajectoryStateOnSurface MuonMatcher::propagate(const SimTrack& simTrack, const 
   }
   else {
     simVertex = simVertices->at(vtxInd);
+    if(((int)simVertex.vertexId()) != vtxInd) {
+      std::cout<<"simVertex.vertexId() != vtxInd !!!!!!!!!!!!!!!!!"<<std::endl;
+      edm::LogImportant("l1tMuBayesEventPrint") <<"simVertex.vertexId() != vtxInd. simVertex.vertexId() "<<simVertex.vertexId()<<" vtxInd "<<vtxInd<<" !!!!!!!!!!!!!!!!!";
+    }
   }
 
   FreeTrajectoryState ftsTrack = simTrackToFts(simTrack, simVertex);
@@ -175,6 +205,16 @@ TrajectoryStateOnSurface MuonMatcher::propagate(const SimTrack& simTrack, const 
 
   return tsof;
 }
+
+
+TrajectoryStateOnSurface MuonMatcher::propagate(const TrackingParticle& trackingParticle) {
+  FreeTrajectoryState ftsTrack = simTrackToFts(trackingParticle);
+
+  TrajectoryStateOnSurface tsof = atStation2(ftsTrack, trackingParticle.momentum().eta() ); //propagation
+
+  return tsof;
+}
+
 
 float normal_pdf(float x, float m, float s) {
     static const float inv_sqrt_2pi = 0.3989422804014327;
@@ -233,6 +273,55 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const S
   return result;
 }
 
+MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const TrackingParticle& trackingParticle, TrajectoryStateOnSurface& tsof) {
+  MatchingResult result;
+  result.trackingParticle = &trackingParticle;
+  double candGloablEta  = muonCand->hwEta() * 0.010875;
+  if( abs(trackingParticle.momentum().eta() - candGloablEta ) < 0.3 ) {
+    double candGlobalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi( muonCand->hwPhi(), muonCand->trackFinderType(), muonCand->processor() );
+    candGlobalPhi = hwGmtPhiToGlobalPhi(candGlobalPhi );
+
+    if(candGlobalPhi > M_PI)
+      candGlobalPhi = candGlobalPhi -(2.*M_PI);
+
+    result.deltaPhi = foldPhi(tsof.globalPosition().phi() - candGlobalPhi);
+    result.deltaEta = tsof.globalPosition().eta() - candGloablEta;
+
+    double mean = 0;
+    double sigma = 1;
+    if(!fillMean) {
+      auto ptBin = deltaPhiPropCandMean->FindBin(trackingParticle.pt());
+
+      mean = deltaPhiPropCandMean->GetBinContent(ptBin);
+      sigma = deltaPhiPropCandStdDev->GetBinContent(ptBin);
+    }
+
+    result.matchingLikelihood = normal_pdf(result.deltaPhi, mean, sigma); //TODO temporary solution
+
+    result.muonCand = muonCand;
+
+    if( abs(result.deltaPhi) < (4. * sigma)) //TODO 4 sigma, because the distribution has non-gaussian tails
+      result.result = MatchingResult::ResultType::matched;
+
+    LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: simTrack type "<<trackingParticle.pdgId()<<" pt "<<std::setw(8)<<trackingParticle.pt()
+        <<" eta "<<std::setw(8)<<trackingParticle.momentum().eta()<<" phi "<<std::setw(8)<<trackingParticle.momentum().phi()
+        <<" propagation eta "<<std::setw(8)<<tsof.globalPosition().eta()<<" phi "<<tsof.globalPosition().phi()
+        <<" muonCand pt "<<std::setw(8)<<muonCand->hwPt()<<" candGloablEta "<<std::setw(8)<<candGloablEta<<" candGlobalPhi "<<std::setw(8)<<candGlobalPhi<<" hwQual "<<muonCand->hwQual()
+        <<" deltaEta "<<std::setw(8)<<result.deltaEta<<" deltaPhi "<<std::setw(8)<<result.deltaPhi<<" Likelihood "<<std::setw(8)<<result.matchingLikelihood <<" result "<<(short)result.result
+        << std::endl;
+
+/*    if(abs(result.deltaPhi) > 0.4)
+      edm::LogImportant("l1tMuBayesEventPrint") <<"MuonMatcher::match: simTrack type "<<simTrack.type()<<" pt "<<std::setw(8)<<simTrack.momentum().pt()
+          <<" eta "<<std::setw(8)<<simTrack.momentum().eta()<<" phi "<<std::setw(8)<<simTrack.momentum().phi()
+          <<" propagation eta "<<std::setw(8)<<tsof.globalPosition().eta()<<" phi "<<tsof.globalPosition().phi()
+          <<" muonCand pt "<<std::setw(8)<<muonCand->hwPt()<<" candGloablEta "<<std::setw(8)<<candGloablEta<<" candGlobalPhi "<<std::setw(8)<<candGlobalPhi<<" hwQual "<<muonCand->hwQual()
+          <<" deltaEta "<<std::setw(8)<<result.deltaEta<<" deltaPhi "<<std::setw(8)<<result.deltaPhi<<" Likelihood "<<std::setw(8)<<result.matchingLikelihood <<" result "<<(short)result.result
+          << std::endl;*/
+
+  }
+
+  return result;
+}
 
 std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMuonCand*>& muonCands, const edm::SimTrackContainer* simTracks, const edm::SimVertexContainer* simVertices,
     std::function<bool(const SimTrack& )> const& simTrackFilter)
@@ -244,7 +333,7 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
     if(!simTrackFilter(simTrack))
       continue;
 
-    LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match, simTrack type "<<simTrack.type()<<" pt "<<simTrack.momentum().pt()<<" eta "<<simTrack.momentum().eta()<<" phi "<<simTrack.momentum().phi()<<std::endl;
+    LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match, simTrack type "<<std::setw(3)<<simTrack.type()<<" pt "<<std::setw(9)<<simTrack.momentum().pt()<<" eta "<<std::setw(9)<<simTrack.momentum().eta()<<" phi "<<std::setw(9)<<simTrack.momentum().phi()<<std::endl;
 
     bool matched = false;
 
@@ -316,8 +405,8 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
       deltaPhiPropCand->Fill(ptGen, matchingResult.deltaPhi);
 
       if(fillMean) {
-        deltaPhiPropCandMean->Fill(ptGen, matchingResult.deltaPhi);
-        deltaPhiPropCandStdDev->Fill(ptGen, matchingResult.deltaPhi * matchingResult.deltaPhi);
+        deltaPhiPropCandMean->Fill(matchingResult.simTrack->momentum().pt(), matchingResult.deltaPhi); //filling oveflow is ok here
+        deltaPhiPropCandStdDev->Fill(matchingResult.simTrack->momentum().pt(), matchingResult.deltaPhi * matchingResult.deltaPhi);
       }
     }
   }
@@ -361,5 +450,137 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
   return cleanedMatchingResults;
 }
 
+
+
+std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMuonCand*>& muonCands, const TrackingParticleCollection* trackingParticles,
+    std::function<bool(const TrackingParticle& )> const& simTrackFilter)
+{
+  std::vector<MatchingResult> matchingResults;
+  LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match trackingParticles->size() "<<trackingParticles->size()<<std::endl;
+
+  for (auto& trackingParticle : *trackingParticles ) {
+    //LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match:"<<__LINE__<<" trackingParticle type "<<std::setw(3)<<trackingParticle.pdgId()<<" pt "<<std::setw(9)<<trackingParticle.pt()<<" eta "<<std::setw(9)<<trackingParticle.momentum().eta()<<" phi "<<std::setw(9)<<trackingParticle.momentum().phi()<<std::endl;
+
+    if(simTrackFilter(trackingParticle) == false)
+      continue;
+
+    LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match, trackingParticle type "<<std::setw(3)<<trackingParticle.pdgId()<<" pt "<<std::setw(9)<<trackingParticle.pt()<<" eta "<<std::setw(9)<<trackingParticle.momentum().eta()<<" phi "<<std::setw(9)<<trackingParticle.momentum().phi()<<std::endl;
+
+    bool matched = false;
+
+    TrajectoryStateOnSurface tsof = propagate(trackingParticle);
+    if(!tsof.isValid()) {
+      LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" propagation failed"<<std::endl;
+      MatchingResult result;
+      result.result = MatchingResult::ResultType::propagationFailed;
+      continue; //no sense to do matching
+    }
+    LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+
+    double ptGen = trackingParticle.pt();
+    if(ptGen >= deltaPhiVertexProp->GetXaxis()->GetXmax())
+      ptGen = deltaPhiVertexProp->GetXaxis()->GetXmax() - 0.01;
+
+
+    deltaPhiVertexProp->Fill(ptGen, trackingParticle.momentum().phi() - tsof.globalPosition().phi());
+    LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+
+    for(auto& muonCand : muonCands) {
+      //int refLayer = (int)omtfCand->trackAddress().at(1);
+      //int layerHits = (int)omtfCand->trackAddress().at(0);
+      //std::bitset<18> layerHitBits(layerHits);
+
+      if(muonCand->hwQual() <= 1) //dropping very low quality candidates, as they are fakes usually
+        continue;
+      LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+      MatchingResult result = match(muonCand, trackingParticle, tsof);
+      LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+      if(result.result == MatchingResult::ResultType::matched) {
+        matchingResults.push_back(result);
+        matched = true;
+      }
+    }
+
+    if(!matched) { //we are adding also if it was not matching to any candidate
+      MatchingResult result;
+      result.trackingParticle = &trackingParticle;
+      matchingResults.push_back(result);
+      LogTrace("l1tMuBayesEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" no matching candidate found"<<std::endl;
+    }
+  }
+  LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+  //Cleaning the matching
+  std::sort(matchingResults.begin(), matchingResults.end(),
+      [](const MatchingResult& a, const MatchingResult& b)->bool { return a.matchingLikelihood > b.matchingLikelihood; } );
+  LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+  for(unsigned int i1 = 0; i1 < matchingResults.size(); i1++) {
+    if(matchingResults[i1].result == MatchingResult::ResultType::matched) {
+      for(unsigned int i2 = i1 + 1; i2 < matchingResults.size(); i2++) {
+        if( (matchingResults[i1].trackingParticle == matchingResults[i2].trackingParticle) || (matchingResults[i1].muonCand == matchingResults[i2].muonCand) ) {
+          //if matchingResults[i1].muonCand == false, then it is also OK here
+          matchingResults[i2].result = MatchingResult::ResultType::duplicate;
+        }
+      }
+    }
+  }
+  LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+  std::vector<MatchingResult> cleanedMatchingResults;
+  for(auto& matchingResult : matchingResults) {
+    if(matchingResult.result == MatchingResult::ResultType::matched  || matchingResult.muonCand == nullptr) //adding also the simTracks that are not matched at all, before it is assured that they are not duplicates
+      cleanedMatchingResults.push_back(matchingResult);
+    LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+    if(matchingResult.result == MatchingResult::ResultType::matched) {
+      double ptGen = matchingResult.trackingParticle->pt();
+      if(ptGen >= deltaPhiPropCand->GetXaxis()->GetXmax())
+        ptGen = deltaPhiPropCand->GetXaxis()->GetXmax() - 0.01;
+
+      deltaPhiPropCand->Fill(ptGen, matchingResult.deltaPhi);
+      LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+      if(fillMean) {
+        deltaPhiPropCandMean->Fill(matchingResult.trackingParticle->pt(), matchingResult.deltaPhi); //filling oveflow is ok here
+        deltaPhiPropCandStdDev->Fill(matchingResult.trackingParticle->pt(), matchingResult.deltaPhi * matchingResult.deltaPhi);
+      }
+      LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+    }
+  }
+  LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
+  //adding the muonCand-s that were not matched, i.e. in order to analyze them later
+  for(auto& muonCand : muonCands) {
+    bool isMatched = false;
+    for(auto& matchingResult : cleanedMatchingResults) {
+      if(matchingResult.muonCand == muonCand) {
+        isMatched =  true;
+        break;
+      }
+    }
+
+    if(!isMatched) {
+      MatchingResult result;
+      result.muonCand = muonCand;
+      cleanedMatchingResults.push_back(result);
+    }
+  }
+
+
+  LogTrace("l1tMuBayesEventPrint")<<":"<<__LINE__<<" MuonMatcher::match cleanedMatchingResults:"<<std::endl;
+  for(auto& result : cleanedMatchingResults) {
+    if(result.trackingParticle)
+      LogTrace("l1tMuBayesEventPrint")<<":"<<__LINE__ <<" simTrack type "<<result.trackingParticle->pdgId()<<" pt "<<std::setw(8)<<result.trackingParticle->pt()
+        <<" eta "<<std::setw(8)<<result.trackingParticle->momentum().eta()<<" phi "<<std::setw(8)<<result.trackingParticle->momentum().phi();
+    else
+      LogTrace("l1tMuBayesEventPrint")<<"no sim track ";
+
+        //<<" propagation eta "<<std::setw(8)<<tsof.globalPosition().eta()<<" phi "<<tsof.globalPosition().phi()
+    if(result.muonCand)
+      LogTrace("l1tMuBayesEventPrint")<<" muonCand pt "<<std::setw(8)<<result.muonCand->hwPt()<<" hwQual "<<result.muonCand->hwQual()<<" hwEta "<<result.muonCand->hwEta()
+        <<" deltaEta "<<std::setw(8)<<result.deltaEta<<" deltaPhi "<<std::setw(8)<<result.deltaPhi<<" Likelihood "<<std::setw(8)<<result.matchingLikelihood <<" result "<<(short)result.result
+        << std::endl;
+    else
+      LogTrace("l1tMuBayesEventPrint")<<" no muonCand "<<" result "<<(short)result.result<< std::endl;
+  }
+  LogTrace("l1tMuBayesEventPrint")<<" "<<std::endl;
+
+  return cleanedMatchingResults;
+}
 
 }

@@ -23,6 +23,7 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -56,6 +57,8 @@ public:
 
   const l1t::RegionalMuonCand* muonCand = nullptr;
   const SimTrack* simTrack = nullptr;
+  const TrackingParticle* trackingParticle = nullptr;
+
 };
 
 class MuonMatcher {
@@ -70,15 +73,25 @@ public:
 
   FreeTrajectoryState simTrackToFts(const SimTrack& simTrack, const SimVertex& simVertex);
 
+  FreeTrajectoryState simTrackToFts(const TrackingParticle& trackingParticle);
+
   TrajectoryStateOnSurface atStation2(FreeTrajectoryState ftsStart, float eta) const;
 
   TrajectoryStateOnSurface propagate(const SimTrack& simTrack, const edm::SimVertexContainer* simVertices);
 
+  TrajectoryStateOnSurface propagate(const TrackingParticle& trackingParticle);
+
   //tsof should be the result of track propagation
   MatchingResult match(const l1t::RegionalMuonCand* omtfCand, const SimTrack& simTrack, TrajectoryStateOnSurface& tsof);
 
+  MatchingResult match(const l1t::RegionalMuonCand* omtfCand, const TrackingParticle& trackingParticle, TrajectoryStateOnSurface& tsof);
+
+
   std::vector<MatchingResult> match(std::vector<const l1t::RegionalMuonCand*>& muonCands, const edm::SimTrackContainer* simTracks, const edm::SimVertexContainer* simVertices,
       std::function<bool(const SimTrack& )> const& simTrackFilter);
+
+  std::vector<MatchingResult> match(std::vector<const l1t::RegionalMuonCand*>& muonCands, const TrackingParticleCollection* trackingParticles,
+      std::function<bool(const TrackingParticle& )> const& simTrackFilter);
 
 private:
   //const edm::EventSetup& eventSetup;

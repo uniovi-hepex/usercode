@@ -21,6 +21,8 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg): muonMat
 
   simVertexesToken =  consumes<edm::SimVertexContainer>(edmCfg.getParameter<edm::InputTag>("simVertexesTag"));
 
+  trackingParticleToken = consumes<TrackingParticleCollection>(edmCfg.getParameter<edm::InputTag>("trackingParticleToken"));
+
   edm::Service<TFileService> fs;
 
   candPerEvent = fs->make<TH1D>("candPerEvent", "candPerEvent", 21, -0.5, 20.5);
@@ -79,15 +81,19 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg): muonMat
 
     TFileDirectory subDir = subDirRate.mkdir("omtf_q12");
     omtfRateAnalysers.emplace_back(new  RateAnalyser(subDir, "", 12, 200, 0, 100));
+    omtfCandsMatchingAnalysers.emplace_back(new CandsMatchingAnalyser(subDir, "", 12, 200, 0, 100));
 
     subDir = subDirRate.mkdir("omtf_q8");
     omtfRateAnalysers.emplace_back(new  RateAnalyser(subDir, "", 8, 200, 0, 100));
+    omtfCandsMatchingAnalysers.emplace_back(new CandsMatchingAnalyser(subDir, "", 8, 200, 0, 100));
 
     subDir = subDirRate.mkdir("omtf_q4");
     omtfRateAnalysers.emplace_back(new  RateAnalyser(subDir, "", 4, 200, 0, 100));
+    omtfCandsMatchingAnalysers.emplace_back(new CandsMatchingAnalyser(subDir, "", 4, 200, 0, 100));
 
     subDir = subDirRate.mkdir("omtf_q1");
     omtfRateAnalysers.emplace_back(new  RateAnalyser(subDir, "", 1, 200, 0, 100));
+    omtfCandsMatchingAnalysers.emplace_back(new CandsMatchingAnalyser(subDir, "", 1, 200, 0, 100));
 
     for(auto& nn_pThreshold : nn_pThresholds) {
       std::ostringstream ostr;
@@ -152,10 +158,10 @@ std::vector<const l1t::RegionalMuonCand*> L1MuonAnalyzerOmtf::ghostBust(const l1
       resultCands.push_back(&(mtfCands->at( 0, i1 ) ));
     }
 
-    LogTrace("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::ghostBust pt "<<mtfCands->at( 0, i1 ).hwPt()<<" qual "<<mtfCands->at( 0, i1 ).hwQual()
-        <<" proc "<<mtfCands->at( 0, i1 ).processor()<<" eta "<<mtfCands->at( 0, i1 ).hwEta()<<" gloablEta "<<mtfCands->at( 0, i1 ).hwEta() * 0.010875
-        <<" hwPhi "<<mtfCands->at( 0, i1 ).hwPhi()
-        <<" globalPhi "<<hwGmtPhiToGlobalPhi(l1t::MicroGMTConfiguration::calcGlobalPhi( mtfCands->at( 0, i1 ).hwPhi(), mtfCands->at( 0, i1 ).trackFinderType(), mtfCands->at( 0, i1 ).processor() ) )
+    LogTrace("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::ghostBust pt "<<std::setw(3)<<mtfCands->at( 0, i1 ).hwPt()<<" qual "<<std::setw(2)<<mtfCands->at( 0, i1 ).hwQual()
+        <<" proc "<<std::setw(2)<<mtfCands->at( 0, i1 ).processor()<<" eta "<<std::setw(4)<<mtfCands->at( 0, i1 ).hwEta()<<" gloablEta "<<std::setw(8)<<mtfCands->at( 0, i1 ).hwEta() * 0.010875
+        <<" hwPhi "<<std::setw(3)<<mtfCands->at( 0, i1 ).hwPhi()
+        <<" globalPhi "<<std::setw(8)<<hwGmtPhiToGlobalPhi(l1t::MicroGMTConfiguration::calcGlobalPhi( mtfCands->at( 0, i1 ).hwPhi(), mtfCands->at( 0, i1 ).trackFinderType(), mtfCands->at( 0, i1 ).processor() ) )
         <<" fireadLayers "<<std::bitset<18>(mtfCands->at( 0, i1 ).trackAddress().at(0) )
         <<" isKilled "<<isKilled.test(i1)<<std::endl;
   }
@@ -178,7 +184,11 @@ bool simTrackIsMuonInOmtf(const SimTrack& simTrack) {
   if(simTrack.momentum().pt() < 3) //in the overlap, the propagation of muons with pt less then ~3.2 fails - the actual threshold depends slightly on eta,
     return false;
 
-  if( (fabs(simTrack.momentum().eta()) >= 0.82 ) && (fabs(simTrack.momentum().eta()) <= 1.24) ) {
+  LogTrace("l1tMuBayesEventPrint") <<"simTrackIsMuonInOmtf, simTrack type "<<std::setw(3)<<simTrack.type()<<" pt "<<std::setw(9)<<simTrack.momentum().pt()<<" eta "<<std::setw(9)<<simTrack.momentum().eta()<<" phi "<<std::setw(9)<<simTrack.momentum().phi()<<std::endl;
+
+
+  //if( (fabs(simTrack.momentum().eta()) >= 0.82 ) && (fabs(simTrack.momentum().eta()) <= 1.24) ) {
+  if( (fabs(simTrack.momentum().eta()) >= 0.72 ) && (fabs(simTrack.momentum().eta()) <= 1.3) ) { //higher margin for matching, otherwise many candidates re marked as ghosts
   }
   else
     return false;;
@@ -198,6 +208,56 @@ bool simTrackIsMuonInOmtfBx0(const SimTrack& simTrack) {
   return simTrackIsMuonInOmtf(simTrack);
 }
 
+bool trackingParticleIsMuonInOmtfBx0(const TrackingParticle& trackingParticle) {
+  //if(trackingParticle.eventId().event() != 0)
+/*    LogTrace("l1tMuBayesEventPrint") <<"trackingParticleIsMuonInOmtfBx0, pdgId "<<std::setw(3)<<trackingParticle.pdgId()<<" pt "<<std::setw(9)<<trackingParticle.pt()
+              <<" eta "<<std::setw(9)<<trackingParticle.momentum().eta()<<" phi "<<std::setw(9)<<trackingParticle.momentum().phi()<<" event "<<trackingParticle.eventId().event()
+              <<" bx "<<trackingParticle.eventId().bunchCrossing()<<" eventNot0"<<std::endl;*/
+
+  if(trackingParticle.eventId().bunchCrossing() != 0)
+    return false;
+
+  if (abs(trackingParticle.pdgId()) == 13  || abs(trackingParticle.pdgId()) == 1000015 ) {  // || abs(simTrack.pdgId()) == 1000015 || tpPtr->pt() > 20 //todo 1000015 is stau
+    //only muons
+  }
+  else
+    return false;
+
+  if(trackingParticle.pt() < 3) //in the overlap, the propagation of muons with pt less then ~3.2 fails - the actual threshold depends slightly on eta,
+    return false;
+
+  if(trackingParticle.parentVertex().isNonnull() )
+    LogTrace("l1tMuBayesEventPrint") <<"trackingParticleIsMuonInOmtfBx0, pdgId "<<std::setw(3)<<trackingParticle.pdgId()<<" pt "<<std::setw(9)<<trackingParticle.pt()
+          <<" eta "<<std::setw(9)<<trackingParticle.momentum().eta()<<" phi "<<std::setw(9)<<trackingParticle.momentum().phi()<<" event "<<trackingParticle.eventId().event()
+          <<" parentVertex Rho "<<trackingParticle.parentVertex()->position().Rho()<<" eta "<<trackingParticle.parentVertex()->position().eta()<<" phi "<<trackingParticle.parentVertex()->position().phi()<<std::endl;
+  else
+    LogTrace("l1tMuBayesEventPrint") <<"trackingParticleIsMuonInOmtfBx0, pdgId "<<std::setw(3)<<trackingParticle.pdgId()<<" pt "<<std::setw(9)<<trackingParticle.pt()
+        <<" eta "<<std::setw(9)<<trackingParticle.momentum().eta()<<" phi "<<std::setw(9)<<trackingParticle.momentum().phi();
+
+
+  //if( (fabs(simTrack.momentum().eta()) >= 0.82 ) && (fabs(trackingParticle.momentum().eta()) <= 1.24) ) {
+  if( (fabs(trackingParticle.momentum().eta()) >= 0.72 ) && (fabs(trackingParticle.momentum().eta()) <= 1.3) ) { //higher margin for matching, otherwise many candidates re marked as ghosts
+  }
+  else
+    return false;;
+
+
+
+  /*
+  if(tpPtr->vertex().rho() > TP_maxRho)
+    continue;
+   */
+
+  return true;
+}
+
+bool trackingParticleIsMuonInOmtfEvent0(const TrackingParticle& trackingParticle) {
+  if(trackingParticle.eventId().event() != 0)
+    return false;
+
+  return trackingParticleIsMuonInOmtfBx0(trackingParticle);
+}
+
 void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup& es) {
 
   edm::Handle<l1t::RegionalMuonCandBxCollection> l1omtfHandle;
@@ -211,20 +271,32 @@ void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup&
   edm::Handle<edm::SimTrackContainer> simTraksHandle;
   event.getByToken(simTrackToken, simTraksHandle);
 
+  /*
   edm::Handle<edm::SimVertexContainer> simVertices;
-  event.getByToken(simVertexesToken, simVertices);
+  event.getByToken(simVertexesToken, simVertices);*/
 
+  edm::Handle<TrackingParticleCollection> trackingParticleHandle;
+  event.getByToken(trackingParticleToken, trackingParticleHandle);
+
+  LogTrace("l1tMuBayesEventPrint")<<"trackingParticleHandle size "<<trackingParticleHandle.product()->size()<<std::endl;;
+  LogTrace("l1tMuBayesEventPrint")<<"simTraksHandle size "<<simTraksHandle.product()->size()<<std::endl;;
 
   //todo do little better, move this assignment to constructor
   muonMatcher.setup(es);
-  std::function<bool(const SimTrack& )> const& simTrackFilter = simTrackIsMuonInOmtfBx0;
 
+/*
+  std::function<bool(const SimTrack& )> const& simTrackFilter = simTrackIsMuonInOmtfBx0;
   if(analysisType == "rate") {
     std::function<bool(const SimTrack& )> const& simTrackFilter = simTrackIsMuonInOmtf;
   }
+*/
 
+  std::function<bool(const TrackingParticle& )> simTrackFilter = trackingParticleIsMuonInOmtfEvent0;
+  if(analysisType == "rate") {
+    simTrackFilter = trackingParticleIsMuonInOmtfBx0;
+  }
 
-  std::vector<MatchingResult> matchingResults = muonMatcher.match(ghostBustedCands, simTraksHandle.product(), simVertices.product(), simTrackFilter);
+  std::vector<MatchingResult> matchingResults = muonMatcher.match(ghostBustedCands, trackingParticleHandle.product(), simTrackFilter);
 
   candPerEvent->Fill(l1omtfHandle.product()->size(0));
 
@@ -232,7 +304,8 @@ void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup&
     analyzeEfficiency(event, matchingResults);
   }
   else if(analysisType == "rate") {
-    analyzeRate(event, es);
+    //analyzeRate(event, es);
+    analyzeRate(event, matchingResults);
   }
 
 }
@@ -241,9 +314,9 @@ void L1MuonAnalyzerOmtf::analyzeEfficiency(const edm::Event& event, std::vector<
   LogTrace("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyzeEfficiency"<<std::endl;
 
   for (auto& matchingResult: matchingResults ) {
-    if(matchingResult.simTrack) {
+    if(matchingResult.trackingParticle) {
 
-      LogTrace("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyze, sim track type "<<matchingResult.simTrack->type()<<" simTrack pt "<<matchingResult.simTrack->momentum().pt()<<std::endl;
+      LogTrace("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyze, sim track type "<<matchingResult.trackingParticle->pdgId()<<" simTrack pt "<<matchingResult.trackingParticle->pt()<<std::endl;
 
       //const l1t::RegionalMuonCand* bestOmtfCand = nullptr;
       //unsigned int bestCandFiredLayersCnt = 0;
@@ -254,7 +327,7 @@ void L1MuonAnalyzerOmtf::analyzeEfficiency(const edm::Event& event, std::vector<
         l1MuonCand = l1MuonCand1;
         l1MuonCand.ptGev = hwPtToPtGeV(matchingResult.muonCand->hwPt() ); //TODO
 
-        if(matchingResult.simTrack->momentum().pt() >= 22) {
+        if(matchingResult.trackingParticle->pt() >= 22) {
           if(l1MuonCand.hwQual > 0) {//removes candidates with abs(eta) > 1.24
             int firedLayers = matchingResult.muonCand->trackAddress().at(0);
             if( abs(l1MuonCand.ptGev) >= 20) {
@@ -272,14 +345,14 @@ void L1MuonAnalyzerOmtf::analyzeEfficiency(const edm::Event& event, std::vector<
       }
 
       for(auto& efficiencyAnalyser : omtfEfficiencyAnalysers) {
-        efficiencyAnalyser->fill(matchingResult.simTrack->momentum().pt(), matchingResult.simTrack->momentum().eta(), matchingResult.simTrack->momentum().phi(), l1MuonCand);
+        efficiencyAnalyser->fill(matchingResult.trackingParticle->pt(), matchingResult.trackingParticle->momentum().eta(), matchingResult.trackingParticle->momentum().phi(), l1MuonCand);
       }
 
       for(unsigned int i = 0; i < omtfNNEfficiencyAnalysers.size(); i++) {
         if(matchingResult.muonCand) {
           l1MuonCand.ptGev = fabs(hwPtToPtGeV(matchingResult.muonCand->trackAddress().at(10 + i/9) ) ); //TODO check if abs is in the proper place, TODO i/2 because there are 2 Analysers, change if toehre addeds
         }
-        omtfNNEfficiencyAnalysers[i]->fill(matchingResult.simTrack->momentum().pt(), matchingResult.simTrack->momentum().eta(), matchingResult.simTrack->momentum().phi(), l1MuonCand);
+        omtfNNEfficiencyAnalysers[i]->fill(matchingResult.trackingParticle->pt(), matchingResult.trackingParticle->momentum().eta(), matchingResult.trackingParticle->momentum().phi(), l1MuonCand);
       }
     }
   }
@@ -322,7 +395,89 @@ bool L1MuonAnalyzerOmtf::matched(const edm::Ptr< SimTrack >& simTrackPtr, const 
   return false;
 }
 
+void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, std::vector<MatchingResult>& matchingResults) { //, const edm::SimVertexContainer* simVertices
+  LogTrace("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyzeRate"<<std::endl;
 
+  MatchingResult* bestOmtfCand = nullptr;
+  for (auto& matchingResult: matchingResults ) {
+    if(matchingResult.muonCand) {
+      if(!bestOmtfCand || bestOmtfCand->muonCand->hwPt() < matchingResult.muonCand->hwPt()) {
+        bestOmtfCand = &matchingResult;
+      }
+    }
+    else {
+      if(matchingResult.trackingParticle) {
+        LogTrace("l1tMuBayesEventPrint") <<" analyzeRate: no candidate for tracking particle pdgId"<<matchingResult.trackingParticle->pdgId()<<" pt "<<matchingResult.trackingParticle->pt() <<std::endl;
+      }
+    }
+  }
+
+
+  L1MuonCand l1MuonCand;  //empty cand
+  if(bestOmtfCand) {
+    LogTrace("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyzeRate bestOmtfCand muonCand->hwPt "<<bestOmtfCand->muonCand->hwPt()<<" trackingParticle "<<bestOmtfCand->trackingParticle <<std::endl;
+
+    L1MuonCand l1MuonCand1(*(bestOmtfCand->muonCand) );
+    l1MuonCand = l1MuonCand1;
+    l1MuonCand.ptGev = hwPtToPtGeV(bestOmtfCand->muonCand->hwPt() ); //TODO
+
+    if(l1MuonCand.hwQual > 0) {//removes candidates with abs(eta) > 1.24
+      int firedLayers = bestOmtfCand->muonCand->trackAddress().at(0);
+      if(abs(l1MuonCand.ptGev) >= 20) {
+        firedLayersEventCntOmtf->AddBinContent(firedLayers +1);
+      }
+
+      if( abs(hwPtToPtGeV(bestOmtfCand->muonCand->trackAddress().at(10 + 2) ) ) >= 20) {//TODO nn pt for the p threshold 0.45, change if other is needed
+        firedLayersEventCntNN->AddBinContent(firedLayers +1);
+      }
+    }
+
+    if(bestOmtfCand->muonCand->hwQual() >= 8 && bestOmtfCand->muonCand->hwPt() >= 41) {
+      edm::LogVerbatim("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyzeRate bestOmtfCand pt "<<std::setw(3)<<bestOmtfCand->muonCand->hwPt()<<" qual "<<std::setw(2)<<bestOmtfCand->muonCand->hwQual()
+              <<" proc "<<std::setw(2)<<bestOmtfCand->muonCand->processor()<<" eta "<<std::setw(4)<<bestOmtfCand->muonCand->hwEta()<<" gloablEta "<<std::setw(8)<<bestOmtfCand->muonCand->hwEta() * 0.010875
+              <<" hwPhi "<<std::setw(3)<<bestOmtfCand->muonCand->hwPhi()
+              <<" globalPhi "<<std::setw(8)<<hwGmtPhiToGlobalPhi(l1t::MicroGMTConfiguration::calcGlobalPhi( bestOmtfCand->muonCand->hwPhi(), bestOmtfCand->muonCand->trackFinderType(), bestOmtfCand->muonCand->processor() ) )
+              <<" fireadLayers "<<std::bitset<18>(bestOmtfCand->muonCand->trackAddress().at(0) )
+              <<std::endl;
+
+      if(bestOmtfCand->trackingParticle) {
+        edm::LogVerbatim("l1tMuBayesEventPrint") <<"trackingParticleIsMuonInOmtfBx0, pdgId "<<std::setw(3)<<bestOmtfCand->trackingParticle->pdgId()<<" pt "<<std::setw(9)<<bestOmtfCand->trackingParticle->pt()
+                  <<" eta "<<std::setw(9)<<bestOmtfCand->trackingParticle->momentum().eta()<<" phi "<<std::setw(9)<<bestOmtfCand->trackingParticle->momentum().phi()<<" event "<<bestOmtfCand->trackingParticle->eventId().event()<<std::endl;
+
+        if(bestOmtfCand->trackingParticle->parentVertex().isNonnull() ) {
+          edm::LogVerbatim("l1tMuBayesEventPrint")<<" parentVertex Rho "<<bestOmtfCand->trackingParticle->parentVertex()->position().Rho()
+                  <<" eta "<<bestOmtfCand->trackingParticle->parentVertex()->position().eta()<<" phi "<<bestOmtfCand->trackingParticle->parentVertex()->position().phi()<<std::endl;
+
+          for(auto& parentTrack : bestOmtfCand->trackingParticle->parentVertex()->sourceTracks() ) {
+            edm::LogVerbatim("l1tMuBayesEventPrint")<<" parentTrackPdgId "<<parentTrack->pdgId()<<std::endl;
+          }
+        }
+      }
+    }
+
+
+    for(auto& omtfCandsMatchingAnalyser : omtfCandsMatchingAnalysers) {
+      omtfCandsMatchingAnalyser->fill(l1MuonCand, bestOmtfCand->trackingParticle);
+    }
+
+
+    for(auto& omtfRateAnalyser : omtfRateAnalysers) {
+      omtfRateAnalyser->fill(l1MuonCand);
+    }
+
+    for(unsigned int i = 0; i < omtfNNRateAnalysers.size(); i++) {
+      if(bestOmtfCand) {
+        l1MuonCand.ptGev = fabs(hwPtToPtGeV(bestOmtfCand->muonCand->trackAddress().at(10 + i/3) ) ); //TODO check if abs is in the proper place, TODO watch aout the i
+      }
+      omtfNNRateAnalysers[i]->fill( l1MuonCand);
+    }
+  }
+  else {
+    //LogTrace("l1tMuBayesEventPrint") <<" no matching candidate!!!!!!!!!!!!!!!!!" <<std::endl;
+    //if there is no candidates, nothing is filled
+  }
+
+}
 
 void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, const edm::EventSetup& es) {
   LogTrace("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyzeRate"<<std::endl;
