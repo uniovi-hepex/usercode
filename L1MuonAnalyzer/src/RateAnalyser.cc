@@ -16,7 +16,7 @@ RateAnalyser::RateAnalyser(TFileDirectory subDir, std::string name, int qualityC
   std::ostringstream histTitle;
 
   histName<<"candPt_"<<"_qualityCut_"<<qualityCut;
-  histTitle<<name<<" cand pt, "<<" quality >= "<<qualityCut<<";pt [GeV]; #events";
+  histTitle<<name<<" cand pt, "<<" quality >= "<<qualityCut<<";cand pt [GeV]; #events";
 
   candPt = subDir.make<TH1D>(histName.str().c_str(), histTitle.str().c_str(), nBins, binsFrom, binsTo);
 
@@ -24,7 +24,7 @@ RateAnalyser::RateAnalyser(TFileDirectory subDir, std::string name, int qualityC
   histTitle.str("");
 
   histName<<"candEta_PtCut1GeV_"<<"_qualityCut_"<<qualityCut;
-  histTitle<<name<<" cand Eta, ptCut 1 GeV "<<" quality >= "<<qualityCut<<";pt [GeV]; #events";
+  histTitle<<name<<" cand Eta, ptCut 1 GeV "<<" quality >= "<<qualityCut<<";eta; #events";
 
   candEtaPtCut1 = subDir.make<TH1D>(histName.str().c_str(), histTitle.str().c_str(), 100, -2.1, 2.1);
 
@@ -32,7 +32,7 @@ RateAnalyser::RateAnalyser(TFileDirectory subDir, std::string name, int qualityC
   histTitle.str("");
 
   histName<<"candEta_PtCut10GeV_"<<"_qualityCut_"<<qualityCut;
-  histTitle<<name<<" cand Eta, ptCut 10 GeV "<<" quality >= "<<qualityCut<<";pt [GeV]; #events";
+  histTitle<<name<<" cand Eta, ptCut 10 GeV "<<" quality >= "<<qualityCut<<";eta; #events";
 
   candEtaPtCut10 = subDir.make<TH1D>(histName.str().c_str(), histTitle.str().c_str(), 100, -2.1, 2.1);
 
@@ -40,7 +40,7 @@ RateAnalyser::RateAnalyser(TFileDirectory subDir, std::string name, int qualityC
   histTitle.str("");
 
   histName<<"candEta_PtCut20GeV_"<<"_qualityCut_"<<qualityCut;
-  histTitle<<name<<" cand Eta, ptCut 20 GeV "<<" quality >= "<<qualityCut<<";pt [GeV]; #events";
+  histTitle<<name<<" cand Eta, ptCut 20 GeV "<<" quality >= "<<qualityCut<<";eta; #events";
 
   candEtaPtCut20 = subDir.make<TH1D>(histName.str().c_str(), histTitle.str().c_str(), 100, -2.1, 2.1);
 
@@ -86,55 +86,58 @@ void RateAnalyser::write() {
   candEtaPtCut20->Write();
 }
 
+/*
+PtGenVsPtCand promptMuonsPtGenVsPtCand;
+PtGenVsPtCand nonPromptMuonsPtGenVsPtCand;
+
+PtGenVsPtCand muonsFromPionsPtGenVsPtCand;
+PtGenVsPtCand muonsFromKaonsPtGenVsPtCand;*/
+
+CandsMatchingAnalyser::CandsMatchingHists::CandsMatchingHists(TFileDirectory& parrentSubDir, std::string name, int qualityCut, int nBins, double binsFrom, double binsTo):
+    subDir(parrentSubDir.mkdir(name)),
+    rateAn(subDir, name, qualityCut, nBins, binsFrom, binsTo),
+    ptGenVsPtCand(subDir, "", 0.82, 1.24, qualityCut, 100, 0, 100)
+{
+  std::ostringstream histName;
+  std::ostringstream histTitle;
+
+  histName<<"_simVertexRhoVsPtGen_"<<"_qualityCut_"<<qualityCut;
+  histTitle<<name<<" simVertexRho Vs genPt, "<<" quality >= "<<qualityCut<<"; genPt [GeV]; Rho [cm]";
+
+  simVertexRhoVsPtGen = subDir.make<TH2I>(histName.str().c_str(), histTitle.str().c_str(), 100, binsFrom, binsTo, 30, 0, 300);
+}
+
+void CandsMatchingAnalyser::CandsMatchingHists::fill(L1MuonCand& l1MuonCand, const TrackingParticle* matchedTrackingParticle,  double simVertexRho) {
+  rateAn.fill(l1MuonCand);
+
+  ptGenVsPtCand.fill(matchedTrackingParticle->pt(), matchedTrackingParticle->eta(), matchedTrackingParticle->phi(), l1MuonCand);
+
+  simVertexRhoVsPtGen->Fill(matchedTrackingParticle->pt(), simVertexRho);
+}
+
+void CandsMatchingAnalyser::CandsMatchingHists::write() {
+  rateAn.write();
+  ptGenVsPtCand.write();
+  simVertexRhoVsPtGen->Write();
+}
+
 CandsMatchingAnalyser::CandsMatchingAnalyser(TFileDirectory& subDir, std::string name, int qualityCut, int nBins, double binsFrom, double binsTo):
-    promptMuons(subDir.mkdir("promptMuons"), "promptMuons", qualityCut, nBins, binsFrom, binsTo),
-    nonPromptMuons(subDir.mkdir("nonPromptMuons"), "nonPromptMuons", qualityCut, nBins, binsFrom, binsTo),
-    muonsFromPions(subDir.mkdir("muonsFromPions"), "muonsFromPions", qualityCut, nBins, binsFrom, binsTo),
-    muonsFromKaons(subDir.mkdir("muonsFromKaons"), "muonsFromKaons", qualityCut, nBins, binsFrom, binsTo),
-    notMatched(subDir.mkdir("notMatched"), "notMatched", qualityCut, nBins, binsFrom, binsTo),
+    promptMuons(subDir, "promptMuons", qualityCut, nBins, binsFrom, binsTo),
+    nonPromptMuons(subDir, "nonPromptMuons", qualityCut, nBins, binsFrom, binsTo),
+    muonsFromPions(subDir, "muonsFromPions", qualityCut, nBins, binsFrom, binsTo),
+    muonsFromKaons(subDir, "muonsFromKaons", qualityCut, nBins, binsFrom, binsTo),
+    notMatchedRateAn(subDir.mkdir("notMatched"), "notMatched", qualityCut, nBins, binsFrom, binsTo),
     likelihoodDistribution(subDir, name, qualityCut, 0, 20, 120)
 {
 
   std::ostringstream histName;
   std::ostringstream histTitle;
 
-  histName<<name<<"simVertexRhoVsCandPt_"<<"_qualityCut_"<<qualityCut;
-  histTitle<<name<<" simVertexRho Vs CandPt, "<<" quality >= "<<qualityCut<<";pt [GeV]; Rho [cm]";
+  histName<<name<<"simVertexRhoVsPtGen_"<<"_qualityCut_"<<qualityCut;
+  histTitle<<name<<" simVertexRho Vs genPt, "<<" quality >= "<<qualityCut<<"; genPt [GeV]; Rho [cm]";
 
-  simVertexRhoVsCandPt = subDir.make<TH2I>(histName.str().c_str(), histTitle.str().c_str(), nBins, binsFrom, binsTo, 30, 0, 300);
+  simVertexRhoVsPtGen = subDir.make<TH2I>(histName.str().c_str(), histTitle.str().c_str(), 100, binsFrom, binsTo, 30, 0, 300);
 
-}
-
-void CandsMatchingAnalyser::fill(L1MuonCand& l1MuonCand, const SimTrack* matchedSimTrack, const edm::SimVertexContainer* simVertices) {
-  if(matchedSimTrack) {
-    int vtxInd = matchedSimTrack->vertIndex();
-    if (vtxInd < 0) {
-      promptMuons.fill(l1MuonCand);
-      simVertexRhoVsCandPt->Fill(l1MuonCand.ptGev, 0.);
-    }
-    else {
-      const SimVertex& simVertex = simVertices->at(vtxInd);
-
-      //simVertex.parentIndex();
-      //matchedSimTrack->trackId();
-
-      double simVertexRho = simVertex.position().Rho();
-
-      simVertexRhoVsCandPt->Fill(l1MuonCand.ptGev, simVertexRho);
-
-      if(simVertexRho > 10) {
-        nonPromptMuons.fill(l1MuonCand);
-      }
-      else {
-        promptMuons.fill(l1MuonCand);
-      }
-    }
-  }
-  else {
-    notMatched.fill(l1MuonCand);
-  }
-
-  likelihoodDistribution.fill(0, 0, 0, l1MuonCand);
 }
 
 void CandsMatchingAnalyser::fill(L1MuonCand& l1MuonCand, const TrackingParticle* matchedTrackingParticle) {
@@ -151,41 +154,75 @@ void CandsMatchingAnalyser::fill(L1MuonCand& l1MuonCand, const TrackingParticle*
     }
 
     if (parentTrackPdgId == 0) {
-      promptMuons.fill(l1MuonCand);
-      simVertexRhoVsCandPt->Fill(l1MuonCand.ptGev, 0.);
+      promptMuons.fill(l1MuonCand, matchedTrackingParticle, 0);
     }
     else {
       double simVertexRho = matchedTrackingParticle->parentVertex()->position().Rho();
 
-      simVertexRhoVsCandPt->Fill(l1MuonCand.ptGev, simVertexRho);
+      simVertexRhoVsPtGen->Fill(matchedTrackingParticle->pt(), simVertexRho);
 
       if(simVertexRho > 10) {
-        nonPromptMuons.fill(l1MuonCand);
+        nonPromptMuons.fill(l1MuonCand, matchedTrackingParticle, simVertexRho);
       }
       else {
-        promptMuons.fill(l1MuonCand);
+        promptMuons.fill(l1MuonCand, matchedTrackingParticle, simVertexRho);
       }
 
-      if(abs(parentTrackPdgId) == 211)
-        muonsFromPions.fill(l1MuonCand);
-      else if(abs(parentTrackPdgId) == 321)
-        muonsFromKaons.fill(l1MuonCand);
+      if(abs(parentTrackPdgId) == 211) {
+        muonsFromPions.fill(l1MuonCand, matchedTrackingParticle, simVertexRho);
+      }
+      else if(abs(parentTrackPdgId) == 321) {
+        muonsFromKaons.fill(l1MuonCand, matchedTrackingParticle, simVertexRho);
+      }
     }
   }
   else {
-    notMatched.fill(l1MuonCand);
+    notMatchedRateAn.fill(l1MuonCand);
   }
 
   likelihoodDistribution.fill(0, 0, 0, l1MuonCand);
 }
+
+/*void CandsMatchingAnalyser::fill(L1MuonCand& l1MuonCand, const SimTrack* matchedSimTrack, const edm::SimVertexContainer* simVertices) {
+  if(matchedSimTrack) {
+    int vtxInd = matchedSimTrack->vertIndex();
+    if (vtxInd < 0) {
+      promptMuonsRateAn.fill(l1MuonCand);
+      simVertexRhoVsPtGen->Fill(l1MuonCand.ptGev, 0.);
+    }
+    else {
+      const SimVertex& simVertex = simVertices->at(vtxInd);
+
+      //simVertex.parentIndex();
+      //matchedSimTrack->trackId();
+
+      double simVertexRho = simVertex.position().Rho();
+
+      simVertexRhoVsPtGen->Fill(l1MuonCand.ptGev, simVertexRho);
+
+      if(simVertexRho > 10) {
+        nonPromptMuonsRateAn.fill(l1MuonCand);
+      }
+      else {
+        promptMuonsRateAn.fill(l1MuonCand);
+      }
+    }
+  }
+  else {
+    notMatchedRateAn.fill(l1MuonCand);
+  }
+
+  likelihoodDistribution.fill(0, 0, 0, l1MuonCand);
+}*/
+
 
 void CandsMatchingAnalyser::write() {
   promptMuons.write();
   nonPromptMuons.write();
   muonsFromPions.write();
   muonsFromKaons.write();
-  notMatched.write();
+  notMatchedRateAn.write();
 
-  simVertexRhoVsCandPt->Write();
+  simVertexRhoVsPtGen->Write();
 }
 } /* namespace L1MuAn */

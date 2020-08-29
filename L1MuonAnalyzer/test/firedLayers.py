@@ -85,19 +85,20 @@ for firedLayerStat in firedLayersStat :
     #if (firedLayerStat[1] > 150) or (firedLayerStat[2] < 0.0001 and firedLayerStat[1] > 100): #rate > 100
         totalRateDrop += firedLayerStat[1]
         totalEff  += firedLayerStat[2]
-        print("%8i %s rate: %8.1f eff: %.5f ratio %f totalEff %f totalRateDrop %f fullRate %f " % (firedLayerStat[0], format(firedLayerStat[0], '018b'),  firedLayerStat[1], firedLayerStat[2], firedLayerStat[3], totalEff, totalRateDrop, fullRate - totalRateDrop) ) 
+        if firedLayerStat[1]: #if rate not 0
+            print("%8i %s rate: %8.1f eff: %.5f ratio %f totalEff %f totalRateDrop %f fullRate %f " % (firedLayerStat[0], format(firedLayerStat[0], '018b'),  firedLayerStat[1], firedLayerStat[2], firedLayerStat[3], totalEff, totalRateDrop, fullRate - totalRateDrop) ) 
         #print("%s" % (format(firedLayerStat[0], '018b')) ) 
-        if ((firedLayerStat[0] & 0x3) ^ 0x2 ) == 0:
-            print("aaaaaaaaaaaaaaaaaaaaa")
-            totalEff10 += firedLayerStat[2]
-
-        if ((firedLayerStat[0] & 0b1100) ^ 0b1000 ) == 0:
-            print("aaaaaaaaaaaaaaaaaaaaa")
-            totalEff10 += firedLayerStat[2]
-            
-        if ((firedLayerStat[0] & 0b110000) ^ 0b100000 ) == 0:
-            print("aaaaaaaaaaaaaaaaaaaaa")
-            totalEff10 += firedLayerStat[2]
+#         if ((firedLayerStat[0] & 0x3) ^ 0x2 ) == 0:
+#             print("aaaaaaaaaaaaaaaaaaaaa")
+#             totalEff10 += firedLayerStat[2]
+# 
+#         if ((firedLayerStat[0] & 0b1100) ^ 0b1000 ) == 0:
+#             print("aaaaaaaaaaaaaaaaaaaaa")
+#             totalEff10 += firedLayerStat[2]
+#             
+#         if ((firedLayerStat[0] & 0b110000) ^ 0b100000 ) == 0:
+#             print("aaaaaaaaaaaaaaaaaaaaa")
+#             totalEff10 += firedLayerStat[2]
 
 print ("totalEff10 " , totalEff10) 
 #execfile('ratePlots.py')

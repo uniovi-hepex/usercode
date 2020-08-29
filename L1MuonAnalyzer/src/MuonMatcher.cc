@@ -490,8 +490,9 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
       //int layerHits = (int)omtfCand->trackAddress().at(0);
       //std::bitset<18> layerHitBits(layerHits);
 
-      if(muonCand->hwQual() <= 1) //dropping very low quality candidates, as they are fakes usually
-        continue;
+      /*if(muonCand->hwQual() <= 1) //dropping very low quality candidates, as they are fakes usually
+        continue; has no sense, then the results are not conclusive*/
+
       LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
       MatchingResult result = match(muonCand, trackingParticle, tsof);
       LogTrace("l1tMuBayesEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;

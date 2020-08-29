@@ -432,27 +432,33 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, std::vector<Matchi
       }
     }
 
-    if(bestOmtfCand->muonCand->hwQual() >= 8 && bestOmtfCand->muonCand->hwPt() >= 41) {
-      edm::LogVerbatim("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyzeRate bestOmtfCand pt "<<std::setw(3)<<bestOmtfCand->muonCand->hwPt()<<" qual "<<std::setw(2)<<bestOmtfCand->muonCand->hwQual()
+    if(bestOmtfCand->muonCand->hwQual() >= 1 && bestOmtfCand->muonCand->hwPt() >= 41) { //41
+      edm::LogVerbatim("l1tMuBayesEventPrint") <<"L1MuonAnalyzerOmtf::analyzeRate bestOmtfCand hwPt "<<std::setw(3)<<bestOmtfCand->muonCand->hwPt()<<" pt GeV "<<l1MuonCand.ptGev
+              <<" qual "<<std::setw(2)<<bestOmtfCand->muonCand->hwQual()
               <<" proc "<<std::setw(2)<<bestOmtfCand->muonCand->processor()<<" eta "<<std::setw(4)<<bestOmtfCand->muonCand->hwEta()<<" gloablEta "<<std::setw(8)<<bestOmtfCand->muonCand->hwEta() * 0.010875
               <<" hwPhi "<<std::setw(3)<<bestOmtfCand->muonCand->hwPhi()
               <<" globalPhi "<<std::setw(8)<<hwGmtPhiToGlobalPhi(l1t::MicroGMTConfiguration::calcGlobalPhi( bestOmtfCand->muonCand->hwPhi(), bestOmtfCand->muonCand->trackFinderType(), bestOmtfCand->muonCand->processor() ) )
-              <<" fireadLayers "<<std::bitset<18>(bestOmtfCand->muonCand->trackAddress().at(0) )
-              <<std::endl;
+              <<" fireadLayers "<<std::bitset<18>(bestOmtfCand->muonCand->trackAddress().at(0) )<<std::endl;
 
       if(bestOmtfCand->trackingParticle) {
         edm::LogVerbatim("l1tMuBayesEventPrint") <<"trackingParticleIsMuonInOmtfBx0, pdgId "<<std::setw(3)<<bestOmtfCand->trackingParticle->pdgId()<<" pt "<<std::setw(9)<<bestOmtfCand->trackingParticle->pt()
-                  <<" eta "<<std::setw(9)<<bestOmtfCand->trackingParticle->momentum().eta()<<" phi "<<std::setw(9)<<bestOmtfCand->trackingParticle->momentum().phi()<<" event "<<bestOmtfCand->trackingParticle->eventId().event()<<std::endl;
+                  <<" eta "<<std::setw(9)<<bestOmtfCand->trackingParticle->momentum().eta()<<" phi "<<std::setw(9)<<bestOmtfCand->trackingParticle->momentum().phi()<<" event "<<bestOmtfCand->trackingParticle->eventId().event()
+                  <<"\nmatching: deltaEta "<<std::setw(8)<<bestOmtfCand->deltaEta<<" deltaPhi "<<std::setw(8)<<bestOmtfCand->deltaPhi<<" matchingLL "<<std::setw(8)<<bestOmtfCand->matchingLikelihood<<std::endl;
+
 
         if(bestOmtfCand->trackingParticle->parentVertex().isNonnull() ) {
-          edm::LogVerbatim("l1tMuBayesEventPrint")<<" parentVertex Rho "<<bestOmtfCand->trackingParticle->parentVertex()->position().Rho()
+          edm::LogVerbatim("l1tMuBayesEventPrint")<<"parentVertex Rho "<<bestOmtfCand->trackingParticle->parentVertex()->position().Rho()
                   <<" eta "<<bestOmtfCand->trackingParticle->parentVertex()->position().eta()<<" phi "<<bestOmtfCand->trackingParticle->parentVertex()->position().phi()<<std::endl;
 
           for(auto& parentTrack : bestOmtfCand->trackingParticle->parentVertex()->sourceTracks() ) {
-            edm::LogVerbatim("l1tMuBayesEventPrint")<<" parentTrackPdgId "<<parentTrack->pdgId()<<std::endl;
+            edm::LogVerbatim("l1tMuBayesEventPrint")<<"parentTrackPdgId "<<parentTrack->pdgId()<<std::endl;
           }
         }
       }
+      else {
+        edm::LogVerbatim("l1tMuBayesEventPrint")<<"no matched trackingParticle"<<std::endl;
+      }
+      edm::LogVerbatim("l1tMuBayesEventPrint")<<std::endl;
     }
 
 

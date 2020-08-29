@@ -50,7 +50,7 @@ public:
 
   virtual ~CandsMatchingAnalyser() {};
 
-  virtual void fill(L1MuonCand& l1MuonCand, const SimTrack* matchedSimTrack, const edm::SimVertexContainer* simVertices);
+  //virtual void fill(L1MuonCand& l1MuonCand, const SimTrack* matchedSimTrack, const edm::SimVertexContainer* simVertices);
 
 
   virtual void fill(L1MuonCand& l1MuonCand, const TrackingParticle* matchedTrackingParticle);
@@ -58,15 +58,31 @@ public:
 
   virtual void write();
 
+  class CandsMatchingHists {
+  public:
+    TFileDirectory subDir;
+    RateAnalyser rateAn;
+    PtGenVsPtCand ptGenVsPtCand;
+    TH2* simVertexRhoVsPtGen = nullptr;
+
+    CandsMatchingHists(TFileDirectory& parrentSubDir, std::string name, int qualityCut, int nBins, double binsFrom, double binsTo);
+    virtual ~CandsMatchingHists() {}
+
+    virtual void fill(L1MuonCand& l1MuonCand, const TrackingParticle* matchedTrackingParticle, double simVertexRho);
+    virtual void write();
+  };
+
 private:
-  RateAnalyser promptMuons;
-  RateAnalyser nonPromptMuons;
+  CandsMatchingHists promptMuons;
+  CandsMatchingHists nonPromptMuons;
+  CandsMatchingHists muonsFromPions;
+  CandsMatchingHists muonsFromKaons;
 
-  RateAnalyser muonsFromPions;
-  RateAnalyser muonsFromKaons;
-  RateAnalyser notMatched;
+  RateAnalyser notMatchedRateAn;
 
-  TH2* simVertexRhoVsCandPt = nullptr;
+  //PtGenVsPtCand etaCand12PtGenVsPtCand;
+
+  TH2* simVertexRhoVsPtGen = nullptr;
 
   LikelihoodDistribution likelihoodDistribution;
 };
