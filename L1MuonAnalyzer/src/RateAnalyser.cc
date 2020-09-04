@@ -95,6 +95,7 @@ PtGenVsPtCand muonsFromKaonsPtGenVsPtCand;*/
 
 CandsMatchingAnalyser::CandsMatchingHists::CandsMatchingHists(TFileDirectory& parrentSubDir, std::string name, int qualityCut, int nBins, double binsFrom, double binsTo):
     subDir(parrentSubDir.mkdir(name)),
+    qualityCut(qualityCut),
     rateAn(subDir, name, qualityCut, nBins, binsFrom, binsTo),
     ptGenVsPtCand(subDir, "", 0.82, 1.24, qualityCut, 100, 0, 100)
 {
@@ -112,7 +113,10 @@ void CandsMatchingAnalyser::CandsMatchingHists::fill(L1MuonCand& l1MuonCand, con
 
   ptGenVsPtCand.fill(matchedTrackingParticle->pt(), matchedTrackingParticle->eta(), matchedTrackingParticle->phi(), l1MuonCand);
 
-  simVertexRhoVsPtGen->Fill(matchedTrackingParticle->pt(), simVertexRho);
+  if(l1MuonCand.hwQual >= qualityCut) {
+    simVertexRhoVsPtGen->Fill(matchedTrackingParticle->pt(), simVertexRho);
+  }
+
 }
 
 void CandsMatchingAnalyser::CandsMatchingHists::write() {

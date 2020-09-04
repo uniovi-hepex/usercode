@@ -61,6 +61,8 @@ public:
   class CandsMatchingHists {
   public:
     TFileDirectory subDir;
+    int qualityCut = 0;
+
     RateAnalyser rateAn;
     PtGenVsPtCand ptGenVsPtCand;
     TH2* simVertexRhoVsPtGen = nullptr;

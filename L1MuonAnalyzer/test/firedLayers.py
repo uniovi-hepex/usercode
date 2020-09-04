@@ -5,7 +5,7 @@ import sys
     
 
 #version = "v2_t" + sys.argv[0]
-version = "v2_t52" 
+version = "v2_t63" 
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
@@ -15,6 +15,7 @@ version = "v2_t52"
 rateHistFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_SingleNeutrino_PU250_'+ version + '/results/omtfAnalysis2.root' )
 
 #version = "v2_t44" 
+version = "v2_t57" 
 effHistFile =  TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_' + version + '/results/omtfAnalysis2.root' )
 
 
@@ -37,11 +38,11 @@ print ("eventCnt " + str(eventCnt) );
 print ("scale " + str(scale) );
 
 
-#firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntOmtf")
-firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntNN") #firedLayersEventCntNN firedPlanesEventCntNN
+firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntOmtf")
+#firedLayersEventCntOmtfRate = analyzerOmtfDirRate.Get("firedLayersEventCntNN") #firedLayersEventCntNN firedPlanesEventCntNN
 
-#firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntOmtf")
-firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntNN") #firedLayersEventCntOmtf firedPlanesEventCntOmtf
+firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntOmtf")
+#firedLayersEventCntOmtfEff = effHistFile.Get("L1MuonAnalyzerOmtf").Get("firedLayersEventCntNN") #firedLayersEventCntOmtf firedPlanesEventCntOmtf
 
 print("rate hist " + firedLayersEventCntOmtfRate.GetName() )
 print("eff  hist " + firedLayersEventCntOmtfEff.GetName() )
@@ -60,14 +61,14 @@ for firedLayers in range(0, firedLayersEventCntOmtfRate.GetNbinsX(), 1) :
     fullRate += rate
     eff_rate = 10000000
     if rate > 0 :
-        eff_rate = eff/rate
+        eff_rate = eff/(rate ) #* rate
 
     #if eff > 0 :
     #    eff_rate = rate/eff #eff/rate
 
     if rate > 0 or eff > 0:
-        #if rate > 100:
-        firedLayersStat.append( (firedLayers, rate, eff, eff_rate) )
+        if rate > 60:
+            firedLayersStat.append( (firedLayers, rate, eff, eff_rate) )
             #print("%8i %018i %f" % (firedLayers, firedLayers,  rate) ) 
         #print("%8i %s rate: %8.1f eff: %.5f ratio %f" % (firedLayers, format(firedLayers, '018b'), rate, eff, eff_rate) ) 
 
