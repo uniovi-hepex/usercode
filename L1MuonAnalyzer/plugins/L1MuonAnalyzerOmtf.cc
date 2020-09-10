@@ -327,14 +327,14 @@ void L1MuonAnalyzerOmtf::analyzeEfficiency(const edm::Event& event, std::vector<
         l1MuonCand = l1MuonCand1;
         l1MuonCand.ptGev = hwPtToPtGeV(matchingResult.muonCand->hwPt() ); //TODO
 
-        if(matchingResult.trackingParticle->pt() >= 22) {
+        if(matchingResult.trackingParticle->pt() >= 25) {
           if(l1MuonCand.hwQual > 0) {//removes candidates with abs(eta) > 1.24
             int firedLayers = matchingResult.muonCand->trackAddress().at(0);
-            if( abs(l1MuonCand.ptGev) >= 20) {
+            if( abs(l1MuonCand.ptGev) >= 18) {
               firedLayersEventCntOmtf->AddBinContent(firedLayers +1);
             }
 
-            if( abs(hwPtToPtGeV(matchingResult.muonCand->trackAddress().at(10 + 2) ) ) >= 20) {//TODO nn pt for the p threshold 0.45, change if other is needed
+            if( abs(hwPtToPtGeV(matchingResult.muonCand->trackAddress().at(10 + 2) ) ) >= 22) {//TODO nn pt for the p threshold 0.45, change if other is needed
               firedLayersEventCntNN->AddBinContent(firedLayers +1);
             }
           }
@@ -423,11 +423,11 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, std::vector<Matchi
 
     if(l1MuonCand.hwQual > 0) {//removes candidates with abs(eta) > 1.24
       int firedLayers = bestOmtfCand->muonCand->trackAddress().at(0);
-      if(abs(l1MuonCand.ptGev) >= 20) {
+      if(abs(l1MuonCand.ptGev) >= 18) {
         firedLayersEventCntOmtf->AddBinContent(firedLayers +1);
       }
 
-      if( abs(hwPtToPtGeV(bestOmtfCand->muonCand->trackAddress().at(10 + 2) ) ) >= 20) {//TODO nn pt for the p threshold 0.45, change if other is needed
+      if( abs(hwPtToPtGeV(bestOmtfCand->muonCand->trackAddress().at(10 + 2) ) ) >= 22) {//TODO nn pt for the p threshold 0.45, change if other is needed
         firedLayersEventCntNN->AddBinContent(firedLayers +1);
       }
     }
@@ -546,11 +546,11 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, const edm::EventSe
 
     if(l1MuonCand.hwQual > 0) {//removes candidates with abs(eta) > 1.24
       int firedLayers = bestOmtfCand->trackAddress().at(0);
-      if(abs(l1MuonCand.ptGev) >= 20) {
+      if(abs(l1MuonCand.ptGev) >= 18) {
         firedLayersEventCntOmtf->AddBinContent(firedLayers +1);
       }
 
-      if( abs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + 2) ) ) >= 20) {//TODO nn pt for the p threshold 0.45, change if other is needed
+      if( abs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + 2) ) ) >= 22) {//TODO nn pt for the p threshold 0.45, change if other is needed
         firedLayersEventCntNN->AddBinContent(firedLayers +1);
       }
     }
