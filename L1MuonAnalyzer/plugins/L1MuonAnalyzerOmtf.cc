@@ -97,21 +97,24 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg): muonMat
 
     for(auto& nn_pThreshold : nn_pThresholds) {
       std::ostringstream ostr;
-      ostr<<"nn_omtf_q1_pTresh_"<<nn_pThreshold;
+      ostr<<"nn_omtf_q12_pTresh_"<<nn_pThreshold;
       subDir = subDirRate.mkdir(ostr.str().c_str());
-      omtfNNRateAnalysers.emplace_back(new RateAnalyser(subDir, "", 1, 200, 0, 100));
+      omtfNNRateAnalysers.emplace_back(new RateAnalyser(subDir, "", 12, 200, 0, 100));
+      omtfNNCandsMatchingAnalysers.emplace_back(new CandsMatchingAnalyser(subDir, "", 12, 200, 0, 100));
       edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNRateAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
 
       ostr.str("");
       ostr<<"nn_omtf_q4_pTresh_"<<nn_pThreshold;
       subDir = subDirRate.mkdir(ostr.str().c_str());
       omtfNNRateAnalysers.emplace_back(new RateAnalyser(subDir, "", 4, 200, 0, 100));
+      omtfNNCandsMatchingAnalysers.emplace_back(new CandsMatchingAnalyser(subDir, "", 4, 200, 0, 100));
       edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNRateAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
 
       ostr.str("");
-      ostr<<"nn_omtf_q12_pTresh_"<<nn_pThreshold;
+      ostr<<"nn_omtf_q1_pTresh_"<<nn_pThreshold;
       subDir = subDirRate.mkdir(ostr.str().c_str());
-      omtfNNRateAnalysers.emplace_back(new RateAnalyser(subDir, "", 12, 200, 0, 100));
+      omtfNNRateAnalysers.emplace_back(new RateAnalyser(subDir, "", 1, 200, 0, 100));
+      omtfNNCandsMatchingAnalysers.emplace_back(new CandsMatchingAnalyser(subDir, "", 1, 200, 0, 100));
       edm::LogImportant("l1tMuBayesEventPrint") <<" adding omtfNNRateAnalysers, nn_pThreshold "<<nn_pThreshold<<std::endl;
     }
   }
@@ -471,11 +474,16 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, std::vector<Matchi
       omtfRateAnalyser->fill(l1MuonCand);
     }
 
+    /*
+     * here is little bit not good, because the  bestOmtfCand is the one with the highest omtf pt, and not the nn pt,
+     * so in some rare case the nn pt of the chose cand might be smaller than the nn pt of some other cand
+     */
     for(unsigned int i = 0; i < omtfNNRateAnalysers.size(); i++) {
       if(bestOmtfCand) {
         l1MuonCand.ptGev = fabs(hwPtToPtGeV(bestOmtfCand->muonCand->trackAddress().at(10 + i/3) ) ); //TODO check if abs is in the proper place, TODO watch aout the i
       }
       omtfNNRateAnalysers[i]->fill( l1MuonCand);
+      omtfNNCandsMatchingAnalysers.at(i)->fill(l1MuonCand, bestOmtfCand->trackingParticle);
     }
   }
   else {
