@@ -202,7 +202,7 @@ for iAlgo, canvas in enumerate(canvases ) :
         
     if rateCumuls[iAlgo].GetName().find("nn_omtf") >= 0:
         ptCutGev = 22
-    elif version.find("t58") or version.find("t64") >= 0:
+    elif version.find("t58") >= 0 or version.find("t64") >= 0:
         ptCutGev = 18
     else :
         lineColor = 1
@@ -216,7 +216,7 @@ for iAlgo, canvas in enumerate(canvases ) :
 
     relativeRatesOnThresh = rateOnThresh / referenceRate
 
-    print("%s50 rate %f realitve rate %f " % (ratesOnThreshHist.GetXaxis().GetBinLabel(iAlgo +1), rateOnThresh, relativeRatesOnThresh) )
+    print("%s rate %f realitve rate %f " % (ratesOnThreshHist.GetXaxis().GetBinLabel(iAlgo +1), rateOnThresh, relativeRatesOnThresh) )
 
     relativeRatesOnThreshHist.Fill( iAlgo, relativeRatesOnThresh)
     relativeRatesOnThreshHist.GetXaxis().SetBinLabel(iAlgo +1, canvases[iAlgo].GetTitle() + " ptCut " + str(ptCutGev) + "GeV")    
