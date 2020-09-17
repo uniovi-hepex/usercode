@@ -237,6 +237,9 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const S
     result.deltaPhi = foldPhi(tsof.globalPosition().phi() - candGlobalPhi);
     result.deltaEta = tsof.globalPosition().eta() - candGloablEta;
 
+    result.propagatedPhi = tsof.globalPosition().phi() ;
+    result.propagatedEta = tsof.globalPosition().eta() ;
+
     double mean = 0;
     double sigma = 1;
     if(!fillMean) {
@@ -286,6 +289,10 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const T
 
     result.deltaPhi = foldPhi(tsof.globalPosition().phi() - candGlobalPhi);
     result.deltaEta = tsof.globalPosition().eta() - candGloablEta;
+
+    result.propagatedPhi = tsof.globalPosition().phi() ;
+    result.propagatedEta = tsof.globalPosition().eta() ;
+
 
     double mean = 0;
     double sigma = 1;

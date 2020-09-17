@@ -53,6 +53,9 @@ public:
   double deltaPhi = 0;
   double deltaEta = 0;
 
+  double propagatedPhi = 0;
+  double propagatedEta = 0;
+
   double matchingLikelihood = 0;
 
   const l1t::RegionalMuonCand* muonCand = nullptr;
