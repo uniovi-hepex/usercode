@@ -25,7 +25,7 @@
 <use name="SimDataFormats/GeneratorProducts" />
 <use name="SimGeneral/HepPDTRecord" />
 <use name="L1Trigger/RPCTrigger" />
-<use name="L1Trigger/L1TMuonBayes" />
+<use name="L1Trigger/L1TMuonOverlapPhase1" />
 <use name="hepmc" />
 <use name="heppdt" />
 
@@ -68,7 +68,7 @@
 <use name="Geometry/CaloTopology" />
 <use name="Geometry/CaloGeometry" />
 <use name="FastSimulation/Particle" />
-<use name="FastSimulation/BaseParticlePropagator" />
+<!-- <use name="FastSimulation/BaseParticlePropagator" /> -->
 <use name="SimTracker/TrackerHitAssociation" />
 <use name="SimTracker/TrackTriggerAssociation" />
 <use name="DataFormats/TrackerRecHit2D" />
@@ -76,7 +76,6 @@
 <use name="RecoLocalTracker/SiPixelRecHits" />
 <use name="PhysicsTools/UtilAlgos" />
 <use name="FWCore/ServiceRegistry" />
-<use name="RecoTauTag/TauTagTools" />
 <use name="RecoTracker/TkSeedGenerator" />
 <use name="CommonTools/UtilAlgos" />
 <use name="DataFormats/Phase2TrackerDigi" />

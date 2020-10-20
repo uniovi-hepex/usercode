@@ -82,7 +82,6 @@
 			<target name="scram b logDebug" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>scram</buildCommand>
 				<buildArguments>b USER_CXXFLAGS="-DEDM_ML_DEBUG"  -r</buildArguments>
-				<buildTarget/>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>false</useDefaultCommand>
 				<runAllBuilders>true</runAllBuilders>
@@ -90,7 +89,6 @@
 			<target name="scram clean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>scram</buildCommand>
 				<buildArguments>b clean</buildArguments>
-				<buildTarget/>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>false</useDefaultCommand>
 				<runAllBuilders>true</runAllBuilders>
