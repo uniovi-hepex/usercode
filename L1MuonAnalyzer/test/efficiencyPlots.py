@@ -26,6 +26,8 @@ version = sys.argv[1]
 #inputResults = 'MuFlatPt_' + version #+ "_test" 
 inputResults = version #+ "_test" 
 
+omtf_type = 2018 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  
+
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis2_v57_1efficiency.root' )
@@ -148,6 +150,7 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
     print("%s - %.3f" % (ptGenVsPtCand.GetName(), (accpetedIntegrated / allIntegrated) ) ) # 4.000000
     efficienciesOnThresh.append(accpetedIntegrated / allIntegrated)
 
+     
         
 for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
     ptGenVsPtCand = obj.ReadObj()
@@ -158,7 +161,10 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
         
         if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
             ptCut = 22 #+3
-        else :
+        elif omtf_type ==  2018:
+            lineColor = 1
+            ptCut = 20 #20 #+5
+        else :   
             lineColor = 1
             ptCut = 18 #20 #+5
             
@@ -167,6 +173,9 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
         
         if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
             ptCut = 22 + 2
+        elif omtf_type ==  2018:
+            lineColor = 1
+            ptCut = 22 #20 #+5    
         else :
             lineColor = 1
             ptCut = 20 #22
@@ -175,6 +184,9 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
         
         if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
             ptCut = 26 + 2
+        elif omtf_type ==  2018:
+            lineColor = 1
+            ptCut = 26 #20 #+5    
         else :
             lineColor = 1
             ptCut = 24 # 26

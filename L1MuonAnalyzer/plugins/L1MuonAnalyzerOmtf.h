@@ -112,6 +112,10 @@ public:
 private:
   std::string analysisType;
 
+  bool matchUsingPropagation = true;
+
+  bool fillMatcherHists = false;
+
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
 
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexesToken;

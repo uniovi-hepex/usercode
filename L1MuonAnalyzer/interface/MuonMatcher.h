@@ -89,11 +89,22 @@ public:
 
   MatchingResult match(const l1t::RegionalMuonCand* omtfCand, const TrackingParticle& trackingParticle, TrajectoryStateOnSurface& tsof);
 
+  std::vector<MatchingResult> cleanMatching(std::vector<MatchingResult> matchingResults, std::vector<const l1t::RegionalMuonCand*>& muonCands);
 
   std::vector<MatchingResult> match(std::vector<const l1t::RegionalMuonCand*>& muonCands, const edm::SimTrackContainer* simTracks, const edm::SimVertexContainer* simVertices,
       std::function<bool(const SimTrack& )> const& simTrackFilter);
 
   std::vector<MatchingResult> match(std::vector<const l1t::RegionalMuonCand*>& muonCands, const TrackingParticleCollection* trackingParticles,
+      std::function<bool(const TrackingParticle& )> const& simTrackFilter);
+
+  //propagations is not used
+  void fillHists(std::vector<const l1t::RegionalMuonCand*>& muonCands, const edm::SimTrackContainer* simTracks,  std::function<bool(const SimTrack& )> const& simTrackFilter);
+
+
+  MatchingResult match(const l1t::RegionalMuonCand* omtfCand, const TrackingParticle& trackingParticle);
+
+  //propagations is not used, but inseted the histograms deltaPhiVertexCand_Mean_pos and deltaPhiVertexCand_StdDev_pos
+  std::vector<MatchingResult> matchWithoutPorpagation(std::vector<const l1t::RegionalMuonCand*>& muonCands, const TrackingParticleCollection* trackingParticles,
       std::function<bool(const TrackingParticle& )> const& simTrackFilter);
 
 private:
@@ -110,8 +121,16 @@ private:
   TH1D* deltaPhiPropCandMean = nullptr;
   TH1D* deltaPhiPropCandStdDev = nullptr;
 
-  bool fillMean = false;
+  TH1D* ptGen_pos = nullptr;
+  TH1D* deltaPhiVertexCand_Mean_pos = nullptr;
+  TH1D* deltaPhiVertexCand_StdDev_pos = nullptr;
 
+  TH1D* ptGen_neg = nullptr;
+  TH1D* deltaPhiVertexCand_Mean_neg = nullptr;
+  TH1D* deltaPhiVertexCand_StdDev_neg = nullptr;
+
+  bool fillMean = false;
+  bool matchUsingPropagation = true;
 };
 
 }
