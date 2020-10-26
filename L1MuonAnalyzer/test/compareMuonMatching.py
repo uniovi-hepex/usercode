@@ -11,7 +11,9 @@ from collections import namedtuple
 gStyle.SetOptStat(0)
 
 
-fileDir = '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/'
+#fileDir = '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/'
+fileDir = '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/'
+
 
 candCategories = ('promptMuons', 'nonPromptMuons', 'notMatched') #, 'muonsFromPions', 'muonsFromKaons'
 
@@ -39,6 +41,9 @@ def getRate(dir, ptCutGev,name):
                 
 def readRateFile(version, algoName, ptCutGev):
     folder = 'crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_v2_' + version
+    if version == "t74" :
+        folder = 'crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_v3_' + version
+        
     if folder in histFiles:
         histFile = histFiles.get(folder)
     else :
@@ -142,8 +147,11 @@ VersionAlgo = namedtuple("VersionAlgo", "version algoName ptCutGev")
 
 toCompareList = ( 
     #VersionAlgo("t68", "omtf_q12", 20) , 
-    VersionAlgo("t65", "omtf_q8", 5), 
-    VersionAlgo("t65", "omtf_q12", 5), 
+    #VersionAlgo("t65", "omtf_q8", 5), 
+    #VersionAlgo("t65", "omtf_q12", 5), 
+    
+    VersionAlgo("t74", "omtf_q8", 18), 
+    VersionAlgo("t74", "omtf_q12", 18), 
 
     #VersionAlgo("t68", "omtf_q1", 20) , 
     #VersionAlgo("t67", "nn_omtf_q12_pTresh_0.4", 22),

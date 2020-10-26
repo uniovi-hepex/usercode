@@ -327,7 +327,7 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const S
 
     result.muonCand = muonCand;
 
-    if( abs(result.deltaPhi) < (4. * sigma)) //TODO 4 sigma, because the distribution has non-gaussian tails
+    if( abs(result.deltaPhi) < (5. * sigma)) //TODO 4 sigma, because the distribution has non-gaussian tails
       result.result = MatchingResult::ResultType::matched;
 
     LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: simTrack type "<<simTrack.type()<<" pt "<<std::setw(8)<<simTrack.momentum().pt()
@@ -381,7 +381,7 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const T
 
     result.muonCand = muonCand;
 
-    if( abs(result.deltaPhi) < (4. * sigma)) //TODO 4 sigma, because the distribution has non-gaussian tails
+    if( abs(result.deltaPhi) < (5. * sigma)) //TODO 4 sigma, because the distribution has non-gaussian tails
       result.result = MatchingResult::ResultType::matched;
 
     LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: simTrack type "<<trackingParticle.pdgId()<<" pt "<<std::setw(8)<<trackingParticle.pt()
