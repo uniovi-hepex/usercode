@@ -34,7 +34,10 @@ omtf_type = 2018 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v28_10Files.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_MuFlatPt_PU200_v2_t33/results/omtfAnalysis2.root' )
 
-if version < "MuFlatPt_PU200_v3_t70" :
+if "SingleMu_t" in version :
+    histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/eff_SingleMu/omtfAnalysis2_eff_' + version + '.root' )
+    omtf_type = 2022
+elif version < "MuFlatPt_PU200_v3_t70" :
     histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
 else :
     histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
@@ -164,7 +167,7 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
         elif omtf_type ==  2018:
             lineColor = 1
             ptCut = 20 #20 #+5
-        else :   
+        elif omtf_type ==  2022 :   
             lineColor = 1
             ptCut = 18 #20 #+5
             
@@ -176,7 +179,7 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
         elif omtf_type ==  2018:
             lineColor = 1
             ptCut = 22 #20 #+5    
-        else :
+        elif omtf_type ==  2022 :
             lineColor = 1
             ptCut = 20 #22
             
@@ -187,7 +190,7 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
         elif omtf_type ==  2018:
             lineColor = 1
             ptCut = 26 #20 #+5    
-        else :
+        elif omtf_type ==  2022 :
             lineColor = 1
             ptCut = 24 # 26
         

@@ -48,6 +48,22 @@ public:
     duplicate = 2
   };
 
+  MatchingResult() {}
+
+  MatchingResult(const SimTrack& simTrack): simTrack(&simTrack) {
+    pdgId = simTrack.type();
+    genPt = simTrack.momentum().pt();
+    genEta = simTrack.momentum().eta();
+    genPhi = simTrack.momentum().phi();
+  }
+
+  MatchingResult(const TrackingParticle& trackingParticle): trackingParticle(&trackingParticle) {
+    pdgId = trackingParticle.pdgId();
+    genPt = trackingParticle.pt();
+    genEta = trackingParticle.momentum().eta();
+    genPhi = trackingParticle.momentum().phi();
+  }
+
   ResultType result = ResultType::notMatched;
   //bool propagationFailed = false;
   double deltaPhi = 0;
@@ -59,6 +75,13 @@ public:
   double matchingLikelihood = 0;
 
   const l1t::RegionalMuonCand* muonCand = nullptr;
+
+  //to avoid using simTrack or trackingParticle
+  double pdgId = 0;
+  double genPt = 0;
+  double genEta = 0;
+  double genPhi = 0;
+
   const SimTrack* simTrack = nullptr;
   const TrackingParticle* trackingParticle = nullptr;
 

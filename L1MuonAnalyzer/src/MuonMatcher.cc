@@ -67,6 +67,7 @@ MuonMatcher::MuonMatcher(const edm::ParameterSet& edmCfg) {
     if(matchUsingPropagation) {
       deltaPhiPropCandMean = (TH1D*)inFile.Get("deltaPhiPropCandMean");
       deltaPhiPropCandStdDev = (TH1D*)inFile.Get("deltaPhiPropCandStdDev");
+      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<" deltaPhiPropCandStdDev "<<deltaPhiPropCandStdDev<<std::endl;
     }
     else {
       deltaPhiVertexCand_Mean_pos =   (TH1D*)inFile.Get("deltaPhiVertexCand_Mean_pos");
@@ -298,8 +299,8 @@ float normal_pdf(float x, float m, float s) {
 }
 
 MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const SimTrack& simTrack, TrajectoryStateOnSurface& tsof) {
-  MatchingResult result;
-  result.simTrack = &simTrack;
+  MatchingResult result(simTrack);
+
   double candGloablEta  = muonCand->hwEta() * 0.010875;
   if( abs(simTrack.momentum().eta() - candGloablEta ) < 0.3 ) {
     double candGlobalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi( muonCand->hwPhi(), muonCand->trackFinderType(), muonCand->processor() );
@@ -314,27 +315,30 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const S
     result.propagatedPhi = tsof.globalPosition().phi() ;
     result.propagatedEta = tsof.globalPosition().eta() ;
 
+    LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
     double mean = 0;
     double sigma = 1;
     if(!fillMean) {
       auto ptBin = deltaPhiPropCandMean->FindBin(simTrack.momentum().pt());
-
+      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
       mean = deltaPhiPropCandMean->GetBinContent(ptBin);
       sigma = deltaPhiPropCandStdDev->GetBinContent(ptBin);
     }
-
+    LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
     result.matchingLikelihood = normal_pdf(result.deltaPhi, mean, sigma); //TODO temporary solution
 
     result.muonCand = muonCand;
 
     if( abs(result.deltaPhi) < (5. * sigma)) //TODO 4 sigma, because the distribution has non-gaussian tails
       result.result = MatchingResult::ResultType::matched;
+    else if(simTrack.momentum().pt() > 150 && abs(result.deltaPhi) < (20. * sigma)) //high pt often bremstralung, so the phi of candidate is affected
+      result.result = MatchingResult::ResultType::matched;
 
     LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: simTrack type "<<simTrack.type()<<" pt "<<std::setw(8)<<simTrack.momentum().pt()
         <<" eta "<<std::setw(8)<<simTrack.momentum().eta()<<" phi "<<std::setw(8)<<simTrack.momentum().phi()
         <<" propagation eta "<<std::setw(8)<<tsof.globalPosition().eta()<<" phi "<<tsof.globalPosition().phi()
-        <<" muonCand pt "<<std::setw(8)<<muonCand->hwPt()<<" candGloablEta "<<std::setw(8)<<candGloablEta<<" candGlobalPhi "<<std::setw(8)<<candGlobalPhi<<" hwQual "<<muonCand->hwQual()
-        <<" deltaEta "<<std::setw(8)<<result.deltaEta<<" deltaPhi "<<std::setw(8)<<result.deltaPhi<<" Likelihood "<<std::setw(8)<<result.matchingLikelihood <<" result "<<(short)result.result
+        <<"\n             muonCand pt "<<std::setw(8)<<muonCand->hwPt()<<" candGloablEta "<<std::setw(8)<<candGloablEta<<" candGlobalPhi "<<std::setw(8)<<candGlobalPhi<<" hwQual "<<muonCand->hwQual()
+        <<" deltaEta "<<std::setw(8)<<result.deltaEta<<" deltaPhi "<<std::setw(8)<<result.deltaPhi<<" sigma "<<std::setw(8)<<sigma<<" Likelihood "<<std::setw(8)<<result.matchingLikelihood <<" result "<<(short)result.result
         << std::endl;
 
 /*    if(abs(result.deltaPhi) > 0.4)
@@ -351,8 +355,8 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const S
 }
 
 MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const TrackingParticle& trackingParticle, TrajectoryStateOnSurface& tsof) {
-  MatchingResult result;
-  result.trackingParticle = &trackingParticle;
+  MatchingResult result(trackingParticle);
+
   double candGloablEta  = muonCand->hwEta() * 0.010875;
   if( abs(trackingParticle.momentum().eta() - candGloablEta ) < 0.3 ) {
     double candGlobalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi( muonCand->hwPhi(), muonCand->trackFinderType(), muonCand->processor() );
@@ -413,7 +417,9 @@ std::vector<MatchingResult> MuonMatcher::cleanMatching(std::vector<MatchingResul
   for(unsigned int i1 = 0; i1 < matchingResults.size(); i1++) {
     if(matchingResults[i1].result == MatchingResult::ResultType::matched) {
       for(unsigned int i2 = i1 + 1; i2 < matchingResults.size(); i2++) {
-        if( (matchingResults[i1].trackingParticle == matchingResults[i2].trackingParticle) || (matchingResults[i1].muonCand == matchingResults[i2].muonCand) ) {
+        if( (matchingResults[i1].trackingParticle && matchingResults[i1].trackingParticle == matchingResults[i2].trackingParticle) ||
+            (matchingResults[i1].simTrack && matchingResults[i1].simTrack == matchingResults[i2].simTrack) ||
+            (matchingResults[i1].muonCand == matchingResults[i2].muonCand) ) {
           //if matchingResults[i1].muonCand == false, then it is also OK here
           matchingResults[i2].result = MatchingResult::ResultType::duplicate;
         }
@@ -428,15 +434,20 @@ std::vector<MatchingResult> MuonMatcher::cleanMatching(std::vector<MatchingResul
       cleanedMatchingResults.push_back(matchingResult);
     LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
     if(matchingResult.result == MatchingResult::ResultType::matched) {
-      double ptGen = matchingResult.trackingParticle->pt();
+      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<" "<<std::endl;
+      double ptGen = 0;
+
+      ptGen = matchingResult.genPt;
+
+      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
       if(ptGen >= deltaPhiPropCand->GetXaxis()->GetXmax())
         ptGen = deltaPhiPropCand->GetXaxis()->GetXmax() - 0.01;
 
       deltaPhiPropCand->Fill(ptGen, matchingResult.deltaPhi);
       LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
       if(fillMean) {
-        deltaPhiPropCandMean->Fill(matchingResult.trackingParticle->pt(), matchingResult.deltaPhi); //filling oveflow is ok here
-        deltaPhiPropCandStdDev->Fill(matchingResult.trackingParticle->pt(), matchingResult.deltaPhi * matchingResult.deltaPhi);
+        deltaPhiPropCandMean->Fill(ptGen, matchingResult.deltaPhi); //filling oveflow is ok here
+        deltaPhiPropCandStdDev->Fill(ptGen, matchingResult.deltaPhi * matchingResult.deltaPhi);
       }
       LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
     }
@@ -463,11 +474,11 @@ std::vector<MatchingResult> MuonMatcher::cleanMatching(std::vector<MatchingResul
 
   LogTrace("l1tOmtfEventPrint")<<":"<<__LINE__<<" MuonMatcher::match cleanedMatchingResults:"<<std::endl;
   for(auto& result : cleanedMatchingResults) {
-    if(result.trackingParticle)
-      LogTrace("l1tOmtfEventPrint")<<":"<<__LINE__ <<" simTrack type "<<result.trackingParticle->pdgId()<<" pt "<<std::setw(8)<<result.trackingParticle->pt()
-        <<" eta "<<std::setw(8)<<result.trackingParticle->momentum().eta()<<" phi "<<std::setw(8)<<result.trackingParticle->momentum().phi();
+    if(result.trackingParticle || result.simTrack)
+      LogTrace("l1tOmtfEventPrint")<<":"<<__LINE__ <<" simTrack type "<<result.pdgId<<" pt "<<std::setw(8)<<result.genPt
+        <<" eta "<<std::setw(8)<<result.genEta<<" phi "<<std::setw(8)<<result.genPhi;
     else
-      LogTrace("l1tOmtfEventPrint")<<"no sim track ";
+      LogTrace("l1tOmtfEventPrint")<<"no matched track ";
 
         //<<" propagation eta "<<std::setw(8)<<tsof.globalPosition().eta()<<" phi "<<tsof.globalPosition().phi()
     if(result.muonCand)
@@ -529,8 +540,12 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
     }
 
     if(!matched) { //we are adding also if it was not matching to any candidate
-      MatchingResult result;
-      result.simTrack = &simTrack;
+      MatchingResult result(simTrack);
+      //result.simTrack = &simTrack;
+      /*auto trackingParticle = new TrackingParticle();//work arroung -- theefficiency analysis works on the tracking particles
+      trackingParticle->addG4Track(simTrack);
+      result.trackingParticle = trackingParticle;*/
+
       matchingResults.push_back(result);
       LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" no matching candidate found"<<std::endl;
     }
@@ -594,8 +609,7 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
     }
 
     if(!matched) { //we are adding also if it was not matching to any candidate
-      MatchingResult result;
-      result.trackingParticle = &trackingParticle;
+      MatchingResult result(trackingParticle);
       matchingResults.push_back(result);
       LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" no matching candidate found"<<std::endl;
     }
@@ -653,8 +667,8 @@ void MuonMatcher::fillHists(std::vector<const l1t::RegionalMuonCand*>& muonCands
 }
 
 MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const TrackingParticle& trackingParticle) {
-  MatchingResult result;
-  result.trackingParticle = &trackingParticle;
+  MatchingResult result(trackingParticle);
+
   double candGloablEta  = muonCand->hwEta() * 0.010875;
 
   result.deltaEta = trackingParticle.momentum().eta() - candGloablEta;
@@ -670,8 +684,9 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const T
 
     double meanDeltaPhi = 0;
     double sigma = 1;
+    /* makes no difference on the single nu sample
     if(trackingParticle.pt() > 3 && trackingParticle.pt() < 3.5) {
-      meanDeltaPhi = 0.94;
+      meanDeltaPhi = 0.94; //values based on muonMatcherHists_noPropagation_t74.root
       sigma = 0.12;
     }
     else if (trackingParticle.pt() < 3) {
@@ -681,12 +696,11 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const T
     else
       return result;
 
-
     if(trackingParticle.pdgId() > 0) {
       meanDeltaPhi *= -1;
-    }
+    }*/
 
-/*    if(trackingParticle.pdgId() > 0) {
+    if(trackingParticle.pdgId() > 0) {
       auto ptBin = deltaPhiVertexCand_Mean_pos->FindBin(trackingParticle.pt());
 
       meanDeltaPhi  = deltaPhiVertexCand_Mean_pos->GetBinContent(ptBin);
@@ -697,7 +711,7 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const T
 
       meanDeltaPhi  = deltaPhiVertexCand_Mean_neg->GetBinContent(ptBin);
       sigma = deltaPhiVertexCand_StdDev_neg->GetBinContent(ptBin);
-    }*/
+    }
 
     result.propagatedPhi = foldPhi(trackingParticle.momentum().phi() + meanDeltaPhi) ;
     result.propagatedEta = trackingParticle.momentum().eta() ;
@@ -707,6 +721,8 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const T
     result.muonCand = muonCand;
 
     if( abs(result.deltaPhi) < (5. * sigma)) //TODO 5 sigma, because the distribution has non-gaussian tails
+      result.result = MatchingResult::ResultType::matched;
+    else if(trackingParticle.pt() > 150 && abs(result.deltaPhi) < (10. * sigma)) //high pt often bremstralung, so the phi of candidate is affected
       result.result = MatchingResult::ResultType::matched;
 
     edm::LogImportant("l1tOmtfEventPrint") <<"MuonMatcher::match without propoagation: simTrack type "<<trackingParticle.pdgId()<<" pt "<<std::setw(8)<<trackingParticle.pt()
@@ -779,8 +795,7 @@ std::vector<MatchingResult> MuonMatcher::matchWithoutPorpagation(std::vector<con
     }
 
     if(!matched) { //we are adding the track also if it was not matching to any candidate
-      MatchingResult result;
-      result.trackingParticle = &trackingParticle;
+      MatchingResult result(trackingParticle);
       matchingResults.push_back(result);
       LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" no matching candidate found"<<std::endl;
     }
