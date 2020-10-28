@@ -67,7 +67,6 @@ MuonMatcher::MuonMatcher(const edm::ParameterSet& edmCfg) {
     if(matchUsingPropagation) {
       deltaPhiPropCandMean = (TH1D*)inFile.Get("deltaPhiPropCandMean");
       deltaPhiPropCandStdDev = (TH1D*)inFile.Get("deltaPhiPropCandStdDev");
-      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<" deltaPhiPropCandStdDev "<<deltaPhiPropCandStdDev<<std::endl;
     }
     else {
       deltaPhiVertexCand_Mean_pos =   (TH1D*)inFile.Get("deltaPhiVertexCand_Mean_pos");
@@ -315,16 +314,13 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const S
     result.propagatedPhi = tsof.globalPosition().phi() ;
     result.propagatedEta = tsof.globalPosition().eta() ;
 
-    LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
     double mean = 0;
     double sigma = 1;
     if(!fillMean) {
       auto ptBin = deltaPhiPropCandMean->FindBin(simTrack.momentum().pt());
-      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
       mean = deltaPhiPropCandMean->GetBinContent(ptBin);
       sigma = deltaPhiPropCandStdDev->GetBinContent(ptBin);
     }
-    LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
     result.matchingLikelihood = normal_pdf(result.deltaPhi, mean, sigma); //TODO temporary solution
 
     result.muonCand = muonCand;
@@ -413,7 +409,6 @@ std::vector<MatchingResult> MuonMatcher::cleanMatching(std::vector<MatchingResul
   //Cleaning the matching
   std::sort(matchingResults.begin(), matchingResults.end(),
       [](const MatchingResult& a, const MatchingResult& b)->bool { return a.matchingLikelihood > b.matchingLikelihood; } );
-  LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
   for(unsigned int i1 = 0; i1 < matchingResults.size(); i1++) {
     if(matchingResults[i1].result == MatchingResult::ResultType::matched) {
       for(unsigned int i2 = i1 + 1; i2 < matchingResults.size(); i2++) {
@@ -427,33 +422,26 @@ std::vector<MatchingResult> MuonMatcher::cleanMatching(std::vector<MatchingResul
     }
   }
 
-  LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
   std::vector<MatchingResult> cleanedMatchingResults;
   for(auto& matchingResult : matchingResults) {
     if(matchingResult.result == MatchingResult::ResultType::matched  || matchingResult.muonCand == nullptr) //adding also the simTracks that are not matched at all, before it is assured that they are not duplicates
       cleanedMatchingResults.push_back(matchingResult);
-    LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
     if(matchingResult.result == MatchingResult::ResultType::matched) {
-      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<" "<<std::endl;
       double ptGen = 0;
 
       ptGen = matchingResult.genPt;
 
-      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
       if(ptGen >= deltaPhiPropCand->GetXaxis()->GetXmax())
         ptGen = deltaPhiPropCand->GetXaxis()->GetXmax() - 0.01;
 
       deltaPhiPropCand->Fill(ptGen, matchingResult.deltaPhi);
-      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
       if(fillMean) {
         deltaPhiPropCandMean->Fill(ptGen, matchingResult.deltaPhi); //filling oveflow is ok here
         deltaPhiPropCandStdDev->Fill(ptGen, matchingResult.deltaPhi * matchingResult.deltaPhi);
       }
-      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
     }
   }
 
-  LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
   //adding the muonCand-s that were not matched, i.e. in order to analyze them later
   for(auto& muonCand : muonCands) {
     bool isMatched = false;
@@ -577,7 +565,6 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
       result.result = MatchingResult::ResultType::propagationFailed;
       continue; //no sense to do matching
     }
-    LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
 
     double ptGen = trackingParticle.pt();
     if(ptGen >= deltaPhiVertexProp->GetXaxis()->GetXmax())
@@ -585,7 +572,6 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
 
 
     deltaPhiVertexProp->Fill(ptGen, trackingParticle.momentum().phi() - tsof.globalPosition().phi());
-    LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
 
     for(auto& muonCand : muonCands) {
       //int refLayer = (int)omtfCand->trackAddress().at(1);
@@ -614,7 +600,6 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
       LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" no matching candidate found"<<std::endl;
     }
   }
-  LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
 
   return cleanMatching(matchingResults, muonCands);
 }
@@ -767,13 +752,10 @@ std::vector<MatchingResult> MuonMatcher::matchWithoutPorpagation(std::vector<con
 
     bool matched = false;
 
-    LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
-
     double ptGen = trackingParticle.pt();
     if(ptGen >= deltaPhiVertexCand_Mean_pos->GetXaxis()->GetXmax())
       ptGen = deltaPhiVertexCand_Mean_pos->GetXaxis()->GetXmax() - 0.01;
 
-    LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
 
     for(auto& muonCand : muonCands) {
       //int refLayer = (int)omtfCand->trackAddress().at(1);
@@ -783,9 +765,7 @@ std::vector<MatchingResult> MuonMatcher::matchWithoutPorpagation(std::vector<con
       /*if(muonCand->hwQual() <= 1) //dropping very low quality candidates, as they are fakes usually
         continue; has no sense, then the results are not conclusive*/
 
-      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
       MatchingResult result = match(muonCand, trackingParticle);
-      LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
       if(result.result == MatchingResult::ResultType::matched) {
         matchingResults.push_back(result);
         matched = true;
@@ -800,7 +780,6 @@ std::vector<MatchingResult> MuonMatcher::matchWithoutPorpagation(std::vector<con
       LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" no matching candidate found"<<std::endl;
     }
   }
-  LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: "<<__LINE__<<std::endl;
 
   return cleanMatching(matchingResults, muonCands);
 }

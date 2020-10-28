@@ -199,8 +199,8 @@ bool simTrackIsMuonInOmtf(const SimTrack& simTrack) {
   LogTrace("l1tOmtfEventPrint") <<"simTrackIsMuonInOmtf, simTrack type "<<std::setw(3)<<simTrack.type()<<" pt "<<std::setw(9)<<simTrack.momentum().pt()<<" eta "<<std::setw(9)<<simTrack.momentum().eta()<<" phi "<<std::setw(9)<<simTrack.momentum().phi()<<std::endl;
 
 
-  //if( (fabs(simTrack.momentum().eta()) >= 0.82 ) && (fabs(simTrack.momentum().eta()) <= 1.24) ) {
-  if( (fabs(simTrack.momentum().eta()) >= 0.72 ) && (fabs(simTrack.momentum().eta()) <= 1.3) ) { //higher margin for matching, otherwise many candidates re marked as ghosts
+  if( (fabs(simTrack.momentum().eta()) >= 0.82 ) && (fabs(simTrack.momentum().eta()) <= 1.24) ) {
+  //if( (fabs(simTrack.momentum().eta()) >= 0.72 ) && (fabs(simTrack.momentum().eta()) <= 1.3) ) { //higher margin for matching, otherwise many candidates are marked as ghosts
   }
   else
     return false;;
@@ -364,10 +364,8 @@ void L1MuonAnalyzerOmtf::analyzeEfficiency(const edm::Event& event, std::vector<
               firedLayersEventCntOmtf->AddBinContent(firedLayers +1);
             }
 
-            LogTrace("l1tOmtfEventPrint") <<"L1MuonAnalyzerOmtf::analyzeEfficiency:"<<__LINE__<<std::endl;
             if(omtfNNEfficiencyAnalysers.size() && abs(hwPtToPtGeV(matchingResult.muonCand->trackAddress().at(10 + 2) ) ) >= 22) {//TODO nn pt for the p threshold 0.45, change if other is needed
               firedLayersEventCntNN->AddBinContent(firedLayers +1);
-              LogTrace("l1tOmtfEventPrint") <<"L1MuonAnalyzerOmtf::analyzeEfficiency:"<<__LINE__<<std::endl;
             }
           }
         }
