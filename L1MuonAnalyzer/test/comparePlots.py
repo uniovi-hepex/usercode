@@ -53,6 +53,7 @@ def drawEff(effFile, type, quality, ptCut, lineColor, legend, pTresh = "0.5") :
         #omtf_q12_eta_0.82_1.24_qualityCut_12_effOnPtCut_20_GeV_1
         
     print (effFile)    
+    print (histName) 
 
     effHist = effFile.Get(histName)
     if effHist is None :
@@ -266,17 +267,17 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
         
     c3.cd(1)
     
-#     if type == "omtf_patsKB" :
-#         drawEffVsEta(effFile, "omtf", quality, lineColor)
-#     else  :    
-#         drawEffVsEta(effFile, type, quality, lineColor)
+    if type == "omtf_patsKB" :
+        drawEffVsEta(effFile, "omtf", quality, lineColor)
+    else :    
+        drawEffVsEta(effFile, type, quality, lineColor)
         
     first = False
 
 #OMTF 2018+
 #c1.cd(1)
 #drawEffs('MuFlatPt_PU200_v2_t44/', "omtf", "12", kBlack)
-drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack)
+#drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack)
 
 
 #drawEffs('MuFlatPt_PU200_v2_t51/', "omtf", "12", kGreen+1)
@@ -305,8 +306,14 @@ drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack)
 #drawEff(eff_t43_pu300, "nn_omtf", "12", "21.5", kRed)
 
 #drawEffs('MuFlatPt_PU200_v3_t70/', "omtf_patsKB", "12", kRed)
-drawEffs('MuFlatPt_PU200_v3_t71/', "omtf_patsKB", "12", kGreen)
-drawEffs('MuFlatPt_PU200_v3_t73/', "omtf", "12", kRed)
+#drawEffs('MuFlatPt_PU200_v3_t71/', "omtf_patsKB", "12", kGreen)
+#drawEffs('MuFlatPt_PU200_v3_t73/', "omtf", "12", kRed)
+
+drawEffs('SingleMu_0x0006_t79/', "omtf", "12", kBlack)
+drawEffs('SingleMu_t74/', "omtf_patsKB", "12", kGreen)
+#drawEffs('SingleMu_t76/', "omtf_patsKB", "12", kRed)
+#drawEffs('SingleMu_t77/', "omtf_patsKB", "12", kBlue)
+drawEffs('SingleMu_t78_1/', "omtf_patsKB", "12", kRed)
 
 eff_c1.cd()
 legendEff1.Draw()
@@ -364,7 +371,7 @@ legend.SetMargin(0.2)
  
 #drawRate('SingleNeutrino_PU200_v2_t41/', "nn_omtf", "12", "0.4", kRed)
 
-drawRate('SingleNeutrino_PU200_v2_t65/', "omtf", "12", kBlue) 
+#drawRate('SingleNeutrino_PU200_v2_t65/', "omtf", "12", kBlue) 
 
 #drawRate('SingleNeutrino_PU200_mtd5_v2_t44/', "omtf", "12", kBlack)
 #drawRate('SingleNeutrino_PU200_v2_t35/', "nn_omtf", 12, kRed)
