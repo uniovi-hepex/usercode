@@ -48,8 +48,6 @@ double foldPhi(double phi) {
 }
 
 MuonMatcher::MuonMatcher(const edm::ParameterSet& edmCfg) {
-  edm::LogImportant("l1tOmtfEventPrint") <<" MuonMatcher: line "<<__LINE__<<std::endl;
-
   edm::Service<TFileService> fs;
   TFileDirectory subDir =  fs->mkdir("MuonMatcher");
 
@@ -59,7 +57,7 @@ MuonMatcher::MuonMatcher(const edm::ParameterSet& edmCfg) {
   if(edmCfg.exists("matchUsingPropagation") )
     matchUsingPropagation = edmCfg.getParameter<bool>("matchUsingPropagation");
 
-  edm::LogImportant("l1tOmtfEventPrint") <<" MuonMatcher: line "<<__LINE__<<std::endl;
+  edm::LogImportant("l1tOmtfEventPrint") <<" MuonMatcher: line "<<__LINE__<<" matchUsingPropagation "<<matchUsingPropagation<<std::endl;
   if(edmCfg.exists("muonMatcherFile") ) {
     std::string muonMatcherFileName =  edmCfg.getParameter<edm::FileInPath>("muonMatcherFile").fullPath();
     TFile inFile(muonMatcherFileName.c_str());

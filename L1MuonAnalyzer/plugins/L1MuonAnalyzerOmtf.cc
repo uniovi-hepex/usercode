@@ -47,7 +47,7 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg): muonMat
 
   if(analysisType == "efficiency") {
     double ptGenCut = 25;
-    double ptL1Cut = 20;
+    double ptL1Cut = 18;
     TFileDirectory subDir = fs->mkdir("efficiency");
     auto addOmtfAnalysers = [&](TFileDirectory& subDir, std::string name, int qualityCut) {
       omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, name, 0.82, 1.24, qualityCut, 200, 0, 200));

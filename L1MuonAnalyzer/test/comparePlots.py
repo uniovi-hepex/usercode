@@ -3,6 +3,7 @@ from ROOT import gROOT
 from ROOT import gStyle
 from ROOT import TLegend
 from ROOT import kBlack, kBlue, kRed, kGreen, kMagenta
+from array import array
 
 from libPyROOT import TDirectory
 import os
@@ -58,11 +59,35 @@ def drawEff(effFile, type, quality, ptCut, lineColor, legend, pTresh = "0.5") :
     effHist = effFile.Get(histName)
     if effHist is None :
         print ("no histogram found: ", histName)
+      
+      
+    xbins = []
+    edge = 0
+    for i in range(0, 200, 1) :
+        #print ("edge", edge)
+        xbins.append(edge) 
+        
+        if edge < 50 :
+            edge = edge + 1
+        elif edge < 100 :
+            edge = edge + 2
+        elif edge < 140 :
+            edge = edge + 4      
+        elif edge < 194:
+            edge = edge + 4  
+        else:    
+            break
+    
+    #xbins.append(300)    
+    #print("xbins:")   
+    #print(xbins)  
+      
+    #effHist = effHist.Rebin(xbins.__len__()+1, effHist.GetName() + "_rebined", array('d', xbins) )      
     
     effHist.SetLineColor(lineColor)
     print ("first " + str(first) )
     if first :
-        effHist.GetXaxis().SetRangeUser(2, 100)
+        effHist.GetXaxis().SetRangeUser(0, 200)
         effHist.GetYaxis().SetRangeUser(0, 1.05)
         effHist.Draw("hist")
         print ("line 56")
@@ -288,6 +313,9 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
 
 #drawEffs('MuFlatPt_PU200_v2_t65/', "omtf_patsKB", "12", kBlue) #omtf_patsKB
 
+#drawEffs('MuFlatPt_PU200_v3_t78/', "omtf_patsKB", "12", kGreen+1) #omtf_patsKB
+#drawEffs('MuFlatPt_PU200_v3_t79/', "omtf_patsKB", "12", kRed)
+
 #drawEffs('MuFlatPt_PU200_v2_t46/', "omtf", "12", kGreen+1)
 
 #OMTF 2018
@@ -310,10 +338,13 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
 #drawEffs('MuFlatPt_PU200_v3_t73/', "omtf", "12", kRed)
 
 drawEffs('SingleMu_0x0006_t79/', "omtf", "12", kBlack)
-drawEffs('SingleMu_t74/', "omtf_patsKB", "12", kGreen)
+#drawEffs('SingleMu_t74/', "omtf_patsKB", "12", kGreen)
 #drawEffs('SingleMu_t76/', "omtf_patsKB", "12", kRed)
 #drawEffs('SingleMu_t77/', "omtf_patsKB", "12", kBlue)
-drawEffs('SingleMu_t78_1/', "omtf_patsKB", "12", kRed)
+
+drawEffs('SingleMu_t78/', "omtf_patsKB", "12", kBlue)
+#drawEffs('SingleMu_t78_1/', "omtf_patsKB", "12", kRed)
+drawEffs('SingleMu_t80/', "omtf_patsKB", "12", kRed)
 
 eff_c1.cd()
 legendEff1.Draw()

@@ -41,7 +41,7 @@ def getRate(dir, ptCutGev,name):
                 
 def readRateFile(version, algoName, ptCutGev):
     folder = 'crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_v2_' + version
-    if version == "t74" :
+    if version == "t74" or version == "t78":
         folder = 'crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_v3_' + version
         
     if folder in histFiles:
@@ -148,10 +148,14 @@ VersionAlgo = namedtuple("VersionAlgo", "version algoName ptCutGev")
 toCompareList = ( 
     #VersionAlgo("t68", "omtf_q12", 20) , 
     #VersionAlgo("t65", "omtf_q8", 5), 
-    #VersionAlgo("t65", "omtf_q12", 5), 
+    #VersionAlgo("t65", "omtf_q12", 18), 
     
-    VersionAlgo("t74", "omtf_q8", 18), 
+    #VersionAlgo("t74", "omtf_q8", 18), 
     VersionAlgo("t74", "omtf_q12", 18), 
+
+
+    VersionAlgo("t78", "omtf_q12", 18), 
+    
 
     #VersionAlgo("t68", "omtf_q1", 20) , 
     #VersionAlgo("t67", "nn_omtf_q12_pTresh_0.4", 22),

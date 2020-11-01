@@ -26,7 +26,7 @@ version = sys.argv[1]
 #inputResults = 'MuFlatPt_' + version #+ "_test" 
 inputResults = version #+ "_test" 
 
-omtf_type = 2018 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  
+omtf_type = 2022 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
@@ -45,6 +45,8 @@ else :
 if "0x0006" in version :
     omtf_type = 2018
 
+
+print("omtf_type: ", omtf_type)
 
 print (histFile)
 
