@@ -157,6 +157,8 @@ private:
 
   TH1* firedLayersEventCntOmtf = nullptr;
   TH1* firedLayersEventCntNN = nullptr;
+
+  TH1* ptGenHist = nullptr;
  };
 
 }

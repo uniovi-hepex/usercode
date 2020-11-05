@@ -3,12 +3,24 @@ from ROOT import gROOT
 from ROOT import gStyle
 import sys
 import os
-from future.types import no
+from array import array
 
 gStyle.SetOptStat(0)
 
+def rebin(hist, bins) :
+    newHist = TH1D( (hist.GetName() + "_rebined"), hist.GetTitle(), bins.__len__()-1, bins)
+    newHist.Sumw2(False)    
+    for iBin in range(0, hist.GetNbinsX() +1) : 
+        newHist.Fill(hist.GetBinCenter(iBin), hist.GetBinContent(iBin) )
+        #print hist.GetBinCenter(iBin), " ", hist.GetBinContent(iBin)
+    
+    newHist.Sumw2(False)  
+    return  newHist
+
+
 def makeEfficiency(passed, total, title, lineColor):
     if TEfficiency.CheckConsistency(passed, total) :
+        print "makeEfficiency passed ", passed.GetName() 
         efficiency = TEfficiency(passed, total)
         #title = std::regex_replace(title, std::regex("\\muCandGenEtaMuons"), "tagging efficiency");
         efficiency.SetTitle( title );
@@ -19,7 +31,36 @@ def makeEfficiency(passed, total, title, lineColor):
     else :
         print("makeEfficiency TEfficiency::CheckConsistency(*ptGenPtTTMuonNom, *ptGenPtTTMuonDenom) failed" )
         exit(1);
+
+
+xBins = []
+edge = 0
+for i in range(0, 200, 1) :
+    #print ("edge", edge)
+    xBins.append(edge) 
     
+    if edge < 50 :
+        edge = edge + 1
+    elif edge < 100 :
+        edge = edge + 5
+    elif edge < 140 :
+        edge = edge + 10     
+    elif edge < 180: 
+        edge = edge + 20
+    elif edge == 180:
+        break
+    
+xBins.append(199)     
+xBins.append(300)    
+xBins.append(400)  
+xBins.append(500) 
+xBins.append(600)
+xBins.append(700)
+xBins.append(800)
+xBins.append(900)    
+xBins = array('d', xBins)
+
+print('xBins', xBins)
 
 #version = "PU200_v2_t" + sys.argv[1]
 version = sys.argv[1]
@@ -42,7 +83,7 @@ elif version < "MuFlatPt_PU200_v3_t70" :
 else :
     histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
 
-if "0x0006" in version :
+if "0x0006" in version  or "t35" in version :
     omtf_type = 2018
 
 
@@ -90,8 +131,14 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
     allVsPtGen = ptGenVsPtCand.ProjectionX(ptGenVsPtCand.GetName() + "_allVsPtGen" + str(ptCutGev) + "_GeV", -1, -1)
     
     effName = canvasTitle.replace("_", " ") + " " + version
-    eff = makeEfficiency(accpetedVsPtGen, allVsPtGen, effName + ";ptGen [GeV];efficiency", 4)
+    #eff = makeEfficiency(accpetedVsPtGen, allVsPtGen, effName + ";ptGen [GeV];efficiency", 4)
+    eff = makeEfficiency(rebin(accpetedVsPtGen, xBins), rebin(allVsPtGen, xBins), effName + ";ptGen [GeV];efficiency", 4)
+    #eff = rebin(accpetedVsPtGen, xBins)
+    eff.SetName(eff.GetName().replace("ptGenVsPtCand", "efficiency").replace("allVsPtGen", "ptCut_").replace("_rebined_clone", "")   ) 
+    #omtf_q12_ptGenVsPtCand_eta_0.82_1.24_qualityCut_12_allVsPtGen18_GeV_rebined_clone
+    print "eff.GetName()", eff.GetName()
     eff.Draw("")
+    #accpetedVsPtGen.Draw("same")
     efficiencies.append(eff)
     
     ##########################
@@ -110,13 +157,13 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
     print ("effHist1 " + effHist1.GetName())
 
     ##########################
-    rebin = 2
+    rebinFactor = 2
     c1.cd(4).SetGridx()
     c1.cd(4).SetGridy()
 
     
-    effHist2 = accpetedVsPtGen.Rebin(rebin, effHistName + "_2")
-    allVsPtGen2 = allVsPtGen.Rebin(rebin, allVsPtGen.GetName() + "_2")
+    effHist2 = accpetedVsPtGen.Rebin(rebinFactor, effHistName + "_2")
+    allVsPtGen2 = allVsPtGen.Rebin(rebinFactor, allVsPtGen.GetName() + "_2")
     effHist2.Divide(allVsPtGen2)
     effHist2.SetLineColor(lineColor)
     effHist2.GetXaxis().SetRangeUser(2, 100)
@@ -133,12 +180,18 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
 #omtf_q12_allCandsEta__qualityCut_12_ptGenCut_25
 #omtf_q12_aceptedCandsEta__qualityCut_12_ptGenCut_25_ptL1Cut_20
     
+    ####################eff vs eta
     allCandsEtaName = ptGenVsPtCand.GetName().replace("ptGenVsPtCand_eta_0.82_1.24", "allCandsEta_") + "_ptGenCut_25"
     #print ("allCandsEtaName " + allCandsEtaName)
     allCandsEta = efficiencyDir.Get(allCandsEtaName)
     
     aceptedCandsEtaName = ptGenVsPtCand.GetName().replace("ptGenVsPtCand_eta_0.82_1.24", "aceptedCandsEta_") + "_ptGenCut_25_ptL1Cut_20"
+        
     aceptedCandsEta = efficiencyDir.Get(aceptedCandsEtaName)
+    if not aceptedCandsEta :
+        aceptedCandsEtaName = ptGenVsPtCand.GetName().replace("ptGenVsPtCand_eta_0.82_1.24", "aceptedCandsEta_") + "_ptGenCut_25_ptL1Cut_18"
+        aceptedCandsEta = efficiencyDir.Get(aceptedCandsEtaName)
+    
     if aceptedCandsEta :
         effVsEta = makeEfficiency(aceptedCandsEta, allCandsEta, aceptedCandsEta.GetTitle().replace("allCands", "efficiency"), lineColor)
         effVsEta.SetName(effVsEta.GetName().replace("_clone", "").replace("allCandsEta", "efficiencyVsEta"))

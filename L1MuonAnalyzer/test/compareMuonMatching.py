@@ -23,7 +23,10 @@ rateCumulStacks = []
 histFiles = {}
 legends = []
 
+acceptedMuonsPts = []
+
 def getRate(dir, ptCutGev,name):
+    results = []
     for obj in dir.GetListOfKeys():
         if "candPt" in obj.GetName() :
             candPt = obj.ReadObj()
@@ -36,12 +39,21 @@ def getRate(dir, ptCutGev,name):
             ptCutBin = candPt_rateCumul.GetXaxis().FindBin(ptCutGev)        
             rateOnThresh = candPt_rateCumul.GetBinContent(ptCutBin) 
             candPt_rateCumul.GetXaxis().SetTitle("cand pT thresh [GeV]")
-            return (rateOnThresh, candPt_rateCumul)
-      
+            results.append(rateOnThresh)
+            results.append(candPt_rateCumul)
+        if "_ptGenVsPtCand" in obj.GetName() :
+            ptGenVsPtCand = obj.ReadObj()
+            
+            ptCutBin = ptGenVsPtCand.GetYaxis().FindBin(ptCutGev)  
+            acceptedMuonsPt = ptGenVsPtCand.ProjectionX(ptGenVsPtCand.GetName() + "_" + name + "_ProjectionX", ptCutBin, -1)
+            acceptedMuonsPt.SetTitle(ptGenVsPtCand.GetTitle() + " muon spectrum, L1 cut " + str(ptCutGev) + " " + name )
+            results.append(acceptedMuonsPt)
+            
+    return results 
                 
 def readRateFile(version, algoName, ptCutGev):
     folder = 'crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_v2_' + version
-    if version == "t74" or version == "t78":
+    if version == "t74" or version == "t78" or version == "t80":
         folder = 'crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_v3_' + version
         
     if folder in histFiles:
@@ -71,11 +83,11 @@ def readRateFile(version, algoName, ptCutGev):
     name = version + "_" + algoDir.GetName()
     title = version + " " + algoDir.GetName().replace("_", " ")
     
-    c1 = TCanvas('canvas_' + name, title, 200, 10, 700, 700)
+    c1 = TCanvas('canvas_' + name, title, 200, 10, 700 *2, 700)
     canvases.append(c1)
-    #c1.Divide(2, 2)
-    c1.cd().SetGridx()
-    c1.cd().SetGridy()
+    c1.Divide(2, 1)
+    c1.cd(1).SetGridx()
+    c1.cd(1).SetGridy()
     c1.SetLogy()
     print ('created canvas ' + c1.GetName())
     
@@ -106,6 +118,8 @@ def readRateFile(version, algoName, ptCutGev):
      
     totalRate = 0
     color = 2
+    
+    thisAcceptedMuonsPts = []
     for candCategory in candCategories :
         #categoryDir = histFile.Get("L1MuonAnalyzerOmtf/rate/" +  algoName + "/" + candCategory)
         categoryDir = algoDir.Get(candCategory)
@@ -124,19 +138,41 @@ def readRateFile(version, algoName, ptCutGev):
         candPt_rateCumul =  rateResult[1]   
         #candPt_rateCumul.SetFillColor(color)
         candPt_rateCumul.SetLineColor(color)
-        color += 1
-        if color == 5:
-            color = 6
-        
+
         #rateCumulStack.Add(candPt_rateCumul)
         rateCumuls.append(candPt_rateCumul)
         print ("added candPt_rateCumul " + candPt_rateCumul.GetName() )
         
         candPt_rateCumul.Draw("hist same")
         legend.AddEntry(candPt_rateCumul, candCategory)
-    
+        
+        if rateResult.__len__() > 2 :
+            acceptedMuonsPt = rateResult[2]
+            acceptedMuonsPt.SetLineColor(color)
+            acceptedMuonsPts.append(acceptedMuonsPt)
+            thisAcceptedMuonsPts.append(acceptedMuonsPt)
+        
+        color += 1
+        if color == 5:
+            color = 6
+            
     legend.Draw()
     #rateCumulStack.Draw()    
+    
+    c1.cd(2).SetGridx()
+    c1.cd(2).SetGridy()
+    
+    first = True
+    for acceptedMuonsPt in thisAcceptedMuonsPts :
+        print "Drawing", acceptedMuonsPt.GetTitle()
+        if first :
+            acceptedMuonsPt.GetYaxis().SetRangeUser(0, 15)
+            acceptedMuonsPt.Draw("hist")
+        else :
+            acceptedMuonsPt.Draw("hist same")
+        first = False 
+    
+    
     c1.Modified()
     c1.Update(); 
     print ("totalRate %f" % (totalRate) )
@@ -156,7 +192,8 @@ toCompareList = (
 
     VersionAlgo("t78", "omtf_q12", 18), 
     
-
+    VersionAlgo("t80", "omtf_q12", 18),
+     
     #VersionAlgo("t68", "omtf_q1", 20) , 
     #VersionAlgo("t67", "nn_omtf_q12_pTresh_0.4", 22),
     #VersionAlgo("t67", "nn_omtf_q12_pTresh_0.5", 22),

@@ -36,7 +36,7 @@ PtGenVsPtCand::PtGenVsPtCand(TFileDirectory& subDir, std::string name, double et
   std::ostringstream histTitle;
   histTitle<<name<<" ptGenVsPtCand eta: "<<etaFrom<<" - "<<etaTo<<" quality >= "<<qualityCut<<";ptGen [GeV]; pt L1 cand [GeV]";
 
-  ptGenVsPtCand = subDir.make<TH2D>(histName.str().c_str(), histTitle.str().c_str(), nBins, binsFrom, binsTo, nBins, binsFrom, binsTo);
+  ptGenVsPtCand = subDir.make<TH2D>(histName.str().c_str(), histTitle.str().c_str(), nBins, binsFrom, binsTo, 200, 0, 200);
 
 }
 

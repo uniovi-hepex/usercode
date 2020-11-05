@@ -46,11 +46,13 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg): muonMat
     nn_pThresholds = edmCfg.getParameter<vector<double> >("nn_pThresholds");
 
   if(analysisType == "efficiency") {
+    ptGenHist = fs->make<TH1I>("ptGenHist", "ptGenHist", 200, 0, 1000);
+
     double ptGenCut = 25;
     double ptL1Cut = 18;
     TFileDirectory subDir = fs->mkdir("efficiency");
     auto addOmtfAnalysers = [&](TFileDirectory& subDir, std::string name, int qualityCut) {
-      omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, name, 0.82, 1.24, qualityCut, 200, 0, 200));
+      omtfEfficiencyAnalysers.emplace_back(new PtGenVsPtCand(subDir, name, 0.82, 1.24, qualityCut, 400, 0, 800));
       omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsPhi(subDir, name, 0.82, 1.24, qualityCut, ptGenCut, ptL1Cut, 100));
       omtfEfficiencyAnalysers.emplace_back(new EfficiencyVsEta(subDir, name, qualityCut, ptGenCut, ptL1Cut, 210));
       omtfEfficiencyAnalysers.emplace_back(new LikelihoodDistribution(subDir, name, qualityCut, ptGenCut, ptL1Cut, 120));
@@ -345,6 +347,7 @@ void L1MuonAnalyzerOmtf::analyzeEfficiency(const edm::Event& event, std::vector<
 
   for (auto& matchingResult: matchingResults ) {
     if(matchingResult.trackingParticle || matchingResult.simTrack) {
+      ptGenHist->Fill(matchingResult.genPt);
 
       LogTrace("l1tOmtfEventPrint") <<"L1MuonAnalyzerOmtf::analyze, sim track type "<<matchingResult.pdgId<<" simTrack pt "<<matchingResult.genPt<<std::endl;
 
@@ -457,12 +460,12 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, std::vector<Matchi
         firedLayersEventCntOmtf->AddBinContent(firedLayers +1);
       }
 
-      if( abs(hwPtToPtGeV(bestOmtfCand->muonCand->trackAddress().at(10 + 2) ) ) >= 22) {//TODO nn pt for the p threshold 0.45, change if other is needed
+      if(omtfNNRateAnalysers.size() &&  abs(hwPtToPtGeV(bestOmtfCand->muonCand->trackAddress().at(10 + 2) ) ) >= 22) {//TODO nn pt for the p threshold 0.45, change if other is needed
         firedLayersEventCntNN->AddBinContent(firedLayers +1);
       }
     }
 
-    if(bestOmtfCand->muonCand->hwQual() >= 1 && bestOmtfCand->muonCand->hwPt() >= 41) { //41
+    /*if(bestOmtfCand->muonCand->hwQual() >= 1 && bestOmtfCand->muonCand->hwPt() >= 41) { //41
       edm::LogVerbatim("l1tOmtfEventPrint") <<"L1MuonAnalyzerOmtf::analyzeRate bestOmtfCand hwPt "<<std::setw(3)<<bestOmtfCand->muonCand->hwPt()<<" pt GeV "<<l1MuonCand.ptGev
               <<" qual "<<std::setw(2)<<bestOmtfCand->muonCand->hwQual()
               <<" proc "<<std::setw(2)<<bestOmtfCand->muonCand->processor()<<" eta "<<std::setw(4)<<bestOmtfCand->muonCand->hwEta()<<" gloablEta "<<std::setw(8)<<bestOmtfCand->muonCand->hwEta() * 0.010875
@@ -489,7 +492,7 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, std::vector<Matchi
         edm::LogVerbatim("l1tOmtfEventPrint")<<"no matched trackingParticle"<<std::endl;
       }
       edm::LogVerbatim("l1tOmtfEventPrint")<<std::endl;
-    }
+    }*/
 
 
     for(auto& omtfCandsMatchingAnalyser : omtfCandsMatchingAnalysers) {
@@ -585,7 +588,7 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, const edm::EventSe
         firedLayersEventCntOmtf->AddBinContent(firedLayers +1);
       }
 
-      if( abs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + 2) ) ) >= 22) {//TODO nn pt for the p threshold 0.45, change if other is needed
+      if(omtfNNRateAnalysers.size() && abs(hwPtToPtGeV(bestOmtfCand->trackAddress().at(10 + 2) ) ) >= 22) {//TODO nn pt for the p threshold 0.45, change if other is needed
         firedLayersEventCntNN->AddBinContent(firedLayers +1);
       }
     }
