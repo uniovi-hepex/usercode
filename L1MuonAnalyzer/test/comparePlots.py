@@ -295,7 +295,7 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
 #OMTF 2018+
 #c1.cd(1)
 #drawEffs('MuFlatPt_PU200_v2_t44/', "omtf", "12", kBlack)
-drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack)
+#drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack)
 
 
 #drawEffs('MuFlatPt_PU200_v2_t51/', "omtf", "12", kGreen+1)
@@ -306,10 +306,10 @@ drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack)
 
 #drawEffs('MuFlatPt_PU200_v2_t65/', "omtf_patsKB", "12", kGreen+1) #omtf_patsKB
 
-drawEffs('MuFlatPt_PU200_v3_t78/', "omtf_patsKB", "12", kBlue) #omtf_patsKB
+#drawEffs('MuFlatPt_PU200_v3_t78/', "omtf_patsKB", "12", kBlue) #omtf_patsKB
 #drawEffs('MuFlatPt_PU200_v3_t79/', "omtf_patsKB", "12", kRed)
 #drawEffs('MuFlatPt_PU200_v3_t80/', "omtf_patsKB", "12", kRed)
-drawEffs('MuFlatPt_PU200_v3_t82/', "omtf_patsKB", "12", kRed)
+#drawEffs('MuFlatPt_PU200_v3_t82/', "omtf_patsKB", "12", kRed)
 
 
 #drawEffs('MuFlatPt_PU200_v2_t46/', "omtf", "12", kGreen+1)
@@ -345,6 +345,9 @@ drawEffs('MuFlatPt_PU200_v3_t82/', "omtf_patsKB", "12", kRed)
 #drawEffs('SingleMu_t81_-8/', "omtf_patsKB", "12", kBlue)
 #drawEffs('SingleMu_t82/', "omtf_patsKB", "12", kRed)
 #drawEffs('SingleMu_t83/', "omtf_patsKB", "12", kCyan)
+
+drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t84/', "omtf", "12", kBlack)
+drawEffs('ZprimeToMuMu_PU140_v3_t84/', "omtf_patsKB", "12", kRed)
 
 eff_c1.cd()
 legendEff1.Draw()

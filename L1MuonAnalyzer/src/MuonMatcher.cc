@@ -51,8 +51,8 @@ MuonMatcher::MuonMatcher(const edm::ParameterSet& edmCfg) {
   edm::Service<TFileService> fs;
   TFileDirectory subDir =  fs->mkdir("MuonMatcher");
 
-  deltaPhiPropCand   = subDir.make<TH2F>("deltaPhiPropCand",  "delta Phi propagated track - muonCand Vs Pt", 100, 0, 100, 100, -0.5 -0.005, 0.5 -0.005); //delta phi between propagated track and muon candidate,
-  deltaPhiVertexProp = subDir.make<TH2F>("deltaPhiVertexProp", "delta Phi vertex - propagated track Vs Pt", 100, 0, 100, 100, -1, 1);; //delta phi between phi at vertex and propagated track phi)
+  deltaPhiPropCand   = subDir.make<TH2F>("deltaPhiPropCand",  "delta Phi propagated track - muonCand Vs Pt", 200, 0, 1000, 100, -0.5 -0.005, 0.5 -0.005); //delta phi between propagated track and muon candidate,
+  deltaPhiVertexProp = subDir.make<TH2F>("deltaPhiVertexProp", "delta Phi vertex - propagated track Vs Pt", 200, 0, 1000, 100, -1, 1);; //delta phi between phi at vertex and propagated track phi)
 
   if(edmCfg.exists("matchUsingPropagation") )
     matchUsingPropagation = edmCfg.getParameter<bool>("matchUsingPropagation");
@@ -323,9 +323,13 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const S
 
     result.muonCand = muonCand;
 
-    if( abs(result.deltaPhi) < (5. * sigma)) //TODO 4 sigma, because the distribution has non-gaussian tails
-      result.result = MatchingResult::ResultType::matched;
-    else if(simTrack.momentum().pt() > 150 && abs(result.deltaPhi) < (20. * sigma)) //high pt often bremstralung, so the phi of candidate is affected
+    double treshold = 6. * sigma;
+    if(simTrack.momentum().pt() > 20)
+      treshold = 7. * sigma;
+    if(simTrack.momentum().pt() > 100)
+      treshold = 20. * sigma;
+
+    if( abs(result.deltaPhi - mean) < treshold)
       result.result = MatchingResult::ResultType::matched;
 
     LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: simTrack type "<<simTrack.type()<<" pt "<<std::setw(8)<<simTrack.momentum().pt()
@@ -379,7 +383,13 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const T
 
     result.muonCand = muonCand;
 
-    if( abs(result.deltaPhi) < (5. * sigma)) //TODO 4 sigma, because the distribution has non-gaussian tails
+    double treshold = 6. * sigma;
+    if(trackingParticle.pt() > 20)
+      treshold = 7. * sigma;
+    if(trackingParticle.pt() > 100)
+      treshold = 20. * sigma;
+
+    if( abs(result.deltaPhi - mean) < treshold)
       result.result = MatchingResult::ResultType::matched;
 
     LogTrace("l1tOmtfEventPrint") <<"MuonMatcher::match: simTrack type "<<trackingParticle.pdgId()<<" pt "<<std::setw(8)<<trackingParticle.pt()
@@ -703,9 +713,13 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const T
 
     result.muonCand = muonCand;
 
-    if( abs(result.deltaPhi) < (5. * sigma)) //TODO 5 sigma, because the distribution has non-gaussian tails
-      result.result = MatchingResult::ResultType::matched;
-    else if(trackingParticle.pt() > 150 && abs(result.deltaPhi) < (10. * sigma)) //high pt often bremstralung, so the phi of candidate is affected
+    double treshold = 6. * sigma;
+    if(trackingParticle.pt() > 20)
+      treshold = 7. * sigma;
+    if(trackingParticle.pt() > 100)
+      treshold = 20. * sigma;
+
+    if( abs(result.deltaPhi - meanDeltaPhi) < treshold)
       result.result = MatchingResult::ResultType::matched;
 
     edm::LogImportant("l1tOmtfEventPrint") <<"MuonMatcher::match without propoagation: simTrack type "<<trackingParticle.pdgId()<<" pt "<<std::setw(8)<<trackingParticle.pt()

@@ -39,8 +39,10 @@ for i in range(0, 200, 1) :
     #print ("edge", edge)
     xBins.append(edge) 
     
-    if edge < 50 :
+    if edge < 30 :
         edge = edge + 1
+    elif edge < 50 :
+        edge = edge + 2    
     elif edge < 100 :
         edge = edge + 5
     elif edge < 140 :
