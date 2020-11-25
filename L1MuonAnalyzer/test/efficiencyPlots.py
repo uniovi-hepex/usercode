@@ -85,7 +85,7 @@ elif version < "MuFlatPt_PU200_v3_t70" :
 else :
     histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
 
-if "0x0006" in version  or "t35" in version :
+if "0x0006" in version  or "t35" in version or "t85" in version :
     omtf_type = 2018
 
 

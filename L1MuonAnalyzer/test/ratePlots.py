@@ -207,7 +207,7 @@ for iAlgo, canvas in enumerate(canvases ) :
         
     if rateCumuls[iAlgo].GetName().find("nn_omtf") >= 0:
         ptCutGev = 22
-    elif version.find("t58") >= 0 or version.find("t65") >= 0 or version.find("t74") >= 0 or version.find("t78") >= 0 or version.find("t80") >= 0:
+    elif version.find("t58") >= 0 or version.find("t65") >= 0 or version.find("t74") >= 0 or version.find("t78") >= 0 or version.find("t80") >= 0 or version.find("t82") >= 0:
         ptCutGev = 18
     else :
         lineColor = 1
