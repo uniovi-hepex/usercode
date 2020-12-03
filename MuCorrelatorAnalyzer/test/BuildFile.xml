@@ -13,7 +13,6 @@
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="L1Trigger/RPCTrigger"/>
-<use   name="L1Trigger/L1TMuonBayes"/>
 <use   name="hepmc"/>
 <use   name="heppdt"/>
 
@@ -66,7 +65,6 @@
     <use   name="RecoLocalTracker/SiPixelRecHits"/>
     <use   name="PhysicsTools/UtilAlgos"/>
     <use   name="FWCore/ServiceRegistry"/>
-    <use   name="RecoTauTag/TauTagTools"/>
     <use   name="RecoTracker/TkSeedGenerator"/>
     <use   name="CommonTools/UtilAlgos"/>
     <use   name="DataFormats/Phase2TrackerDigi"/>

@@ -335,9 +335,9 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
 
 #drawEffs('SingleMu_t85_10f/', "omtf", "12", kGreen) # Arturs' pattern GPs_parametrised_v1_classProb3.xml
 
-drawEffs('SingleMu_t80/', "omtf_patsKB", "12", kCyan)
+#drawEffs('SingleMu_t80/', "omtf_patsKB", "12", kCyan)
 
-drawEffs('SingleMu_0x0006_t79/', "omtf", "12", kBlack)
+#drawEffs('SingleMu_0x0006_t79/', "omtf", "12", kBlack)
  #drawEffs('SingleMu_t74/', "omtf_patsKB", "12", kGreen)
 #drawEffs('SingleMu_t76/', "omtf_patsKB", "12", kRed)
 #drawEffs('SingleMu_t77/', "omtf_patsKB", "12", kBlue)
@@ -347,23 +347,41 @@ drawEffs('SingleMu_0x0006_t79/', "omtf", "12", kBlack)
 
 #drawEffs('SingleMu_t81_-16/', "omtf_patsKB", "12", kGreen)
 #drawEffs('SingleMu_t81_-8/', "omtf_patsKB", "12", kBlue)
-#drawEffs('SingleMu_t82/', "omtf_patsKB", "12", kRed)
-#drawEffs('SingleMu_t82_05GeVBinning/', "omtf_patsKB", "12", kRed)
+#drawEffs('SingleMu_t82/', "omtf_patsKB", "12", kCyan)
+#drawEffs('SingleMu_t82_05GeVBinning/', "omtf_patsKB", "12", kCyan)
 #drawEffs('SingleMu_t83_test/', "omtf_patsKB", "12", kBlue)
 #drawEffs('SingleMu_t83/', "omtf_patsKB", "12", kBlue)
 #drawEffs('SingleMu_t90/', "omtf_patsKB", "12", kBlue)
 #drawEffs('SingleMu_t91/', "omtf_patsKB", "12", kMagenta)
 
 #drawEffs('SingleMu_t92/', "omtf_patsKB", "12", kGreen) 
-drawEffs('SingleMu_t93/', "omtf_patsKB", "12", kBlue)
-#drawEffs('SingleMu_t94/', "omtf_patsKB", "12", kMagenta) this one is incomplete
-drawEffs('SingleMu_t97/', "omtf_patsKB", "12", kGreen)
-drawEffs('SingleMu_t98/', "omtf_patsKB", "12", kRed)
+#drawEffs('SingleMu_t93/', "omtf_patsKB", "12", kBlue)
+#drawEffs('SingleMu_t94/', "omtf_patsKB", "12", kMagenta) #this one is incomplete
+#drawEffs('SingleMu_t97/', "omtf_patsKB", "12", kGreen)
+#drawEffs('SingleMu_t98/', "omtf_patsKB", "12", kGreen)
 
-#drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t84/', "omtf", "12", kBlack)
+#drawEffs('SingleMu_t80/', "omtf_patsKB", "12", kRed)
+#drawEffs('SingleMu_t80_test/', "omtf_patsKB", "12", kBlue) #finalize8 !!!!!!!!!!!!!!!!!!
+#drawEffs('SingleMu_t103/', "omtf_patsKB", "12", kMagenta) #finalize8 !!!!!!!!!!!!!!!!!!!!
+drawEffs('SingleMu_t100/', "omtf", "12", kCyan)
 
-#drawEffs('ZprimeToMuMu_PU140_v3_t82/', "omtf_patsKB", "12", kBlue) before fixing the matching for the hight pt
-#drawEffs('ZprimeToMuMu_PU140_v3_t84/', "omtf_patsKB", "12", kRed)
+#  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#80 ZprimeToMuMu, 82 i 84 - all with finzalize 9 and penalty -16
+#82 and 84 - the same config, but in the 84 fixed muon matching
+
+drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t84/', "omtf", "12", kBlack)
+
+#drawEffs('ZprimeToMuMu_PU140_v3_t82/', "omtf_patsKB", "12", kBlue) #before fixing the matching for the hight pt, but this fix was very small, the setup is the same as in the t84
+#drawEffs('ZprimeToMuMu_PU140_v3_t80/', "omtf_patsKB", "12", kCyan) #by mistake "no matching hit penatly" i finalise 9 was -16
+#drawEffs('ZprimeToMuMu_PU140_v3_t84/', "omtf_patsKB", "12", kGreen) #the setup is the same as in the t82, but fix fixed matching for the hight pt
+#drawEffs('ZprimeToMuMu_PU140_v3_t98/', "omtf_patsKB", "12", kBlue)
+
+drawEffs('ZprimeToMuMu_PU140_v3_t100/', "omtf", "12", kRed)
+#drawEffs('ZprimeToMuMu_PU140_v3_t101/', "omtf", "12", kBlue)
+drawEffs('ZprimeToMuMu_PU140_v3_t104/', "omtf", "12", kBlue)
+drawEffs('ZprimeToMuMu_PU140_v3_t105/', "omtf", "12", kMagenta)
+
+drawEffs('ZprimeToMuMu_NoPU_v3_t100/', "omtf", "12", kGreen)
 
 eff_c1.cd()
 legendEff1.Draw()
@@ -440,10 +458,12 @@ drawRate('SingleNeutrino_PU200_v2_t68/', "omtf", "12", kBlack)
 
 #drawRate('SingleNeutrino_PU200_v2_t67/', "nn_omtf", "12", kRed, "0.4")
 
-drawRate('SingleNeutrino_PU200_v3_t74/', "omtf", "12", kGreen+1)
+#drawRate('SingleNeutrino_PU200_v3_t74/', "omtf", "12", kGreen+1)
 #drawRate('SingleNeutrino_PU200_v3_t78/', "omtf", "12", kBlue)
-drawRate('SingleNeutrino_PU200_v3_t80/', "omtf", "12", kCyan)
-drawRate('SingleNeutrino_PU200_v3_t82/', "omtf", "12", kRed)
+#drawRate('SingleNeutrino_PU200_v3_t80/', "omtf", "12", kCyan)
+#drawRate('SingleNeutrino_PU200_v3_t82/', "omtf", "12", kRed)
+drawRate('SingleNeutrino_PU200_v3_t100/', "omtf", "12", kRed)
+drawRate('SingleNeutrino_PU200_v3_t104/', "omtf", "12", kBlue) #good, GoldenPatternResult::finalise9() pdfSum -= 16 (first job failed, for the good one there is no commit
 
 #OMTF 2018+
 #drawRate('SingleNeutrino_PU250_v2_t45/', "omtf", "12", kGreen+1)
