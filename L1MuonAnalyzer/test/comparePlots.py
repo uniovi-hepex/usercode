@@ -9,6 +9,7 @@ from libPyROOT import TDirectory
 import os
 import sys
 from __builtin__ import True
+from matplotlib import legend
     
 
 
@@ -44,7 +45,7 @@ logScalePads = []
 logScalePadNum = 0
 effHistCopys = []
 
-def drawEff(effFile, type, quality, ptCut, lineColor, legend, pTresh = "0.5") :
+def drawEff(canvas, effFile, type, quality, ptCut, lineColor, legend, pTresh = "0.5") :
     global first
     doEff = True
     
@@ -67,7 +68,8 @@ def drawEff(effFile, type, quality, ptCut, lineColor, legend, pTresh = "0.5") :
     effHist = effFile.Get(histName)
     if effHist is None :
         print ("no histogram found: ", histName)
-           
+    
+    canvas.cd(1)       
     
     effHist.SetLineColor(lineColor)
     print ("first " + str(first) )
@@ -77,18 +79,49 @@ def drawEff(effFile, type, quality, ptCut, lineColor, legend, pTresh = "0.5") :
             effHist.GetXaxis().SetRangeUser(0, 200)
             effHist.GetYaxis().SetRangeUser(0, 1.05)
         else :    
-            effHist.Draw("AE")
+            effHist.Draw("AEP")
+            effHist.SetMarkerStyle(22)
+            canvas.cd(2).Update()
+            effHist.GetPaintedGraph().GetYaxis().SetRangeUser(0., 1.05)
 
-        print ("line 56")
     else:
         if not doEff :
             effHist.Draw("hist same")
         else :
             effHist.Draw("P same")       
-        print ("line 63")
         
-    legend.AddEntry(effHist)  # , "OMTF", "lep");
+    if legend :    
+        legend.AddEntry(effHist)  # , "OMTF", "lep");
+        
+    effHist.SetLineColor(lineColor)
     
+    canvas.cd(2)
+    if doLogScale :
+        canvas.cd(2).SetLogy()    
+    print ("first " + str(first) )
+    if first :
+        if not doEff :
+            effHistCopy = effHist.DrawCopy("hist")
+        else :    
+            effHistCopy = effHist.Clone(effHist.GetName() + "_log")
+            effHistCopy.Draw("AE")     
+            canvas.cd(2).Modified()         
+            canvas.cd(2).Update()
+            print "printig ", effHistCopy.GetName() 
+            if doLogScale :
+                effHistCopy.GetPaintedGraph().GetXaxis().SetRangeUser(0, 25)
+                effHistCopy.GetPaintedGraph().GetYaxis().SetRangeUser(0.001, 1.05)
+            else :
+                effHistCopy.GetPaintedGraph().GetYaxis().SetRangeUser(0.8, 1.05)  
+    else:
+        if not doEff :
+            effHistCopy = effHist.Clone(effHist.GetName() + "_log")
+            effHistCopy.DrawCopy("hist same")
+        else :
+            effHistCopy = effHist.Draw("E same")   
+    
+    canvas.cd(2).Update()        
+    effHistCopys.append(effHistCopy)
     
 #     if first :
 #         pad = TPad('pad_' + str(logScalePads.__len__()), 'pad', 0.4,  0.27,  0.99,  0.75)
@@ -120,6 +153,7 @@ def drawEff(effFile, type, quality, ptCut, lineColor, legend, pTresh = "0.5") :
          
 ###################################################
 
+effHists = []
 firstEtaPlot = True
 def drawEffVsEta(effFile, type, quality, lineColor) :
     global firstEtaPlot 
@@ -139,11 +173,13 @@ def drawEffVsEta(effFile, type, quality, lineColor) :
         print ("first " + str(first) )
         if firstEtaPlot :
             #effHist.GetPaintedGraph().GetYaxis().SetRangeUser(0.8, 1.05)
-            effHist.Draw("")
+            effHist.Draw("AE")
             firstEtaPlot =  False
+            print("11111afsafdsafdsagfdsgsdg")
         else:
             effHist.Draw("same")   
-
+        
+        effHists.append(effHist)
 
 rateFiles = []
 fillPat = 3002
@@ -161,7 +197,7 @@ def drawRate(rateFileDir, type, quality, lineColor, pTresh = "0.5") :
         effHist = rateFile.Get(type + "_q" + quality + "_rate_qualityCut_" + quality + "_" + withTEff)
         
     print (rateFile) 
-      
+    print "rateHist", effHist.GetName()  
     
     effHist.SetLineColor(lineColor)
     #effHist.SetFillColor(lineColor);
@@ -172,7 +208,7 @@ def drawRate(rateFileDir, type, quality, lineColor, pTresh = "0.5") :
     global first
     if first :
         effHist.GetXaxis().SetRangeUser(0, 70)
-        effHist.GetYaxis().SetRangeUser(1, 100)
+        effHist.GetYaxis().SetRangeUser(1, 200)
         if withTEff == "" :
             effHist.Draw("hist")
         else :
@@ -209,7 +245,7 @@ c2.cd(2).SetGridx()
 c2.cd(2).SetGridy()
 
 c3 = TCanvas('canvas_efficiency_3', 'canvas_efficiency_3', 200, 510, 950, 500)
-c3.Divide(1, 1)
+c3.Divide(2, 1)
 c3.cd(1).SetGridx()
 c3.cd(1).SetGridy()
 c3.cd(1).cd()
@@ -217,8 +253,34 @@ c3.cd(1).cd()
 c3.cd(2).SetGridx()
 c3.cd(2).SetGridy()
 
+c4 = TCanvas('canvas_efficiency_4', 'canvas_efficiency_4', 200, 510, 950, 500)
+c4.Divide(2, 1)
+c4.cd(1).SetGridx()
+c4.cd(1).SetGridy()
+c4.cd(1).cd()
+
+c4.cd(2).SetGridx()
+c4.cd(2).SetGridy()
+
+c5 = TCanvas('canvas_efficiency_5', 'canvas_efficiency_5', 200, 510, 950, 500)
+c5.Divide(1, 1)
+c5.cd(1).SetGridx()
+c5.cd(1).SetGridy()
+c5.cd(1).cd()
+
+c5.cd(2).SetGridx()
+c5.cd(2).SetGridy()
+
+canvas_rate = TCanvas('canvas_rate', 'canvas_rate', 200, 510, 950, 500)
+canvas_rate.Divide(2, 1)
+canvas_rate.cd(1).SetGridx()
+canvas_rate.cd(1).SetGridy()
+
+canvas_rate.cd(2).SetGridx()
+canvas_rate.cd(2).SetGridy()
+
 #legendEff1 = TLegend(0.06, 0.8, 0.57, 0.997)
-legendEff1 = TLegend(0.21, 0.12, 0.75, 0.25)
+legendEff1 = TLegend(0.06, 0.9, 0.5, 0.99)
 
 #legend.SetHeader(header.c_str())
 # leg -> SetBorderSize(0);
@@ -230,9 +292,6 @@ legendEff1.SetMargin(0.2)
 legendEff2 = legendEff1.Clone()
 legendEff3 = legendEff1.Clone()
 
-eff_c1 = c1.cd(1)
-eff_c2 = c2.cd(1)
-eff_c3 = c2.cd(2)
 
 # eff_c1.SetTopMargin(0.2)
 # eff_c2.SetTopMargin(0.2)
@@ -247,55 +306,61 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
     effFile = TFile(plotsDir + fileDir + 'efficiencyPlots.root' )
     effFiles.append(effFile)
     if type == "omtf" :
-        eff_c1.cd()
-        print (eff_c1.GetName() )
+        print (c1.GetName() )
         logScalePadNum = 0
-        drawEff(effFile, type, quality, "20", lineColor, legendEff1)
+        drawEff(c1, effFile, type, quality, "20", lineColor, legendEff1)
         
         logScalePadNum = 1 
-        eff_c2.cd()
-        drawEff(effFile, type, quality, "22", lineColor, legendEff2)
+        drawEff(c2, effFile, type, quality, "22", lineColor, legendEff2)
 
         logScalePadNum = 2
-        eff_c3.cd()
-        drawEff(effFile, type, "12", "26", lineColor, legendEff3)
+        drawEff(c3, effFile, type, "12", "26", lineColor, legendEff3)
+        
+        if "MuFlatPt_" in fileDir:
+            logScalePadNum = 3
+            drawEff(c4, effFile, type, "12", "10", lineColor, None)
         
     if type == "nn_omtf" :
         logScalePadNum = 0
-        print (eff_c1.GetName() )
-        eff_c1.cd()
-        drawEff(effFile, type, quality, "22", lineColor, legendEff1, pTresh)
+        print (c1.GetName() )
+        drawEff(c1, effFile, type, quality, "22", lineColor, legendEff1, pTresh)
         logScalePadNum = 1
-        eff_c2.cd()
-        drawEff(effFile, type, quality, "24", lineColor, legendEff2, pTresh)
+        drawEff(c2, effFile, type, quality, "24", lineColor, legendEff2, pTresh)
         logScalePadNum = 2
-        eff_c3.cd()
-        drawEff(effFile, type, quality, "42", lineColor, legendEff3, pTresh)
+        drawEff(c3, effFile, type, quality, "42", lineColor, legendEff3, pTresh)
+        
+        if "MuFlatPt_" in fileDir:
+            logScalePadNum = 3
+            drawEff(c4, effFile, type, "12", "10", lineColor, None)
     
     if type == "omtf_patsKB" :
         logScalePadNum = 0
-        eff_c1.cd()
-        drawEff(effFile, "omtf", "12", "18", lineColor, legendEff1)
+        drawEff(c1, effFile, "omtf", "12", "18", lineColor, legendEff1)
         logScalePadNum = 1
-        eff_c2.cd()
-        drawEff(effFile, "omtf", "12", "20", lineColor, legendEff2)
+        drawEff(c2, effFile, "omtf", "12", "20", lineColor, legendEff2)
         logScalePadNum = 2
-        eff_c3.cd()
-        drawEff(effFile, "omtf", "12", "24", lineColor, legendEff3)
+        drawEff(c3, effFile, "omtf", "12", "24", lineColor, legendEff3)
         
-    c3.cd(1)
-    
+        if "MuFlatPt_" in fileDir:
+            logScalePadNum = 3
+            drawEff(c4, effFile, type, "12", "10", lineColor, None)
+        
+        
+    c5.cd(1)
     if type == "omtf_patsKB" :
         drawEffVsEta(effFile, "omtf", quality, lineColor)
     else :    
         drawEffVsEta(effFile, type, quality, lineColor)
-        
+    c5.Update()
+     
     first = False
 
+doLogScale = True
 #OMTF 2018+
 #c1.cd(1)
 #drawEffs('MuFlatPt_PU200_v2_t44/', "omtf", "12", kBlack)
-#drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack)
+#drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack) #old mathcing
+#drawEffs('MuFlatPt_PU200_0x0006_v3_t100/', "omtf", "12", kBlack) #new, good matching
 
 
 #drawEffs('MuFlatPt_PU200_v2_t51/', "omtf", "12", kGreen+1)
@@ -333,6 +398,9 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
 #drawEffs('MuFlatPt_PU200_v3_t71/', "omtf_patsKB", "12", kGreen)
 #drawEffs('MuFlatPt_PU200_v3_t73/', "omtf", "12", kRed)
 
+#drawEffs('MuFlatPt_PU200_v3_t100/', "omtf", "12", kRed)
+
+
 #drawEffs('SingleMu_t85_10f/', "omtf", "12", kGreen) # Arturs' pattern GPs_parametrised_v1_classProb3.xml
 
 #drawEffs('SingleMu_t80/', "omtf_patsKB", "12", kCyan)
@@ -360,16 +428,20 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
 #drawEffs('SingleMu_t97/', "omtf_patsKB", "12", kGreen)
 #drawEffs('SingleMu_t98/', "omtf_patsKB", "12", kGreen)
 
+doLogScale = False
 #drawEffs('SingleMu_t80/', "omtf_patsKB", "12", kRed)
 #drawEffs('SingleMu_t80_test/', "omtf_patsKB", "12", kBlue) #finalize8 !!!!!!!!!!!!!!!!!!
 #drawEffs('SingleMu_t103/', "omtf_patsKB", "12", kMagenta) #finalize8 !!!!!!!!!!!!!!!!!!!!
-drawEffs('SingleMu_t100/', "omtf", "12", kCyan)
+#drawEffs('SingleMu_t100/', "omtf", "12", kBlue)
+#drawEffs('SingleMu_t104/', "omtf", "12", kGreen+1)
 
 #  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+doLogScale = False
 #80 ZprimeToMuMu, 82 i 84 - all with finzalize 9 and penalty -16
 #82 and 84 - the same config, but in the 84 fixed muon matching
 
 drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t84/', "omtf", "12", kBlack)
+drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t106/', "omtf", "12", kCyan) #no "high pt fix"
 
 #drawEffs('ZprimeToMuMu_PU140_v3_t82/', "omtf_patsKB", "12", kBlue) #before fixing the matching for the hight pt, but this fix was very small, the setup is the same as in the t84
 #drawEffs('ZprimeToMuMu_PU140_v3_t80/', "omtf_patsKB", "12", kCyan) #by mistake "no matching hit penatly" i finalise 9 was -16
@@ -378,18 +450,18 @@ drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t84/', "omtf", "12", kBlack)
 
 drawEffs('ZprimeToMuMu_PU140_v3_t100/', "omtf", "12", kRed)
 #drawEffs('ZprimeToMuMu_PU140_v3_t101/', "omtf", "12", kBlue)
-drawEffs('ZprimeToMuMu_PU140_v3_t104/', "omtf", "12", kBlue)
-drawEffs('ZprimeToMuMu_PU140_v3_t105/', "omtf", "12", kMagenta)
+#drawEffs('ZprimeToMuMu_PU140_v3_t104/', "omtf", "12", kGreen+1)
+#drawEffs('ZprimeToMuMu_PU140_v3_t105/', "omtf", "12", kMagenta)
 
-drawEffs('ZprimeToMuMu_NoPU_v3_t100/', "omtf", "12", kGreen)
+#drawEffs('ZprimeToMuMu_NoPU_v3_t100/', "omtf", "12", kGreen)
 
-eff_c1.cd()
+c1.cd(1)
 legendEff1.Draw()
 
-eff_c2.cd()
+c2.cd(1)
 legendEff2.Draw()
 
-eff_c3.cd()
+c3.cd(1)
 legendEff3.Draw()
 
 # c1.cd(1).Modified()
@@ -403,12 +475,12 @@ first = True
  
 #c2 = TCanvas('canvas_rate_1', 'canvas_rate', 800, 100, 500, 500)
 
-rate_c1 = c1.cd(2)
+rate_c1 = canvas_rate.cd(1)
 
 rate_c1.SetGridx()
 rate_c1.SetGridy()
 rate_c1.SetLogy()
-rate_c1.cd()
+#rate_c1.cd()
 rate_c1.SetLeftMargin(0.15)
 
  
@@ -463,7 +535,9 @@ drawRate('SingleNeutrino_PU200_v2_t68/', "omtf", "12", kBlack)
 #drawRate('SingleNeutrino_PU200_v3_t80/', "omtf", "12", kCyan)
 #drawRate('SingleNeutrino_PU200_v3_t82/', "omtf", "12", kRed)
 drawRate('SingleNeutrino_PU200_v3_t100/', "omtf", "12", kRed)
-drawRate('SingleNeutrino_PU200_v3_t104/', "omtf", "12", kBlue) #good, GoldenPatternResult::finalise9() pdfSum -= 16 (first job failed, for the good one there is no commit
+drawRate('SingleNeutrino_PU200_v3_t104/', "omtf", "12", kGreen+1) #good, GoldenPatternResult::finalise9() pdfSum -= 16 (first job failed, for the good one there is no commit
+
+#drawRate('SingleNeutrino_PU200_mtd5_v3_t100/', "omtf", "12", kRed)
 
 #OMTF 2018+
 #drawRate('SingleNeutrino_PU250_v2_t45/', "omtf", "12", kGreen+1)
@@ -485,12 +559,25 @@ c2.Update()
 c3.Modified()
 c3.Update()
 
+c4.Modified()
+c4.Update()
+
+c5.Modified()
+c5.Update()
+
+canvas_rate.Modified()
+canvas_rate.Update()
+
+
 if True :
-    fileName = makeUniqueFileName("/eos/user/k/kbunkow/public/omtf_nn_plots/", "eff_rate_curves_.png")
+    fileName = makeUniqueFileName("/eos/user/k/kbunkow/public/omtf_nn_plots/", "eff_1_.png")
     print ("saving as " + fileName)
     c1.SaveAs(fileName)
-    c2.SaveAs(fileName.replace("eff_rate_", "eff_eff_"))
-    c3.SaveAs(fileName.replace("eff_rate_", "effVsEta_"))
+    c2.SaveAs(fileName.replace("eff_1_", "eff_2_"))
+    c3.SaveAs(fileName.replace("eff_1_", "eff_3_"))
+    c4.SaveAs(fileName.replace("eff_1_", "eff_4_"))
+    c5.SaveAs(fileName.replace("eff_1_", "effVsEta_"))
+    rate_c1.SaveAs(fileName.replace("eff_1_", "rate_"))
 
 # c3 = TCanvas('canvas_efficiency_rate_1', 'canvas_efficiency_rate_1', 200, 10, 950, 500)
 # c3.Divide(2, 1)

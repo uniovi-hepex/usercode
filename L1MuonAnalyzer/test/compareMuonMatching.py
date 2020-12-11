@@ -53,7 +53,7 @@ def getRate(dir, ptCutGev,name):
                 
 def readRateFile(version, algoName, ptCutGev):
     folder = 'crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_v2_' + version
-    if version == "t74" or version == "t78" or version == "t80" or version == "t100":
+    if version == "t74" or version == "t78" or version == "t80" or version == "t100"  or version == "t104":
         folder = 'crab_omtf_nn_MC_analysis_SingleNeutrino_PU200_v3_' + version
         
     if folder in histFiles:
@@ -187,12 +187,12 @@ toCompareList = (
     #VersionAlgo("t65", "omtf_q12", 18), 
     
     #VersionAlgo("t74", "omtf_q8", 18), 
-    VersionAlgo("t74", "omtf_q12", 18), 
+    #VersionAlgo("t74", "omtf_q12", 18), 
 
 
-    VersionAlgo("t78", "omtf_q12", 18), 
+    #VersionAlgo("t78", "omtf_q12", 18), 
     
-    VersionAlgo("t80", "omtf_q12", 18),
+    #VersionAlgo("t80", "omtf_q12", 18),
      
     #VersionAlgo("t68", "omtf_q1", 20) , 
     #VersionAlgo("t67", "nn_omtf_q12_pTresh_0.4", 22),
@@ -200,10 +200,13 @@ toCompareList = (
     
     
     VersionAlgo("t100", "omtf_q12", 20),
+    VersionAlgo("t104", "omtf_q12", 20),
     
-    VersionAlgo("t68", "nn_omtf_q12_pTresh_0.5", 22),
-    VersionAlgo("t80", "nn_omtf_q12_pTresh_0.4", 22),
-    VersionAlgo("t80", "nn_omtf_q12_pTresh_0.5", 22),
+    #VersionAlgo("t68", "nn_omtf_q12_pTresh_0.5", 22),
+    #VersionAlgo("t80", "nn_omtf_q12_pTresh_0.4", 22),
+    #VersionAlgo("t80", "nn_omtf_q12_pTresh_0.5", 22),
+    
+    VersionAlgo("t67", "nn_omtf_q12_pTresh_0.5", 22), #this is good nn 
     )
 
 # toCompareList = ( 
@@ -226,7 +229,7 @@ toCompareList = (
 
 rateVsCategory = {}
 rateVsCategoryStack = THStack("rateVsCategoyStack", "rateVsCategoryStack")
-rateVsCategoryStackLegend = TLegend(0.6, 0.6, 0.9, 0.9)
+rateVsCategoryStackLegend = TLegend(0.65, 0.8, 0.93, 0.95)
 rateVsCategoryStackLegend.SetBorderSize(0)
 rateVsCategoryStackLegend.SetTextSize(0.027)
 

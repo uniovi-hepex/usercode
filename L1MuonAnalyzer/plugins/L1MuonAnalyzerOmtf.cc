@@ -46,7 +46,7 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg): muonMat
     nn_pThresholds = edmCfg.getParameter<vector<double> >("nn_pThresholds");
 
   if(analysisType == "efficiency") {
-    ptGenHist = fs->make<TH1I>("ptGenHist", "ptGenHist", 200, 0, 1000);
+    ptGenHist = fs->make<TH1I>("ptGenHist", "ptGenHist", 800, 0, 4000);
 
     double ptGenCut = 25;
     double ptL1Cut = 18;
