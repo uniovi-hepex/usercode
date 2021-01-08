@@ -10,7 +10,7 @@
   <flags LDFLAGS="-lXMLIO"/>
 </library> -->
 
-<library   file="L1MuonAnalyzerOmtf.cc" name="usercodeL1MuonAnalyzerOmtfPlugin">
+<library  file="*.cc" name="usercodeL1MuonAnalyzerOmtfPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
 

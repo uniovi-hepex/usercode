@@ -29,8 +29,8 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg): muonMat
 
   simVertexesToken =  consumes<edm::SimVertexContainer>(edmCfg.getParameter<edm::InputTag>("simVertexesTag"));
 
-  if(edmCfg.exists("trackingParticleToken") )
-    trackingParticleToken = consumes<TrackingParticleCollection>(edmCfg.getParameter<edm::InputTag>("trackingParticleToken"));
+  if(edmCfg.exists("trackingParticleTag") )
+    trackingParticleToken = consumes<TrackingParticleCollection>(edmCfg.getParameter<edm::InputTag>("trackingParticleTag"));
 
   edm::Service<TFileService> fs;
 
