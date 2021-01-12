@@ -25,10 +25,11 @@ L1MuonAnalyzerOmtf::L1MuonAnalyzerOmtf(const edm::ParameterSet& edmCfg): muonMat
 
   omtfToken = consumes<l1t::RegionalMuonCandBxCollection >(edmCfg.getParameter<edm::InputTag>("L1OMTFInputTag"));
 
-  simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits")); //TODO which is correct?
+  if(edmCfg.exists("simVertexesTag") ) {
+    simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits")); //TODO which is correct?
 
-  simVertexesToken =  consumes<edm::SimVertexContainer>(edmCfg.getParameter<edm::InputTag>("simVertexesTag"));
-
+    simVertexesToken =  consumes<edm::SimVertexContainer>(edmCfg.getParameter<edm::InputTag>("simVertexesTag"));
+  }
   if(edmCfg.exists("trackingParticleTag") )
     trackingParticleToken = consumes<TrackingParticleCollection>(edmCfg.getParameter<edm::InputTag>("trackingParticleTag"));
 
@@ -281,13 +282,14 @@ void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup&
 
   std::vector<const l1t::RegionalMuonCand*> ghostBustedCands = ghostBust(l1omtfHandle.product());
 
-
   edm::Handle<edm::SimTrackContainer> simTraksHandle;
-  event.getByToken(simTrackToken, simTraksHandle);
-
-
   edm::Handle<edm::SimVertexContainer> simVertices;
-  event.getByToken(simVertexesToken, simVertices);
+  if(!simTrackToken.isUninitialized()) {
+    event.getByToken(simTrackToken, simTraksHandle);
+    event.getByToken(simVertexesToken, simVertices);
+
+    LogTrace("l1tOmtfEventPrint")<<"simTraksHandle size "<<simTraksHandle.product()->size()<<std::endl;;
+  }
 
   edm::Handle<TrackingParticleCollection> trackingParticleHandle;
 
@@ -296,7 +298,7 @@ void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup&
     LogTrace("l1tOmtfEventPrint")<<"trackingParticleHandle size "<<trackingParticleHandle.product()->size()<<std::endl;;
   }
 
-  LogTrace("l1tOmtfEventPrint")<<"simTraksHandle size "<<simTraksHandle.product()->size()<<std::endl;;
+
 
   //todo do little better, move this assignment to constructor
   muonMatcher.setup(es);
@@ -316,7 +318,7 @@ void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup&
   if(matchUsingPropagation) {
     if(!trackingParticleToken.isUninitialized())
       matchingResults = muonMatcher.match(ghostBustedCands, trackingParticleHandle.product(), trackParticleFilter);
-    else
+    else if(!simTrackToken.isUninitialized())
       matchingResults = muonMatcher.match(ghostBustedCands, simTraksHandle.product(), simVertices.product(), simTrackFilter);
   }
   else {
