@@ -5,10 +5,11 @@
  *      Author: kbunkow
  */
 
-
 #include "usercode/L1MuonAnalyzer/plugins/L1MuonOmtfCandsFilter.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include <bitset>
 
 namespace L1MuAn {
@@ -19,6 +20,10 @@ L1MuonOmtfCandsFilter::L1MuonOmtfCandsFilter(const edm::ParameterSet& edmCfg) {
   hwPtCut = edmCfg.getParameter<int>("hwPtCut");
 
   edm::LogImportant("l1tOmtfEventPrint") <<" L1MuonOmtfCandsFilter: line "<<__LINE__<<" qualityCut "<<qualityCut<<" hwPtCut "<<hwPtCut<<std::endl;
+
+  edm::Service<TFileService> fs;
+
+  candPerEvent = fs->make<TH1D>("candPerEvent", "candPerEvent", 21, -0.5, 20.5);
 }
 
 L1MuonOmtfCandsFilter::~L1MuonOmtfCandsFilter() {
@@ -33,6 +38,7 @@ edm::Handle<l1t::RegionalMuonCandBxCollection> l1omtfHandle;
 
  const l1t::RegionalMuonCandBxCollection* mtfCands = l1omtfHandle.product();
 
+ candPerEvent->Fill(l1omtfHandle.product()->size(0));
 
  bool accept = false;
  for(unsigned int  i1 = 0; i1 < mtfCands->size(0); ++i1) {

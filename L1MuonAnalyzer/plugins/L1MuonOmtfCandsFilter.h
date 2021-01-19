@@ -23,6 +23,8 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
+#include "TH1I.h"
+
 namespace L1MuAn {
 class L1MuonOmtfCandsFilter: public edm::EDFilter {
 public:
@@ -44,6 +46,8 @@ private:
   int hwPtCut = 41;
 
   int acceptedEvents = 0;
+
+  TH1* candPerEvent = nullptr;
 };
 
 } //namespace L1MuAn
