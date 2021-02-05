@@ -6,6 +6,7 @@
 
 ////////////////////
 // FRAMEWORK HEADERS
+#include "DataFormats/L1TMuon/interface/TkMuonBayesTrack.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -62,9 +63,6 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
-#include "DataFormats/L1TMuon/interface/BayesMuCorrelatorTrack.h"
-
-//#include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuCorrelatorConfig.h"
 
 #include "TProfile.h"

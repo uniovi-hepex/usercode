@@ -138,7 +138,7 @@ int MuCorrelatorAnalyzerPlots2() {
 
 
   //makePlots("HSCPppstau_M_200_PU200_t21", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_HSCPppstau_M_200_PU200_v1_t21/results/muCorrelatorTTAnalysis1.root");
-  makePlots("HSCPppstau_M_871_PU200_t25", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_HSCPppstau_M_871_PU200_v1_t25/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("HSCPppstau_M_871_PU200_t25", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_HSCPppstau_M_871_PU200_v1_t25/results/muCorrelatorTTAnalysis1.root");
 
   //makePlots("MuFlatPt_PU200_v1_t21_bayesOMTF_L1TkMuons", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t21_bayesOMTF_L1TkMuons_v2_36_4/results/muCorrelatorTTAnalysis1.root");
   //makePlots("MuFlatPt_PU200_v1_t15_bayesOMTFonly", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_muCorr_MC_analysis_MuFlatPt_PU200_v1_t15_bayesOMTFonly/results/muCorrelatorTTAnalysis1.root");
@@ -172,6 +172,15 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("MuFlatPt_PU200_v1_t15_bayesOMTFonly", "#mu 0-100 GeV",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/muCorrelatorTTAnalysis1.root");
   //makePlots("HSCP",  "HSCP",  kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/muCorrelator/muCorrelatorTTAnalysis1_HSCPppstau_M_200_PU200.root");
 
+  //makePlots("DoubleMuon_gun_test", "singleNu",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TkMuonBayes/test/expert/muCorrelatorTTAnalysis1.root");
+  //makePlots("DoubleMuon_gun_test", "doubleMuon_gun",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DoubleMuon_gun_FlatPt-1To100_NoPU_t112/results/muCorrelatorTTAnalysis1.root");
+ //makePlots("DoubleMuon_gun_test", "doubleMuon_gun",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TkMuonBayes/test/expert/muCorrelatorTTAnalysis1_DoubleMuon_gun.root");
+  //makePlots("DoubleMuon_gun_test", "doubleMuon_gun",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DoubleMuon_gun_FlatPt-1To100_PU200_t112/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("minBias", "minBias PU200",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_MinBias_Summer20_PU200_t112/results/muCorrelatorTTAnalysis1.root");
+  makePlots("DoubleMuon_gun_test", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DoubleMuon_gun_Summer20_PU200_t112/results/muCorrelatorTTAnalysis1.root");
+
+
+
 /*
   c0->cd();
   legend->Draw();
@@ -194,7 +203,7 @@ void makePlots(const char* name, string label, int color, int ptCut, const char*
   file->cd("omtfTTAnalyzer");
   file->ls();
 
-  omtfTTAnalyzerDir = (TDirectory*)file->Get("omtfTTAnalyzer");
+  omtfTTAnalyzerDir = (TDirectory*)file->Get("muCorrelatorAnalyzer"); //omtfTTAnalyzer
 
   TH1D* gpPerEvent = (TH1D*)omtfTTAnalyzerDir->Get("gpPerEvent");
   eventsCnt = gpPerEvent->GetEntries();
@@ -202,7 +211,7 @@ void makePlots(const char* name, string label, int color, int ptCut, const char*
   plotsDir = string("plots_") + name;
   mkdir( plotsDir.c_str(), 0777);
 
-  makeEffVsBeta(omtfTTAnalyzerDir, name);
+  //makeEffVsBeta(omtfTTAnalyzerDir, name);
 
   //makeCandidatesMatchingPlots(omtfTTAnalyzerDir, name, eventsCnt);
 
@@ -210,9 +219,9 @@ void makePlots(const char* name, string label, int color, int ptCut, const char*
 
   //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 3);
   //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 10);
-  //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 20);
+  makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 20);
 
-  makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
+  //makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
 }
 
 void savePlot(string name, TVirtualPad* orgianlPad) {
@@ -1110,7 +1119,7 @@ void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* name
 
         }
 
-        legend->AddEntry(allCandPt, "all candidates");
+        legend->AddEntry(allCandPt, "all candidates", "f");
 
         //////////////////////////////////////// efficiency /////////
         {
@@ -1174,10 +1183,10 @@ void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* name
 
             candPt->SetLineColor(categoryName.second);
             candPt->SetMarkerColor(categoryName.second);
-            /*if(categoryName.first == "veryLooseMuons")
-              candPt->SetFillColor(categoryName.second);*/
+            /*if(categoryName.first == "veryLooseMuons")*/
+            candPt->SetFillColor(categoryName.second);
 
-            legend->AddEntry(candPt, categoryName.first.c_str());
+            legend->AddEntry(candPt, categoryName.first.c_str(), "f");
 
             canvasPurityPlots->cd(1);//events count vs pt for every category of candidates
 

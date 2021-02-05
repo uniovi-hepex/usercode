@@ -6,6 +6,8 @@
 
 ////////////////////
 // FRAMEWORK HEADERS
+#include "DataFormats/L1TMuon/interface/TkMuonBayesTrack.h"
+#include "L1Trigger/L1TkMuonBayes/plugins/L1TkMuonBayesTrackProducer.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -60,11 +62,7 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
-#include "DataFormats/L1TMuon/interface/BayesMuCorrelatorTrack.h"
-
-#include "L1Trigger/L1TkMuonBayes/interface/MuCorrelatorConfig.h"
-#include "L1Trigger/L1TkMuonBayes/plugins/L1TMuonBayesMuCorrelatorTrackProducer.h"
-
+#include "L1Trigger/L1TkMuonBayes/interface/TkMuBayesProcConfig.h"
 #include "TProfile.h"
 #include "TH1D.h"
 #include "TH2D.h"
@@ -77,20 +75,18 @@
 
 using namespace std;
 
-std::ostream & operator<< (std::ostream &out, const l1t::BayesMuCorrelatorTrack&  muCand);
+std::ostream & operator<< (std::ostream &out, const l1t::TkMuonBayesTrack&  muCand);
 
 class TriggerAlgo {
 public:
   TriggerAlgo(std::string name, double ptCut): name(name), ptCut(ptCut) {};
   virtual ~TriggerAlgo() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) = 0;
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack) = 0;
 
   std::string name;
 
   double ptCut = 0;
-
-  int L1Tk_nPar = 4; //todo take from config
 };
 
 
@@ -99,7 +95,7 @@ public:
   AllTTTRacks(double ptCut): TriggerAlgo("AllTTTRacks" + std::to_string((int)ptCut), ptCut) {};
   virtual ~AllTTTRacks() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
       return true;
   }
 };
@@ -109,7 +105,7 @@ public:
   AllTTTRacksBarrel(double ptCut): TriggerAlgo("AllTTTRacksBarrel" + std::to_string((int)ptCut), ptCut) {};
   virtual ~AllTTTRacksBarrel() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if(abs(muCorrelatorTrack.getEta() ) < 0.82)
       return true;
     return false;
@@ -121,8 +117,8 @@ public:
   SingleMuAlgo(double ptCut): TriggerAlgo("SingleMuAlgo" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgo() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
-    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack)
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
+    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack)
       return true;
     return false;
   }
@@ -133,8 +129,8 @@ public:
   SingleMuAlgoBarrel(double ptCut): TriggerAlgo("SingleMuAlgoBarrel" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoBarrel() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
-    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
+    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         abs(muCorrelatorTrack.getEta() ) < 0.82)
       return true;
     return false;
@@ -146,8 +142,8 @@ public:
   SingleMuAlgoOverlap(double ptCut): TriggerAlgo("SingleMuAlgoOverlap" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoOverlap() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
-    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
+    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         abs(muCorrelatorTrack.getEta() ) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )
       return true;
     return false;
@@ -159,8 +155,8 @@ public:
   SingleMuAlgoEndcap(double ptCut): TriggerAlgo("SingleMuAlgoEndcap" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoEndcap() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
-    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
+    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         abs(muCorrelatorTrack.getEta() ) >= 1.24 )
       return true;
     return false;
@@ -173,14 +169,14 @@ public:
   SingleMuAlgoSoftCuts(double ptCut): TriggerAlgo("SingleMuAlgoSoftCuts" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoSoftCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
           (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
            muCorrelatorTrack.getFiredLayerCnt() >= 4) &&
         ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
-            ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+            ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->chi2() < 100 ) || //TODO tune, should'nt it be chi2Red??? in any case should be changed to the hw int values
               muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
            muCorrelatorTrack.getTtTrackPtr().isNull() )
     )
@@ -194,14 +190,14 @@ public:
   SingleMuAlgoSoftCutsOverlap(double ptCut): TriggerAlgo("SingleMuAlgoSoftCutsOverlap" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoSoftCutsOverlap() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
           (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
            muCorrelatorTrack.getFiredLayerCnt() >= 4) &&
         ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
-            ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+            ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->chi2() < 100 ) ||
               muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
            muCorrelatorTrack.getTtTrackPtr().isNull() ) &&
         (abs(muCorrelatorTrack.getEta() ) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )
@@ -217,13 +213,13 @@ public:
   SingleMuAlgoSoftCuts1(double ptCut): TriggerAlgo("SingleMuAlgoSoftCuts1_ptCut" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoSoftCuts1() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1100) ||
           (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1400) ||
            muCorrelatorTrack.getFiredLayerCnt() >= 4) &&
-        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() )
+        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->chi2() < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() )
     )
       return true;
     return false;
@@ -235,13 +231,13 @@ public:
   SingleMuAlgoSoftCutsOverlap1(double ptCut): TriggerAlgo("SingleMuAlgoSoftCutsOverlap1_ptCut" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoSoftCutsOverlap1() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1100) ||
           (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1400) ||
            muCorrelatorTrack.getFiredLayerCnt() >= 4) &&
-        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() ) &&
+        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->chi2() < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() ) &&
         (abs(muCorrelatorTrack.getEta() ) >= 0.82 && abs(muCorrelatorTrack.getEta() ) < 1.24 )
     )
       return true;
@@ -254,13 +250,13 @@ public:
   SingleMuAlgoPdfSumSoftCuts(double ptCut): TriggerAlgo("SingleMuAlgoPdfSumSoftCuts" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoPdfSumSoftCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
           (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
            muCorrelatorTrack.getFiredLayerCnt() >= 4) //&&
-        //( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2Red(L1Tk_nPar) < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() )
+        //( (muCorrelatorTrack.getTtTrackPtr().isNonnull() && muCorrelatorTrack.getTtTrackPtr()->getChi2Red() < 200 ) || muCorrelatorTrack.getTtTrackPtr().isNull() )
     )
       return true;
     return false;
@@ -272,14 +268,14 @@ public:
   SingleMuAlgoHardCuts(double ptCut): TriggerAlgo("SingleMuAlgoHardCuts" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoHardCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1300) ||
           (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1900) ||
            muCorrelatorTrack.getFiredLayerCnt() >= 4) &&
            ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
-               ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+               ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->chi2() < 100 ) ||
                  muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
               muCorrelatorTrack.getTtTrackPtr().isNull() )
        )
@@ -293,8 +289,8 @@ public:
   HscpAlgo(double ptCut): TriggerAlgo("HscpAlgo"+ std::to_string((int)ptCut), ptCut) {};
   virtual ~HscpAlgo() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
-    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack)
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack) {
+    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::slowTrack)
       return true;
     return false;
   }
@@ -305,14 +301,14 @@ public:
   HscpAlgoHardCuts(double ptCut): TriggerAlgo("HscpAlgoHardCuts"+ std::to_string((int)ptCut), ptCut) {};
   virtual ~HscpAlgoHardCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack) {
     if( muCorrelatorTrack.hwQual() >= 13 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::slowTrack &&
         ( (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1800 && muCorrelatorTrack.getBetaLikelihood() >= 9) ||
           (muCorrelatorTrack.getFiredLayerCnt() == 4 && muCorrelatorTrack.pdfSum() > 2000 && muCorrelatorTrack.getBetaLikelihood() >= 10) ||
          muCorrelatorTrack.getFiredLayerCnt() >= 5  ) &&
          ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
-             ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+             ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->chi2() < 100 ) ||
                muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
             muCorrelatorTrack.getTtTrackPtr().isNull() )
       )
@@ -328,15 +324,15 @@ public:
   HscpAlgoSoftCuts(double ptCut): TriggerAlgo("HscpAlgoSoftCuts"+ std::to_string((int)ptCut), ptCut) {};
   virtual ~HscpAlgoSoftCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
-    if( muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack) {
+    if( muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::slowTrack &&
         muCorrelatorTrack.hwQual() >= 13 &&
         ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1000 && muCorrelatorTrack.getBetaLikelihood() >= 6) ||
           (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1100 && muCorrelatorTrack.getBetaLikelihood() >= 7) ||
           (muCorrelatorTrack.getFiredLayerCnt() == 4 && muCorrelatorTrack.pdfSum() > 1200 && muCorrelatorTrack.getBetaLikelihood() >= 9) ||
            muCorrelatorTrack.getFiredLayerCnt() >= 5) &&
        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
-           ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+           ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->chi2() < 100 ) ||
              muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
           muCorrelatorTrack.getTtTrackPtr().isNull() )
       )
@@ -352,15 +348,15 @@ public:
   HscpAlgoPdfSumCuts(double ptCut): TriggerAlgo("HscpAlgoPdfSumCuts"+ std::to_string((int)ptCut), ptCut) {};
   virtual ~HscpAlgoPdfSumCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
-    if( muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack) {
+    if( muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::slowTrack &&
         muCorrelatorTrack.hwQual() >= 13 &&
         ( (muCorrelatorTrack.getFiredLayerCnt() == 2 && muCorrelatorTrack.pdfSum() > 1000) || // && muCorrelatorTrack.getBetaLikelihood() >= 6
           (muCorrelatorTrack.getFiredLayerCnt() == 3 && muCorrelatorTrack.pdfSum() > 1100) || // && muCorrelatorTrack.getBetaLikelihood() >= 7
           (muCorrelatorTrack.getFiredLayerCnt() == 4 && muCorrelatorTrack.pdfSum() > 1200) || // && muCorrelatorTrack.getBetaLikelihood() >= 9
            muCorrelatorTrack.getFiredLayerCnt() >= 5) &&
        ( (muCorrelatorTrack.getTtTrackPtr().isNonnull() &&
-           ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->getChi2(L1Tk_nPar) < 100 ) ||
+           ((muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() == 4 && muCorrelatorTrack.getTtTrackPtr()->chi2() < 100 ) ||
              muCorrelatorTrack.getTtTrackPtr()->getStubRefs().size() > 4) ) ||
           muCorrelatorTrack.getTtTrackPtr().isNull() )
       )
@@ -375,7 +371,7 @@ public:
 ///////////////////////////////////
 
 
-std::ostream & operator<< (std::ostream &out, const l1t::BayesMuCorrelatorTrack&  muCand) {
+std::ostream & operator<< (std::ostream &out, const l1t::TkMuonBayesTrack&  muCand) {
   out
   <<" hwPt "<<muCand.hwPt()
   <<" pt "<<muCand.getPt()<<" GeV "
@@ -393,7 +389,7 @@ std::ostream & operator<< (std::ostream &out, const l1t::BayesMuCorrelatorTrack&
 }
 
 //stupid but otherwise does not work with LogTrace
-std::string toString(const l1t::BayesMuCorrelatorTrack&  muCand) {
+std::string toString(const l1t::TkMuonBayesTrack&  muCand) {
   std::ostringstream ostr;
   ostr<<muCand;
   return ostr.str();
@@ -424,15 +420,15 @@ auto printTrackigParticleShort(const edm::Ptr< TrackingParticle >& tpPtr, const 
   return ostr.str();
 };
 
-auto printTTTRack(const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& ttTrackPtr, bool genuine, bool loosegenuine, int L1Tk_nPar) {
+auto printTTTRack(const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& ttTrackPtr, bool genuine, bool loosegenuine) {
   std::ostringstream ostr;
-  ostr << "matched ttTrack       pt: " <<setw(7)<< ttTrackPtr->getMomentum(L1Tk_nPar).perp()
-                   <<" charge: "<<setw(2)<<(ttTrackPtr->getRInv() > 0 ? 1 : -1)
-                   << " eta: " <<setw(7)<< ttTrackPtr->getMomentum(L1Tk_nPar).eta()
-                   << " phi: " <<setw(7)<< ttTrackPtr->getMomentum(L1Tk_nPar).phi()
-                   << " chi2: " <<setw(7)<< ttTrackPtr->getChi2(L1Tk_nPar)
-                   << " consistency: " <<setw(7)<< ttTrackPtr->getStubPtConsistency(L1Tk_nPar)
-                   << " z0: " <<setw(7)<< ttTrackPtr->getPOCA(L1Tk_nPar).z()
+  ostr << "matched ttTrack       pt: " <<setw(7)<< ttTrackPtr->momentum().perp()
+                   <<" charge: "<<setw(2)<<(ttTrackPtr->rInv() > 0 ? 1 : -1)
+                   << " eta: " <<setw(7)<< ttTrackPtr->momentum().eta()
+                   << " phi: " <<setw(7)<< ttTrackPtr->momentum().phi()
+                   << " chi2: " <<setw(7)<< ttTrackPtr->chi2()
+                   << " consistency: " <<setw(7)<< ttTrackPtr->stubPtConsistency()
+                   << " z0: " <<setw(7)<< ttTrackPtr->POCA().z()
                    << " nstub: " <<setw(7)<< ttTrackPtr->getStubRefs().size()
                    << (genuine  ? " genuine " : "")
                    << (loosegenuine ? " loose genuine " : "");
@@ -456,20 +452,20 @@ public:
     numberOfAcceptedCandidates = 0;
   }
 
-  virtual void takeCanidate(const l1t::BayesMuCorrTrackBxCollection::const_iterator& itL1MuCand);
+  virtual void takeCanidate(const l1t::TkMuonBayesTrackBxCollection::const_iterator& itL1MuCand);
 
 protected:
   std::shared_ptr<TriggerAlgo> triggerAlgo;
 
-  l1t::BayesMuCorrelatorTrack const* bestL1MuCand = nullptr;
-  l1t::BayesMuCorrelatorTrack const* notAcceptedL1MuCand = nullptr;
+  l1t::TkMuonBayesTrack const* bestL1MuCand = nullptr;
+  l1t::TkMuonBayesTrack const* notAcceptedL1MuCand = nullptr;
 
   double ptOfBestL1MuCand = -1;
 
   int numberOfAcceptedCandidates = 0;
 };
 
-void AnalyserBase::takeCanidate(const l1t::BayesMuCorrTrackBxCollection::const_iterator& itL1MuCand) {
+void AnalyserBase::takeCanidate(const l1t::TkMuonBayesTrackBxCollection::const_iterator& itL1MuCand) {
   if(triggerAlgo->accept(*itL1MuCand) ) {
     if(ptOfBestL1MuCand < itL1MuCand->getPt() ) {
       if(ptOfBestL1MuCand > 0)
@@ -515,6 +511,7 @@ public:
     ptGenPtMuCandMuonsEv0 = subDir.make<TH2I>("ptGenPtMuCandMuonsEv0", "ptGenPtMuCandMuonsEv0; pT gen [GeV]; pT ttTrack [GeV]; #", 100, 0, 100, 100, 0, 100);
     ptGenPtMuCandMuonsPu = subDir.make<TH2I>("ptGenPtMuCandMuonsPu", "ptGenPtMuCandMuonsPu; pT gen [GeV]; pT ttTrack [GeV]; #", 100, 0, 100, 100, 0, 100);
 
+    ptGenPtMuCandMuonsEv0HighPt = subDir.make<TH2I>("ptGenPtMuCandMuonsEv0HighPt", "ptGenPtMuCandMuonsEv0; pT gen [GeV]; pT ttTrack [GeV]; #", 100, 0, 1000, 100, 0, 1000);
 
     ptGenPtMuCandMuonsEv0Barrel = subDir.make<TH2I>("ptGenPtMuCandMuonsEv0Barrel", "ptGenPtMuCandMuonsEv0Barrel |#eta| < 0.82; generated p_{T} [GeV]; ttTrack p_{T} [GeV]; #", 100, 0, 100, 100, 0, 100);
     ptGenPtMuCandMuonsEv0Overlap = subDir.make<TH2I>("ptGenPtMuCandMuonsEv0Overlap", "ptGenPtMuCandMuonsEv0Overlap 0.82 < |#eta| < 1.24; generated p_{T} [GeV]; ttTrack p_{T} [GeV]; #", 100, 0, 100, 100, 0, 100);
@@ -559,6 +556,8 @@ private:
   TH2I* ptGenPtMuCandMuonsEv0 = nullptr;
   TH2I* ptGenPtMuCandMuonsPu = nullptr;
 
+  TH2I* ptGenPtMuCandMuonsEv0HighPt = nullptr;
+
   TH2I* ptGenPtMuCandMuonsEv0Barrel = nullptr;
   TH2I* ptGenPtMuCandMuonsEv0Overlap = nullptr;
   TH2I* ptGenPtMuCandMuonsEv0Endcap = nullptr;
@@ -584,7 +583,7 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
   {
     gpMuonGenEtaMuons_withPtCuts->Fill(trackParticle->eta());
 
-    if(bestMatchedTTTrack.isNonnull() && bestMatchedTTTrack->getMomentum(4).perp() >= triggerAlgo->ptCut)
+    if(bestMatchedTTTrack.isNonnull() && bestMatchedTTTrack->momentum().perp() >= triggerAlgo->ptCut)
       ttMuonGenEtaMuons_withPtCuts->Fill(trackParticle->eta());
 
     if(ptOfBestL1MuCand > 0 && bestL1MuCand->getPt() >= triggerAlgo->ptCut) {
@@ -625,6 +624,7 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
 
     if(trackParticle->eventId().event() == 0) {
       ptGenPtMuCandMuonsEv0->Fill(trackParticle->pt(), muCandPt);
+      ptGenPtMuCandMuonsEv0HighPt->Fill(trackParticle->pt(), muCandPt);
 
       if( abs(trackParticle->eta() ) < 0.82)
         ptGenPtMuCandMuonsEv0Barrel->Fill(trackParticle->pt(), muCandPt);
@@ -640,6 +640,7 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
   else {//no candidate
     if(trackParticle->eventId().event() == 0) {
       ptGenPtMuCandMuonsEv0->Fill(trackParticle->pt(), 0);
+      ptGenPtMuCandMuonsEv0HighPt->Fill(trackParticle->pt(), 0);
 
       if( abs(trackParticle->eta() ) < 0.82)
         ptGenPtMuCandMuonsEv0Barrel->Fill(trackParticle->pt(), 0);
@@ -771,9 +772,8 @@ void RateAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrac
     int firedLayers = layerHitBits.count();
     int pdfSum = (int)bestL1MuCand->pdfSum();
 
-    int L1Tk_nPar = 4; //todo take from config
     //int ttTrackNstub = ttTrackPtr->getStubRefs().size();
-    float chi2dof = ttTrackPtr->getChi2Red(L1Tk_nPar); //(ttTrackPtr->getChi2(L1Tk_nPar)) / (2*ttTrackNstub - L1Tk_nPar);
+    float chi2dof = ttTrackPtr->chi2Red();
 
     if(tpMatchedToBestL1MuCand.isNonnull() ) {
       if(abs(tpMatchedToBestL1MuCand->pdgId()) == 13) {
@@ -793,7 +793,7 @@ void RateAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrac
           edm::LogImportant("l1tMuBayesEventPrint")<<" "<<triggerAlgo->name<<" wrongTag muCand track "<<(bestL1MuCand->getPt() > 18 ? " high Pt" : "")<<"\n"<<toString(*bestL1MuCand)<<endl;
           bool tmp_trk_genuine = MCTruthTTTrackHandle->isGenuine(ttTrackPtr);
           bool tmp_trk_loosegenuine = MCTruthTTTrackHandle->isLooselyGenuine(ttTrackPtr);
-          edm::LogImportant("l1tMuBayesEventPrint") << printTTTRack(ttTrackPtr, tmp_trk_genuine, tmp_trk_loosegenuine, L1Tk_nPar);
+          edm::LogImportant("l1tMuBayesEventPrint") << printTTTRack(ttTrackPtr, tmp_trk_genuine, tmp_trk_loosegenuine);
           if(!tpMatchedToBestL1MuCand.isNull() ) {
             edm::LogImportant("l1tMuBayesEventPrint") <<"L:"<<__LINE__<< "TP matched to muCand:";
             edm::LogImportant("l1tMuBayesEventPrint") <<"L:"<<__LINE__<<" "<< printTrackigParticleShort(tpMatchedToBestL1MuCand, MCTruthTTTrackHandle); //<<"Line: "<<__LINE__<<". "
@@ -801,7 +801,7 @@ void RateAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrac
         }
       }
 
-      chi2GenuineTTTrackMuCand->Fill(ttTrackPtr->getChi2(L1Tk_nPar) );
+      chi2GenuineTTTrackMuCand->Fill(ttTrackPtr->chi2() );
       chi2DofGenuineTTTrackMuCand->Fill(chi2dof);
     }
     else {
@@ -814,7 +814,7 @@ void RateAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrac
         betaLikelihoodFiredPlanesNotMuons->Fill(bestL1MuCand->getBetaLikelihood(), firedLayers);
         muCandBetaNotMuons->Fill(bestL1MuCand->getBeta());
 
-        chi2FakeTTTrackMuCand->Fill(ttTrackPtr->getChi2(L1Tk_nPar) );
+        chi2FakeTTTrackMuCand->Fill(ttTrackPtr->chi2() );
         chi2DofFakeTTTrackMuCand->Fill(chi2dof);
       }
 
@@ -887,8 +887,7 @@ public:
       ptGenDeltaPhi = subDir.make<TH2I>( ("ptGenDeltaPhi_" + name).c_str(), ("ptGenDeltaPhi " + name +  "; gen pT [GeV]; (gen phi - ttTrack phi); #").c_str(), 50, 0, 100,  60, -0.3, 0.3);
     }
 
-    virtual void fillHistos(const l1t::BayesMuCorrelatorTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
-      int L1Tk_nPar =  4; //TODO take form config
+    virtual void fillHistos(const l1t::TkMuonBayesTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
       double pt = l1MuCand.getPt();
       double eta = l1MuCand.getEta();
 
@@ -901,7 +900,7 @@ public:
         int pdfSum = l1MuCand.pdfSum();
         pdfSumNFiredLayers->Fill(pdfSum, firedLayers);
 
-        chi2NStubs->Fill(l1MuCand.getTtTrackPtr()->getChi2(L1Tk_nPar), l1MuCand.getTtTrackPtr()->getStubRefs().size());
+        chi2NStubs->Fill(l1MuCand.getTtTrackPtr()->chi2(), l1MuCand.getTtTrackPtr()->getStubRefs().size());
       }
 
       for(unsigned int layer = 0; layer < layerHitBits.size(); layer++)
@@ -927,7 +926,7 @@ public:
       candPt_decayVertexRho = subDir.make<TH2I>( ("candPt_decayVertexRho_" + name).c_str(), ("candPt_decayVertexRho_" + name + "; ttTrack pt [GeV]; #rho=#sqrt{x^{2} + y^{2} } [cm]").c_str(), 10, 0., 50., 50, 0., 500.); //fixme is rho in cm?
     }
 
-    virtual void fillHistos(const l1t::BayesMuCorrelatorTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
+    virtual void fillHistos(const l1t::TkMuonBayesTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
       MatchingCategory::fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
 
       candPt_decayVertexRho->Fill(l1MuCand.getPt(), tpMatchedToL1MuCand->decayVertices()[0]->position().rho());
@@ -976,7 +975,7 @@ public:
   virtual ~MuCandsMatchingAnalyzer() {}
 
   void fillHistos(const edm::Event& event, const edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >& MCTruthTTTrackHandle,
-      const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles, const l1t::BayesMuCorrelatorTrack& l1MuCand);
+      const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles, const l1t::TkMuonBayesTrack& l1MuCand);
 };
 
 bool decaysToMuon(edm::Ptr< TrackingParticle >& tpPtr) { //, const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles
@@ -1007,7 +1006,7 @@ bool decaysToMuon(edm::Ptr< TrackingParticle >& tpPtr) { //, const std::vector<e
 
 
 void MuCandsMatchingAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >& MCTruthTTTrackHandle,
-    const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles, const l1t::BayesMuCorrelatorTrack& l1MuCand) {
+    const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles, const l1t::TkMuonBayesTrack& l1MuCand) {
   if(triggerAlgo->accept(l1MuCand) == false)
     return;
 
@@ -1027,9 +1026,7 @@ void MuCandsMatchingAnalyzer::fillHistos(const edm::Event& event, const edm::Han
   int firedLayers = layerHitBits.count();
   int pdfSum = (int)l1MuCand.pdfSum();
 
-  int L1Tk_nPar = 4; //todo take from config
   //int ttTrackNstub = ttTrackPtr->getStubRefs().size();
-  float chi2dof = ttTrackPtr->getChi2Red(L1Tk_nPar); //(ttTrackPtr->getChi2(L1Tk_nPar)) / (2*ttTrackNstub - L1Tk_nPar);
 */
 
   bool passesPtCut = (l1MuCand.getPt() >= triggerAlgo->ptCut);
@@ -1058,7 +1055,6 @@ void MuCandsMatchingAnalyzer::fillHistos(const edm::Event& event, const edm::Han
       otherParts->fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
     }
 
-    //chi2GenuineTTTrackMuCand->Fill(ttTrackPtr->getChi2(L1Tk_nPar) );
     //chi2DofGenuineTTTrackMuCand->Fill(chi2dof);
   }
   else {
@@ -1103,11 +1099,11 @@ public:
 
 
 private:
-  //void analyzeSimTracks(edm::Handle<edm::SimTrackContainer>& simTraksHandle, edm::Handle<l1t::BayesMuCorrTrackBxCollection>& muCorrTracksHandle);
+  //void analyzeSimTracks(edm::Handle<edm::SimTrackContainer>& simTraksHandle, edm::Handle<l1t::TkMuonBayesTrackBxCollection>& muCorrTracksHandle);
   void analyzeSimTracks(edm::Handle<edm::SimTrackContainer>& simTraksHandle, edm::Handle<reco::GenParticleCollection>& genPartHandle);
 
-  void hscpAnalysis(edm::Handle< std::vector< TrackingParticle > >& trackingParticleHandle, edm::Handle<l1t::BayesMuCorrTrackBxCollection>& muCorrTracksHandle);
-  void hscpAnalysis(const edm::Event& event, edm::Ptr< TrackingParticle >& trackPartPtr, edm::Handle<l1t::BayesMuCorrTrackBxCollection>& muCorrTracksHandle);
+  void hscpAnalysis(edm::Handle< std::vector< TrackingParticle > >& trackingParticleHandle, edm::Handle<l1t::TkMuonBayesTrackBxCollection>& muCorrTracksHandle);
+  void hscpAnalysis(const edm::Event& event, edm::Ptr< TrackingParticle >& trackPartPtr, edm::Handle<l1t::TkMuonBayesTrackBxCollection>& muCorrTracksHandle);
 
   std::vector<EfficiencyAnalyser> efficiencyAnalysers;
   std::vector<RateAnalyzer> rateAnalysers;
@@ -1126,14 +1122,13 @@ private:
 
   int minMuPt = 3; //3 GeV
 
-  MuCorrelatorConfig muCorrConfig;
+  TkMuBayesProcConfig muCorrConfig;
 
   int MyProcess;        // 11/13/211 for single electrons/muons/pions, 6/15 for pions from ttbar/taus, 1 for inclusive
   bool DebugMode;       // lots of debug printout statements
   bool SaveAllTracks;   // store in ntuples not only truth-matched tracks but ALL tracks
   bool SaveStubs;       // option to save also stubs in the ntuples (makes them large...)
   bool LooseMatch;      // use loose MC-matching instead
-  int L1Tk_nPar;        // use 4 or 5 parameter track fit?
   int TP_minNStub;      // require TPs to have >= minNStub (defining efficiency denominator) (==0 means to only require >= 1 cluster)
   int TP_minNStubLayer; // require TPs to have stubs in >= minNStubLayer layers/disks (defining efficiency denominator)
   double TP_minPt;      // save TPs with pt > minPt
@@ -1243,7 +1238,7 @@ private:
 
   TH2I* ttTracksPerMuonTPvsPtGen = nullptr;
 
-  edm::EDGetTokenT<l1t::BayesMuCorrTrackBxCollection> inputMuCorr;
+  edm::EDGetTokenT<l1t::TkMuonBayesTrackBxCollection> inputMuCorr;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<edm::SimVertexContainer> vertexSim;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken;
@@ -1253,7 +1248,7 @@ private:
 MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
 : parameterSet(conf), eventCount(0)
 {
-  inputMuCorr = consumes<l1t::BayesMuCorrTrackBxCollection>(edm::InputTag("simBayesMuCorrelatorTrackProducer", L1TMuonBayesMuCorrelatorTrackProducer::allTracksProductName)); //
+  inputMuCorr = consumes<l1t::TkMuonBayesTrackBxCollection>(edm::InputTag("simL1TkMuonBayesTrackProducer", L1TkMuonBayesTrackProducer::allTracksProductName)); //
 
 
   simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits")); //TODO which is correct?
@@ -1271,7 +1266,6 @@ MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
   SaveAllTracks    = parameterSet.getParameter< bool >("SaveAllTracks");
   SaveStubs        = parameterSet.getParameter< bool >("SaveStubs");
   LooseMatch       = parameterSet.getParameter< bool >("LooseMatch");
-  L1Tk_nPar        = parameterSet.getParameter< int >("L1Tk_nPar");
   TP_minNStub      = parameterSet.getParameter< int >("TP_minNStub");
   TP_minNStubLayer = parameterSet.getParameter< int >("TP_minNStubLayer");
   TP_minPt         = parameterSet.getParameter< double >("TP_minPt");
@@ -1309,10 +1303,6 @@ MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
     throw;
   }
 
-  if ( !(L1Tk_nPar==4 || L1Tk_nPar==5) ) {
-    cout << "Invalid number of track parameters, specified L1Tk_nPar == " << L1Tk_nPar << " but only 4/5 are valid options! Exiting..." << endl;
-    throw;
-  }
 }
 
 
@@ -1559,7 +1549,7 @@ void MuCorrelatorAnalyzer::endJob()
   cout << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ << endl;
 }
 
-/*void MuCorrelatorAnalyzer::hscpAnalysis(edm::Handle< std::vector< TrackingParticle > >& trackingParticleHandle, edm::Handle<l1t::BayesMuCorrTrackBxCollection>& muCorrTracksHandle) {
+/*void MuCorrelatorAnalyzer::hscpAnalysis(edm::Handle< std::vector< TrackingParticle > >& trackingParticleHandle, edm::Handle<l1t::TkMuonBayesTrackBxCollection>& muCorrTracksHandle) {
   for (unsigned int iTrackPart = 0; iTrackPart != trackingParticleHandle->size(); iTrackPart++ ) {
     edm::Ptr< TrackingParticle > trackPartPtr(trackingParticleHandle, iTrackPart);
     hscpAnalysis(trackPartPtr, muCorrTracksHandle);
@@ -1567,7 +1557,7 @@ void MuCorrelatorAnalyzer::endJob()
 }*/
 
 
-void MuCorrelatorAnalyzer::hscpAnalysis(const edm::Event& event, edm::Ptr< TrackingParticle >& trackPartPtr, edm::Handle<l1t::BayesMuCorrTrackBxCollection>& muCorrTracksHandle) {
+void MuCorrelatorAnalyzer::hscpAnalysis(const edm::Event& event, edm::Ptr< TrackingParticle >& trackPartPtr, edm::Handle<l1t::TkMuonBayesTrackBxCollection>& muCorrTracksHandle) {
   auto muCorrTracks = muCorrTracksHandle.product();
   int bxNumber = 0;
 
@@ -1779,7 +1769,7 @@ void MuCorrelatorAnalyzer::analyze(
   //event.getByToken(inputOMTF, l1Omtf);
   //cout << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ <<" omtfCands->size(bxNumber) "<<omtfCands->size()<< endl;
 
-  edm::Handle<l1t::BayesMuCorrTrackBxCollection> muCorrTracksHandle;
+  edm::Handle<l1t::TkMuonBayesTrackBxCollection> muCorrTracksHandle;
   event.getByToken(inputMuCorr, muCorrTracksHandle);
   auto muCorrTracks = muCorrTracksHandle.product();
 
@@ -1819,13 +1809,13 @@ void MuCorrelatorAnalyzer::analyze(
 
   auto printTTTRack = [&](const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& ttTrackPtr, bool genuine, bool loosegenuine) {
     std::ostringstream ostr;
-    ostr << "matched ttTrack       pt: " <<setw(7)<< ttTrackPtr->getMomentum(L1Tk_nPar).perp()
-                     <<" charge: "<<setw(2)<<(ttTrackPtr->getRInv() > 0 ? 1 : -1)
-                     << " eta: " <<setw(7)<< ttTrackPtr->getMomentum(L1Tk_nPar).eta()
-                     << " phi: " <<setw(7)<< ttTrackPtr->getMomentum(L1Tk_nPar).phi()
-                     << " chi2: " <<setw(7)<< ttTrackPtr->getChi2(L1Tk_nPar)
-                     << " consistency: " <<setw(7)<< ttTrackPtr->getStubPtConsistency(L1Tk_nPar)
-                     << " z0: " <<setw(7)<< ttTrackPtr->getPOCA(L1Tk_nPar).z()
+    ostr << "matched ttTrack       pt: " <<setw(7)<< ttTrackPtr->momentum().perp()
+                     <<" charge: "<<setw(2)<<(ttTrackPtr->rInv() > 0 ? 1 : -1)
+                     << " eta: " <<setw(7)<< ttTrackPtr->momentum().eta()
+                     << " phi: " <<setw(7)<< ttTrackPtr->momentum().phi()
+                     << " chi2: " <<setw(7)<< ttTrackPtr->chi2()
+                     << " consistency: " <<setw(7)<< ttTrackPtr->stubPtConsistency()
+                     << " z0: " <<setw(7)<< ttTrackPtr->POCA().z()
                      << " nstub: " <<setw(7)<< ttTrackPtr->getStubRefs().size()
                      << (genuine  ? " genuine " : "")
                      << (loosegenuine ? " loose genuine " : "");
@@ -2060,8 +2050,6 @@ void MuCorrelatorAnalyzer::analyze(
       float dmatch_phi = fabs(tpOfMatchedTTTrack->p4().phi() - tpPtr->phi());
       float dmatch_id = tpOfMatchedTTTrack->pdgId();*/
 
-      float tmp_trk_chi2dof = (matchedTTTrack->getChi2(L1Tk_nPar)) / (2*ttTrackNstub - L1Tk_nPar);
-
       // ensure that track is uniquely matched to the TP we are looking at!
       if (tpOfMatchedTTTrack.isNull()) { //if the ttTrack is at least loose genuine this cannot happened
         edm::LogImportant("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << " ttTrack matched to tracking particle is NOT matched to any tracking particle  (i.e. is not genuine nor loose) - not possible!!!!!!!!!!! " << endl;
@@ -2087,9 +2075,9 @@ void MuCorrelatorAnalyzer::analyze(
           edm::LogImportant("l1tMuBayesEventPrint")<<"L:"<<__LINE__ << " matchedTTTrack\n"<<printTTTRack(matchedTTTrack, tmp_trk_genuine, tmp_trk_loosegenuine)<<"\n";
         }
 
-        if (bestMatchedTTTrack.isNull() || tmp_trk_chi2dof < chi2dofOfBestMatchedTrack) {
+        if (bestMatchedTTTrack.isNull() || matchedTTTrack->chi2Red() < chi2dofOfBestMatchedTrack) {
           bestMatchedTTTrack = matchedTTTrack;
-          chi2dofOfBestMatchedTrack = tmp_trk_chi2dof;
+          chi2dofOfBestMatchedTrack = matchedTTTrack->chi2Red();
         }
 
         //finding omtf candidate corresponding to the matchedTTTrack
@@ -2124,9 +2112,9 @@ void MuCorrelatorAnalyzer::analyze(
     }
 
     if (nMatch > 0) {//there is ttTrack matching to the trackingParticle
-      float matchTTTrackPt   = bestMatchedTTTrack->getMomentum(L1Tk_nPar).perp();
-      float matchTTTrackEta  = bestMatchedTTTrack->getMomentum(L1Tk_nPar).eta();
-      float matchTTTrackPhi  = bestMatchedTTTrack->getMomentum(L1Tk_nPar).phi();
+      float matchTTTrackPt   = bestMatchedTTTrack->momentum().perp();
+      float matchTTTrackEta  = bestMatchedTTTrack->momentum().eta();
+      float matchTTTrackPhi  = bestMatchedTTTrack->momentum().phi();
 
       if(tpPtr->pt() > minMuPt) {
         ttTrackMuCnt++;
@@ -2170,13 +2158,13 @@ void MuCorrelatorAnalyzer::analyze(
 
         for(auto& matchedTTTrack : matchedTracks) {
           LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" "<<printTTTRack(matchedTTTrack, false, false) << endl;
-          if( abs(matchedTTTrack->getMomentum(L1Tk_nPar).phi() - tpPtr->phi()) < 0.01 &&
-              abs(matchedTTTrack->getMomentum(L1Tk_nPar).eta() - tpPtr->eta()) < 0.01 &&
-              abs( (matchedTTTrack->getMomentum(L1Tk_nPar).perp() - tpPtr->pt() ) / tpPtr->pt()) < 0.1)
+          if( abs(matchedTTTrack->momentum().phi() - tpPtr->phi()) < 0.01 &&
+              abs(matchedTTTrack->momentum().eta() - tpPtr->eta()) < 0.01 &&
+              abs( (matchedTTTrack->momentum().perp() - tpPtr->pt() ) / tpPtr->pt()) < 0.1)
           {
             if(MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTTTrack).isNull() ) { //we require that this ttTrack is not well matched to other particle
               ttMuonVeryLoosePt->Fill(tpPtr->pt());
-              if(tpPtr->pt() > 20 && matchedTTTrack->getMomentum(L1Tk_nPar).perp() >= 18 ) {
+              if(tpPtr->pt() > 20 && matchedTTTrack->momentum().perp() >= 18 ) {
                 ttMuonVeryLooseEta_ptGen20GeV_ptTT18Gev->Fill(tpPtr->eta());
               }
               LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" selected as VeryLoose"<< endl;
@@ -2191,12 +2179,12 @@ void MuCorrelatorAnalyzer::analyze(
         for (auto iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++ ) {
           edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > l1track_ptr(TTTrackHandle, l1TrackIndx++);
 
-          float ttTrkPt   = iterL1Track->getMomentum(L1Tk_nPar).perp();
-          float ttTrkEta  = iterL1Track->getMomentum(L1Tk_nPar).eta();
-          float ttTrkPhi  = iterL1Track->getMomentum(L1Tk_nPar).phi();
-          float tmp_trk_z0   = iterL1Track->getPOCA(L1Tk_nPar).z(); //cm
+          float ttTrkPt   = iterL1Track->getMomentum().perp();
+          float ttTrkEta  = iterL1Track->getMomentum().eta();
+          float ttTrkPhi  = iterL1Track->getMomentum().phi();
+          float tmp_trk_z0   = iterL1Track->getPOCA().z(); //cm
 
-          float tmp_trk_chi2 = iterL1Track->getChi2(L1Tk_nPar);
+          float tmp_trk_chi2 = iterL1Track->getChi2();
           int tmp_trk_nstub  = (int) iterL1Track->getStubRefs().size();
 
           //cout << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__ << endl;
@@ -2306,8 +2294,8 @@ void MuCorrelatorAnalyzer::analyze(
       continue;
     }
 
-    float ttTrkPt = ttTrackPtr->getMomentum(L1Tk_nPar).perp();
-    float ttTrkEta  = ttTrackPtr->getMomentum(L1Tk_nPar).eta();
+    float ttTrkPt = ttTrackPtr->momentum().perp();
+    float ttTrkEta  = ttTrackPtr->momentum().eta();
 
     if(ttTrkPt > 20)
       LogTrace("l1tMuBayesEventPrint")<<"L:"<<__LINE__<<" "<<printTTTRack(ttTrackPtr, false, false);
@@ -2326,7 +2314,7 @@ void MuCorrelatorAnalyzer::analyze(
 
     if(MCTruthTTTrackHandle->isLooselyGenuine(ttTrackPtr) == false) { //genuine is also loosely genuine,
 
-      //float ttTrkPhi  = ttTrackPtr->getMomentum(L1Tk_nPar).phi();
+      //float ttTrkPhi  = ttTrackPtr->getMomentum().phi();
 
       if(ttTrkPt > minMuPt )
         ttTracksFakesPerEventCnt++;
@@ -2342,7 +2330,7 @@ void MuCorrelatorAnalyzer::analyze(
       ttTracksFakesPt->Fill(ttTrkPt);
     }
 
-    l1t::BayesMuCorrelatorTrack dummy(ttTrackPtr); //very ugly, but should work - the idea is to reuse the MatchingAnalyzer
+    l1t::TkMuonBayesTrack dummy(ttTrackPtr); //very ugly, but should work - the idea is to reuse the MatchingAnalyzer
     ttTracksMatchingAnalyzer->fillHistos(event, MCTruthTTTrackHandle, muonTrackingParticles, dummy);
     ttTracksMatchingAnalyzerBarrel->fillHistos(event, MCTruthTTTrackHandle, muonTrackingParticles, dummy);
   }

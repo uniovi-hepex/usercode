@@ -6,6 +6,7 @@
 
 ////////////////////
 // FRAMEWORK HEADERS
+#include <DataFormats/L1TMuon/interface/TkMuonBayesTrack.h>
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -62,8 +63,6 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
-#include "DataFormats/L1TMuon/interface/BayesMuCorrelatorTrack.h"
-
 #include "L1Trigger/L1TMuonBayes/interface/MuCorrelator/MuCorrelatorConfig.h"
 #include "L1Trigger/L1TMuonBayes/plugins/L1TMuonBayesMuCorrelatorTrackProducer.h"
 
@@ -79,14 +78,14 @@
 
 using namespace std;
 
-std::ostream & operator<< (std::ostream &out, const l1t::BayesMuCorrelatorTrack&  muCand);
+std::ostream & operator<< (std::ostream &out, const l1t::TkMuonBayesTrack&  muCand);
 
 class TriggerAlgo {
 public:
   TriggerAlgo(std::string name, double ptCut): name(name), ptCut(ptCut) {};
   virtual ~TriggerAlgo() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) = 0;
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack) = 0;
 
   std::string name;
 
@@ -101,7 +100,7 @@ public:
   AllTTTRacks(double ptCut): TriggerAlgo("AllTTTRacks" + std::to_string((int)ptCut), ptCut) {};
   virtual ~AllTTTRacks() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
       return true;
   }
 };
@@ -111,7 +110,7 @@ public:
   AllTTTRacksBarrel(double ptCut): TriggerAlgo("AllTTTRacksBarrel" + std::to_string((int)ptCut), ptCut) {};
   virtual ~AllTTTRacksBarrel() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if(abs(muCorrelatorTrack.getEta() ) < 0.85)
       return true;
     return false;
@@ -123,8 +122,8 @@ public:
   SingleMuAlgo(double ptCut): TriggerAlgo("SingleMuAlgo" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgo() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
-    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack)
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
+    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack)
       return true;
     return false;
   }
@@ -135,8 +134,8 @@ public:
   SingleMuAlgoBarrel(double ptCut): TriggerAlgo("SingleMuAlgoBarrel" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoBarrel() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
-    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
+    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         abs(muCorrelatorTrack.getEta() ) < 0.85)
       return true;
     return false;
@@ -148,9 +147,9 @@ public:
   SingleMuAlgoSoftCuts(double ptCut): TriggerAlgo("SingleMuAlgoSoftCuts" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoSoftCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
           (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
            muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
@@ -169,9 +168,9 @@ public:
   SingleMuAlgoPdfSumSoftCuts(double ptCut): TriggerAlgo("SingleMuAlgoPdfSumSoftCuts" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoPdfSumSoftCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1000) ||
           (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1100) ||
            muCorrelatorTrack.getFiredLayerBits().count() >= 4) //&&
@@ -187,9 +186,9 @@ public:
   SingleMuAlgoHardCuts(double ptCut): TriggerAlgo("SingleMuAlgoHardCuts" + std::to_string((int)ptCut), ptCut) {};
   virtual ~SingleMuAlgoHardCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack){
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack){
     if( muCorrelatorTrack.hwQual() >= 12 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::fastTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::fastTrack &&
         ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1300) ||
           (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1900) ||
            muCorrelatorTrack.getFiredLayerBits().count() >= 4) &&
@@ -208,8 +207,8 @@ public:
   HscpAlgo(double ptCut): TriggerAlgo("HscpAlgo"+ std::to_string((int)ptCut), ptCut) {};
   virtual ~HscpAlgo() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
-    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack)
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack) {
+    if(muCorrelatorTrack.hwQual() >= 12 && muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::slowTrack)
       return true;
     return false;
   }
@@ -220,9 +219,9 @@ public:
   HscpAlgoHardCuts(double ptCut): TriggerAlgo("HscpAlgoHardCuts"+ std::to_string((int)ptCut), ptCut) {};
   virtual ~HscpAlgoHardCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack) {
     if( muCorrelatorTrack.hwQual() >= 13 &&
-        muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
+        muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::slowTrack &&
         ( (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1800 && muCorrelatorTrack.getBetaLikelihood() >= 9) ||
           (muCorrelatorTrack.getFiredLayerBits().count() == 4 && muCorrelatorTrack.pdfSum() > 2000 && muCorrelatorTrack.getBetaLikelihood() >= 10) ||
          muCorrelatorTrack.getFiredLayerBits().count() >= 5  ) &&
@@ -243,8 +242,8 @@ public:
   HscpAlgoSoftCuts(double ptCut): TriggerAlgo("HscpAlgoSoftCuts"+ std::to_string((int)ptCut), ptCut) {};
   virtual ~HscpAlgoSoftCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
-    if( muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack) {
+    if( muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::slowTrack &&
         muCorrelatorTrack.hwQual() >= 13 &&
         ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1300 && muCorrelatorTrack.getBetaLikelihood() >= 6) ||
           (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1700 && muCorrelatorTrack.getBetaLikelihood() >= 7) ||
@@ -267,8 +266,8 @@ public:
   HscpAlgoPdfSumCuts(double ptCut): TriggerAlgo("HscpAlgoPdfSumCuts"+ std::to_string((int)ptCut), ptCut) {};
   virtual ~HscpAlgoPdfSumCuts() {};
 
-  virtual bool accept(const l1t::BayesMuCorrelatorTrack& muCorrelatorTrack) {
-    if( muCorrelatorTrack.getCandidateType() == l1t::BayesMuCorrelatorTrack::slowTrack &&
+  virtual bool accept(const l1t::TkMuonBayesTrack& muCorrelatorTrack) {
+    if( muCorrelatorTrack.getCandidateType() == l1t::TkMuonBayesTrack::slowTrack &&
         muCorrelatorTrack.hwQual() >= 13 &&
         ( (muCorrelatorTrack.getFiredLayerBits().count() == 2 && muCorrelatorTrack.pdfSum() > 1300) || // && muCorrelatorTrack.getBetaLikelihood() >= 6
           (muCorrelatorTrack.getFiredLayerBits().count() == 3 && muCorrelatorTrack.pdfSum() > 1700) || // && muCorrelatorTrack.getBetaLikelihood() >= 7
@@ -334,7 +333,7 @@ public:
 
 
 
-std::ostream & operator<< (std::ostream &out, const l1t::BayesMuCorrelatorTrack&  muCand) {
+std::ostream & operator<< (std::ostream &out, const l1t::TkMuonBayesTrack&  muCand) {
   out
   <<" hwPt "<<muCand.hwPt()
   <<" pt "<<muCand.getPt()<<" GeV "
@@ -352,7 +351,7 @@ std::ostream & operator<< (std::ostream &out, const l1t::BayesMuCorrelatorTrack&
 }
 
 //stupid but otherwise does not work with LogTrace
-std::string toString(const l1t::BayesMuCorrelatorTrack&  muCand) {
+std::string toString(const l1t::TkMuonBayesTrack&  muCand) {
   std::ostringstream ostr;
   ostr<<muCand;
   return ostr.str();
@@ -420,8 +419,8 @@ public:
 protected:
   std::shared_ptr<TriggerAlgo> triggerAlgo;
 
-  l1t::BayesMuCorrelatorTrack const* bestL1MuCand = nullptr;
-  l1t::BayesMuCorrelatorTrack const* notAcceptedL1MuCand = nullptr;
+  l1t::TkMuonBayesTrack const* bestL1MuCand = nullptr;
+  l1t::TkMuonBayesTrack const* notAcceptedL1MuCand = nullptr;
 
   double ptOfBestL1MuCand = -1;
 
@@ -822,7 +821,7 @@ public:
       ptGenDeltaPhi = subDir.make<TH2I>( ("ptGenDeltaPhi_" + name).c_str(), ("ptGenDeltaPhi " + name +  "; gen pT [GeV]; (gen phi - ttTrack phi); #").c_str(), 50, 0, 100,  60, -0.3, 0.3);
     }
 
-    virtual void fillHistos(const l1t::BayesMuCorrelatorTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
+    virtual void fillHistos(const l1t::TkMuonBayesTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
       int L1Tk_nPar =  4; //TODO take form config
       double pt = l1MuCand.getPt();
       double eta = l1MuCand.getEta();
@@ -862,7 +861,7 @@ public:
       candPt_decayVertexRho = subDir.make<TH2I>( ("candPt_decayVertexRho_" + name).c_str(), ("candPt_decayVertexRho_" + name + "; ttTrack pt [GeV]; #rho=#sqrt{x^{2} + y^{2} } [cm]").c_str(), 10, 0., 50., 50, 0., 500.); //fixme is rho in cm?
     }
 
-    virtual void fillHistos(const l1t::BayesMuCorrelatorTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
+    virtual void fillHistos(const l1t::TkMuonBayesTrack& l1MuCand, const edm::Ptr< TrackingParticle >& tpMatchedToL1MuCand, bool passesPtCut) {
       MatchingCategory::fillHistos(l1MuCand, tpMatchedToL1MuCand, passesPtCut);
 
       candPt_decayVertexRho->Fill(l1MuCand.getPt(), tpMatchedToL1MuCand->decayVertices()[0]->position().rho());
@@ -911,7 +910,7 @@ public:
   virtual ~MuCandsMatchingAnalyzer() {}
 
   void fillHistos(const edm::Event& event, const edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >& MCTruthTTTrackHandle,
-      const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles, const l1t::BayesMuCorrelatorTrack& l1MuCand);
+      const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles, const l1t::TkMuonBayesTrack& l1MuCand);
 };
 
 bool decaysToMuon(edm::Ptr< TrackingParticle >& tpPtr) { //, const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles
@@ -942,7 +941,7 @@ bool decaysToMuon(edm::Ptr< TrackingParticle >& tpPtr) { //, const std::vector<e
 
 
 void MuCandsMatchingAnalyzer::fillHistos(const edm::Event& event, const edm::Handle< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >& MCTruthTTTrackHandle,
-    const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles, const l1t::BayesMuCorrelatorTrack& l1MuCand) {
+    const std::vector<edm::Ptr< TrackingParticle > >& muonTrackingParticles, const l1t::TkMuonBayesTrack& l1MuCand) {
   if(triggerAlgo->accept(l1MuCand) == false)
     return;
 
@@ -2159,7 +2158,7 @@ void MuCorrelatorAnalyzer::analyze(
       ttTracksFakesPt->Fill(ttTrkPt);
     }
 
-    l1t::BayesMuCorrelatorTrack dummy(ttTrackPtr); //very ugly, but should work - the idea is to reuse the MatchingAnalyzer
+    l1t::TkMuonBayesTrack dummy(ttTrackPtr); //very ugly, but should work - the idea is to reuse the MatchingAnalyzer
     ttTracksMatchingAnalyzer->fillHistos(event, MCTruthTTTrackHandle, muonTrackingParticles, dummy);
     ttTracksMatchingAnalyzerBarrel->fillHistos(event, MCTruthTTTrackHandle, muonTrackingParticles, dummy);
   }
