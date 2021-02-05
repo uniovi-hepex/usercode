@@ -548,7 +548,7 @@ void L1MuonAnalyzerOmtf::analyzeRate(const edm::Event& event, const edm::EventSe
     double globalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi( omtfCand->hwPhi(), omtfCand->trackFinderType(), omtfCand->processor() )* 2. * M_PI / 576;
     if(globalPhi > M_PI)
       globalPhi = globalPhi -(2.*M_PI);
-    LogTrace("l1tOmtfEventPrint") << "MuCorrelatorAnalyzer::"<<__FUNCTION__<<":"<<__LINE__
+    LogTrace("l1tOmtfEventPrint") << "L1MuonAnalyzerOmtf::"<<__FUNCTION__<<":"<<__LINE__
         <<" omtf pt "<<omtfCand->hwPt()<<" omtf qual "<<omtfCand->hwQual()<<" omtf hwEta "<<omtfCand->hwEta()<<" omtf hwPhi "<<omtfCand->hwPhi()
         <<" eta "<< (omtfCand->hwEta()*0.010875)
         <<" phi "<<globalPhi
