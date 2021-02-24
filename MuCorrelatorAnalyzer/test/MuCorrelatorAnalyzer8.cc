@@ -612,7 +612,7 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
 
   int minMuPt = 3; //3 GeV
   if(ptOfBestL1MuCand > 0) {
-    LogTrace("l1tMuBayesEventPrint")<<"\n"<<triggerAlgo->name<<" best muCand track: "<<toString(*bestL1MuCand)<<endl<<endl;
+    LogTrace("l1tMuBayesEventPrint")<<"\n"<<std::setw(32)<<triggerAlgo->name<<" best muCand track: "<<toString(*bestL1MuCand)<<endl<<endl;
 
     double muCandPt = bestL1MuCand->getPt();
     if(trackParticle->pt() > minMuPt) {
@@ -648,6 +648,10 @@ void EfficiencyAnalyser::fillHistos(const edm::Event& event, edm::Ptr< TrackingP
         ptGenPtMuCandMuonsEv0Overlap->Fill(trackParticle->pt(), 0);
       else if( abs(trackParticle->eta() ) < 2.4)
         ptGenPtMuCandMuonsEv0Endcap->Fill(trackParticle->pt(), 0);
+
+      if(trackParticle->pt() > ptGenFrom) {
+        LogTrace("l1tMuBayesEventPrint")<<"\n"<<std::setw(32)<<triggerAlgo->name<<" no muCand track !!!!"<<endl;
+      }
     }
     else {
       ptGenPtMuCandMuonsPu->Fill(trackParticle->pt(), 0);
@@ -1409,13 +1413,13 @@ void MuCorrelatorAnalyzer::beginJob()
 
     //efficiencyAnalysers.emplace_back(singleMuAlgoHardCuts, fs);
 
-    efficiencyAnalysers.emplace_back(hscpAlgo20, 25, 10000, fs);
+    //efficiencyAnalysers.emplace_back(hscpAlgo20, 25, 10000, fs);
 
     //efficiencyAnalysers.emplace_back(hscpAlgo30, fs);
 
     //efficiencyAnalysers.emplace_back(hscpAlgoHardCuts20, fs);
-    efficiencyAnalysers.emplace_back(hscpAlgoSoftCuts20, 25, 10000, fs);
-    efficiencyAnalysers.emplace_back(hscpAlgoPdfSumCuts20, 25, 10000, fs);
+    //efficiencyAnalysers.emplace_back(hscpAlgoSoftCuts20, 25, 10000, fs);
+    //efficiencyAnalysers.emplace_back(hscpAlgoPdfSumCuts20, 25, 10000, fs);
   }
   else if(analysisType == "withTrackPart") {
     efficiencyAnalysersCorrelatorWithTrackPart.emplace_back(singleMuAlgo, 20, 100000, fs);

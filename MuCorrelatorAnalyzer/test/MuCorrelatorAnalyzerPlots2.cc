@@ -176,10 +176,10 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("DoubleMuon_gun_test", "doubleMuon_gun",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DoubleMuon_gun_FlatPt-1To100_NoPU_t112/results/muCorrelatorTTAnalysis1.root");
  //makePlots("DoubleMuon_gun_test", "doubleMuon_gun",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TkMuonBayes/test/expert/muCorrelatorTTAnalysis1_DoubleMuon_gun.root");
   //makePlots("DoubleMuon_gun_test", "doubleMuon_gun",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DoubleMuon_gun_FlatPt-1To100_PU200_t112/results/muCorrelatorTTAnalysis1.root");
-  //makePlots("minBias", "minBias PU200",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_MinBias_Summer20_PU200_t112/results/muCorrelatorTTAnalysis1.root");
-  makePlots("DoubleMuon_gun_test", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DoubleMuon_gun_Summer20_PU200_t112/results/muCorrelatorTTAnalysis1.root");
-
-
+  //makePlots("minBias_PU200_t112", "minBias PU200",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_MinBias_Summer20_PU200_t112/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("DoubleMuon_gun_test", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DoubleMuon_gun_Summer20_PU200_t112/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("DYToLL_t113", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DYToLL_M-50_Summer20_PU200_t113/results/muCorrelatorTTAnalysis1.root");
+  makePlots("JPsiToMuMu_t113", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_JPsiToMuMu_Summer20_PU200_t113/results/muCorrelatorTTAnalysis1.root");
 
 /*
   c0->cd();
@@ -217,9 +217,9 @@ void makePlots(const char* name, string label, int color, int ptCut, const char*
 
   //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, ptCut);
 
-  //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 3);
+  makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 2);
   //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 10);
-  makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 20);
+  //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 20);
 
   //makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
 }
@@ -1184,9 +1184,7 @@ void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* name
             candPt->SetLineColor(categoryName.second);
             candPt->SetMarkerColor(categoryName.second);
             /*if(categoryName.first == "veryLooseMuons")*/
-            candPt->SetFillColor(categoryName.second);
-
-            legend->AddEntry(candPt, categoryName.first.c_str(), "f");
+            //candPt->SetFillColor(categoryName.second);
 
             canvasPurityPlots->cd(1);//events count vs pt for every category of candidates
 
@@ -1255,6 +1253,8 @@ void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* name
             candEta->SetFillColor(categoryName.second);
             hsRateVsEta->Add(candEta);
             totalRate += candEta->Integral();
+
+            legend->AddEntry(candEta, categoryName.first.c_str(), "f");
 
             if(sumHistRateVsEta == nullptr)
               sumHistRateVsEta = (TH1*)candEta->Clone("sumHistRateVsEta");
