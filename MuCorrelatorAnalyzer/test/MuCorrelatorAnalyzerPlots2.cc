@@ -178,8 +178,10 @@ int MuCorrelatorAnalyzerPlots2() {
   //makePlots("DoubleMuon_gun_test", "doubleMuon_gun",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DoubleMuon_gun_FlatPt-1To100_PU200_t112/results/muCorrelatorTTAnalysis1.root");
   //makePlots("minBias_PU200_t112", "minBias PU200",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_MinBias_Summer20_PU200_t112/results/muCorrelatorTTAnalysis1.root");
   //makePlots("DoubleMuon_gun_test", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DoubleMuon_gun_Summer20_PU200_t112/results/muCorrelatorTTAnalysis1.root");
-  //makePlots("DYToLL_t113", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DYToLL_M-50_Summer20_PU200_t113/results/muCorrelatorTTAnalysis1.root");
-  makePlots("JPsiToMuMu_t113", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_JPsiToMuMu_Summer20_PU200_t113/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("DYToLL_t114", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_DYToLL_M-50_Summer20_PU200_t114/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("JPsiToMuMu_t113", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_JPsiToMuMu_Summer20_PU200_t113/results/muCorrelatorTTAnalysis1.root");
+  //makePlots("JPsiToMuMu_t114", "Summer20",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_JPsiToMuMu_Summer20_PU200_t114/results/muCorrelatorTTAnalysis1.root");
+  makePlots("minBias_PU200_t114", "minBias PU200",   kRed,       ptCut,  "/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_L1TkMuonBayes_MC_analysis_MinBias_Summer20_PU200_t114/results/muCorrelatorTTAnalysis1.root");
 
 /*
   c0->cd();
@@ -213,15 +215,15 @@ void makePlots(const char* name, string label, int color, int ptCut, const char*
 
   //makeEffVsBeta(omtfTTAnalyzerDir, name);
 
-  //makeCandidatesMatchingPlots(omtfTTAnalyzerDir, name, eventsCnt);
+  makeCandidatesMatchingPlots(omtfTTAnalyzerDir, name, eventsCnt);
 
   //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, ptCut);
 
-  makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 2);
+  //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 2);
   //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 10);
   //makeEfficiencyPlots(omtfTTAnalyzerDir, name, label, color, 20);
 
-  //makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
+  makeRatePlots(omtfTTAnalyzerDir, name, color, ptCut);
 }
 
 void savePlot(string name, TVirtualPad* orgianlPad) {
@@ -1305,13 +1307,13 @@ void makeCandidatesMatchingPlots(TDirectory* omtfTTAnalyzerDir, const char* name
 
         if(dirName.find("AllTTTRacks") != string::npos) {
           hsRateVsEta->GetYaxis()->SetTitle("ttTrack rate [Hz]");
-          //hsRateVsEta->SetMaximum(900000);
+          hsRateVsEta->SetMaximum(900000);
           hsRateVsEta->GetYaxis()->SetRangeUser(0, 900000);
         }
         else if(dirName.find("10") != string::npos) {
           hsRateVsEta->GetYaxis()->SetTitle("muon candidate rate [Hz]");
-          ///hsRateVsEta->SetMaximum(2*5000);
-          hsRateVsEta->GetYaxis()->SetRangeUser(0, 2*5000);
+          hsRateVsEta->SetMaximum(9000);
+          hsRateVsEta->GetYaxis()->SetRangeUser(0, 9000);
         }
         else if(dirName.find("20") != string::npos) {
           hsRateVsEta->GetYaxis()->SetTitle("muon candidate rate [Hz]");

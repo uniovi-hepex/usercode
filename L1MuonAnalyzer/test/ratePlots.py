@@ -23,8 +23,16 @@ def makeEfficiency(passed, total, title, lineColor):
     
 
 #version = "PU200_v2_t" + sys.argv[1] #PU200_mtd5_v2_t
-version = sys.argv[1] 
-inputResults = 'SingleNeutrino_' + version 
+
+inputResults  = sys.argv[1] 
+version = inputResults[inputResults.find("_t") +1 : ]
+
+#version = sys.argv[1] 
+#inputResults = 'SingleNeutrino_' + version 
+
+rootDirPostFix = ""
+if sys.argv.__len__ >= 2 :
+    rootDirPostFix = sys.argv[2] 
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1.root' )
@@ -35,9 +43,9 @@ inputResults = 'SingleNeutrino_' + version
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
 
 if version < "MuFlatPt_PU200_v3_t73" :
-    histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
+    histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/crab/' + inputResults + '/results/omtfAnalysis2.root' )
 else :
-    histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
+    histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_omtf_' + inputResults + '/results/omtfAnalysis2.root' )
 
 
 #histFile.ls()
@@ -47,7 +55,9 @@ print (histFile)
 lhcFillingRatio = 2760./3564.;
 lhcFreq = 40144896; #11264 * 3564
 
-analyzerOmtfDir = histFile.Get("L1MuonAnalyzerOmtf")
+rootDirStr = "L1MuonAnalyzerOmtf" + rootDirPostFix
+
+analyzerOmtfDir = histFile.Get(rootDirStr)
 candPerEvent = analyzerOmtfDir.Get("candPerEvent")
 print ("candPerEvent " + str(type(candPerEvent) ))
 
@@ -58,7 +68,7 @@ print ("eventCnt " + str(eventCnt) );
 print ("scale " + str(scale) );
 
 
-rateDir = histFile.Get("L1MuonAnalyzerOmtf/rate")
+rateDir = histFile.Get(rootDirStr + "/rate")
 rateDir.ls()
 
 canvases = []
@@ -70,10 +80,11 @@ rateCumul_withTEffs = []
 paintedGraphs = []
 #gStyle.SetOptStat(111111111)
 
-if not os.path.exists(inputResults):
-    os.mkdir(inputResults)
+outPath = inputResults + "_" + rootDirPostFix
+if not os.path.exists(outPath):
+    os.mkdir(outPath)
     
-outFile = TFile(inputResults + "/ratePlots.root", "RECREATE")
+outFile = TFile(outPath + "/ratePlots.root", "RECREATE")
 
 
 
@@ -146,7 +157,7 @@ def makeRatePlots(algoDir, lineColor) :
 #                 candPt_rateCumul.AddBinContent(iBin, -corr)
             
             candPt_rateCumul.SetName(algoDir.GetName() + "_" + candPt_rateCumul.GetName().replace("candPt_", "rate") ) #+ "_" + version
-            candPt_rateCumul.SetTitle(algoDir.GetName().replace("_", " ") + ", " + version)
+            candPt_rateCumul.SetTitle(algoDir.GetName().replace("_", " ") + ", " + version + " " + rootDirPostFix)
             
             
             c1.cd(3).SetGridx()
@@ -212,6 +223,8 @@ for iAlgo, canvas in enumerate(canvases ) :
     else :
         lineColor = 1
         ptCutGev = 20    
+    
+    ptCutGev = 22 #<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
     
     ptCutBin = rateCumuls[iAlgo].GetXaxis().FindBin(ptCutGev)        
     rateOnThresh = rateCumuls[iAlgo].GetBinContent(ptCutBin)   

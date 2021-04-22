@@ -199,14 +199,17 @@ toCompareList = (
     #VersionAlgo("t67", "nn_omtf_q12_pTresh_0.5", 22),
     
     
-    VersionAlgo("t100", "omtf_q12", 20),
-    VersionAlgo("t104", "omtf_q12", 20),
+    #VersionAlgo("t100", "omtf_q12", 20),
+    #VersionAlgo("t104", "omtf_q12", 20),
     
     #VersionAlgo("t68", "nn_omtf_q12_pTresh_0.5", 22),
     #VersionAlgo("t80", "nn_omtf_q12_pTresh_0.4", 22),
     #VersionAlgo("t80", "nn_omtf_q12_pTresh_0.5", 22),
     
-    VersionAlgo("t67", "nn_omtf_q12_pTresh_0.5", 22), #this is good nn 
+    #VersionAlgo("t66", "nn_omtf_q12_pTresh_0.5", 22), #no mathcin for nn 
+    
+    VersionAlgo("t67", "nn_omtf_q12_pTresh_0.4", 22), #this is good nn 
+    #VersionAlgo("t67", "nn_omtf_q12_pTresh_0.5", 22), #this is good nn 
     )
 
 # toCompareList = ( 

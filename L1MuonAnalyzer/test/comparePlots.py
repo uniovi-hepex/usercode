@@ -51,13 +51,13 @@ def drawEff(canvas, effFile, type, quality, ptCut, lineColor, legend, pTresh = "
     
     if not doEff :
         if type == "nn_omtf" :
-            histNametype + "_q" + quality + "_pTresh_" + pTresh + "_eta_0.82_1.24_qualityCut_" + quality + "_effOnPtCut_" + ptCut + "_GeV_1"
+            histName = type + "_q" + quality + "_pTresh_" + pTresh + "_efficiency_eta_0.82_1.24_qualityCut_" + quality + "_effOnPtCut_" + ptCut + "_GeV_1"
         else :
             histName = type + "_q" + quality + "_eta_0.82_1.24_qualityCut_" + quality + "_effOnPtCut_" + ptCut + "_GeV_1"
             #omtf_q12_eta_0.82_1.24_qualityCut_12_effOnPtCut_20_GeV_1
     else  :    
         if type == "nn_omtf" :
-            histNametype + "_q" + quality + "_pTresh_" + pTresh + "_eta_0.82_1.24_qualityCut_" + quality + "_effOnPtCut_" + ptCut + "_GeV_1"
+            histName = type + "_q" + quality + "_pTresh_" + pTresh + "_efficiency_eta_0.82_1.24_qualityCut_" + quality + "_ptCut_" + ptCut + "_GeV"
         else :
             histName = type + "_q" + quality + "_efficiency_eta_0.82_1.24_qualityCut_" + quality + "_ptCut_" + ptCut + "_GeV"    
             #omtf_q12_efficiency_eta_0.82_1.24_qualityCut_12_ptCut_18_GeV
@@ -155,7 +155,7 @@ def drawEff(canvas, effFile, type, quality, ptCut, lineColor, legend, pTresh = "
 
 effHists = []
 firstEtaPlot = True
-def drawEffVsEta(effFile, type, quality, lineColor) :
+def drawEffVsEta(effFile, type, quality, lineColor, pTresh = "0.5") :
     global firstEtaPlot 
     
     #mtf_q12_efficiencyVsEta__qualityCut_12_ptGenCut_25
@@ -346,21 +346,21 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
             drawEff(c4, effFile, type, "12", "10", lineColor, None)
         
         
-    c5.cd(1)
-    if type == "omtf_patsKB" :
-        drawEffVsEta(effFile, "omtf", quality, lineColor)
-    else :    
-        drawEffVsEta(effFile, type, quality, lineColor)
-    c5.Update()
+#     c5.cd(1)
+#     if type == "omtf_patsKB" :
+#         drawEffVsEta(effFile, "omtf", quality, lineColor)
+#     else :    
+#         drawEffVsEta(effFile, type, quality, lineColor)
+#     c5.Update()
      
     first = False
 
-doLogScale = True
+doLogScale = False
 #OMTF 2018+
 #c1.cd(1)
 #drawEffs('MuFlatPt_PU200_v2_t44/', "omtf", "12", kBlack)
 #drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack) #old mathcing
-#drawEffs('MuFlatPt_PU200_0x0006_v3_t100/', "omtf", "12", kBlack) #new, good matching
+drawEffs('MuFlatPt_PU200_0x0006_v3_t100/', "omtf", "12", kBlack) #new, good matching
 
 
 #drawEffs('MuFlatPt_PU200_v2_t51/', "omtf", "12", kGreen+1)
@@ -383,13 +383,6 @@ doLogScale = True
 #drawEffs('MuFlatPt_PU200_v2_t52/', "omtf", "12", kGreen+1)
 #effFile = TFile(plotsDir + 'MuFlatPt_PU200_v2_t56/' + 'efficiencyPlots.root' )
 
-
-#drawEffs('MuFlatPt_PU200_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
-#drawEffs('MuFlatPt_PU200_v2_t66/', "nn_omtf", "12", kRed, "0.4")
-
-#drawEffs('MuFlatPt_PU300_v2_t41/', "nn_omtf", "12", kGreen+1, "0.5")
-
-
 #drawEff(effFile_t42_pu200, "nn_omtf", "12", "21.5", kRed)
 
 #drawEff(eff_t43_pu300, "nn_omtf", "12", "21.5", kRed)
@@ -398,7 +391,12 @@ doLogScale = True
 #drawEffs('MuFlatPt_PU200_v3_t71/', "omtf_patsKB", "12", kGreen)
 #drawEffs('MuFlatPt_PU200_v3_t73/', "omtf", "12", kRed)
 
-#drawEffs('MuFlatPt_PU200_v3_t100/', "omtf", "12", kRed)
+#drawEffs('MuFlatPt_PU200_v3_t100/', "omtf", "12", kBlue)
+
+#drawEffs('MuFlatPt_PU200_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
+drawEffs('MuFlatPt_PU200_v2_t66/', "nn_omtf", "12", kRed, "0.4") #this shoudl be good
+
+#drawEffs('MuFlatPt_PU200_v2_t41/', "nn_omtf", "12", kRed, "0.5")
 
 
 #drawEffs('SingleMu_t85_10f/', "omtf", "12", kGreen) # Arturs' pattern GPs_parametrised_v1_classProb3.xml
@@ -440,15 +438,15 @@ doLogScale = False
 #80 ZprimeToMuMu, 82 i 84 - all with finzalize 9 and penalty -16
 #82 and 84 - the same config, but in the 84 fixed muon matching
 
-drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t84/', "omtf", "12", kBlack)
-drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t106/', "omtf", "12", kCyan) #no "high pt fix"
+#drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t84/', "omtf", "12", kBlack)
+#drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t106/', "omtf", "12", kCyan) #no "high pt fix"
 
 #drawEffs('ZprimeToMuMu_PU140_v3_t82/', "omtf_patsKB", "12", kBlue) #before fixing the matching for the hight pt, but this fix was very small, the setup is the same as in the t84
 #drawEffs('ZprimeToMuMu_PU140_v3_t80/', "omtf_patsKB", "12", kCyan) #by mistake "no matching hit penatly" i finalise 9 was -16
 #drawEffs('ZprimeToMuMu_PU140_v3_t84/', "omtf_patsKB", "12", kGreen) #the setup is the same as in the t82, but fix fixed matching for the hight pt
 #drawEffs('ZprimeToMuMu_PU140_v3_t98/', "omtf_patsKB", "12", kBlue)
 
-drawEffs('ZprimeToMuMu_PU140_v3_t100/', "omtf", "12", kRed)
+#drawEffs('ZprimeToMuMu_PU140_v3_t100/', "omtf", "12", kRed)
 #drawEffs('ZprimeToMuMu_PU140_v3_t101/', "omtf", "12", kBlue)
 #drawEffs('ZprimeToMuMu_PU140_v3_t104/', "omtf", "12", kGreen+1)
 #drawEffs('ZprimeToMuMu_PU140_v3_t105/', "omtf", "12", kMagenta)
@@ -503,7 +501,7 @@ legend.SetMargin(0.2)
 #drawRate('SingleNeutrino_PU200_v2_t46/', "omtf", "12", kGreen+1) 
 #drawRate('SingleNeutrino_PU200_v2_t51/', "omtf", "12", kGreen+1)
 
-drawRate('SingleNeutrino_PU200_v2_t68/', "omtf", "12", kBlack) 
+#drawRate('SingleNeutrino_PU200_v2_t68/', "omtf", "12", kBlack) 
 
 #drawRate('SingleNeutrino_PU200_v2_t55/', "omtf", "12", kRed)
 
@@ -525,17 +523,20 @@ drawRate('SingleNeutrino_PU200_v2_t68/', "omtf", "12", kBlack)
 #drawRate('SingleNeutrino_PU200_mtd5_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
 #drawRate('SingleNeutrino_PU200_mtd5_v2_t41/', "nn_omtf", "12", kRed, "0.5")
 
-#drawRate('SingleNeutrino_PU200_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
-#drawRate('SingleNeutrino_PU200_v2_t44/', "nn_omtf", "12", kRed, "0.5")
 
-#drawRate('SingleNeutrino_PU200_v2_t67/', "nn_omtf", "12", kRed, "0.4")
 
 #drawRate('SingleNeutrino_PU200_v3_t74/', "omtf", "12", kGreen+1)
 #drawRate('SingleNeutrino_PU200_v3_t78/', "omtf", "12", kBlue)
 #drawRate('SingleNeutrino_PU200_v3_t80/', "omtf", "12", kCyan)
 #drawRate('SingleNeutrino_PU200_v3_t82/', "omtf", "12", kRed)
-drawRate('SingleNeutrino_PU200_v3_t100/', "omtf", "12", kRed)
-drawRate('SingleNeutrino_PU200_v3_t104/', "omtf", "12", kGreen+1) #good, GoldenPatternResult::finalise9() pdfSum -= 16 (first job failed, for the good one there is no commit
+#drawRate('SingleNeutrino_PU200_v3_t100/', "omtf", "12", kBlue)
+#drawRate('SingleNeutrino_PU200_v3_t104/', "omtf", "12", kGreen+1) #good, GoldenPatternResult::finalise9() pdfSum -= 16 (first job failed, for the good one there is no commit
+
+#drawRate('SingleNeutrino_PU200_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
+#drawRate('SingleNeutrino_PU200_v2_t44/', "nn_omtf", "12", kRed, "0.5")
+
+#drawRate('SingleNeutrino_PU200_v2_t67/', "nn_omtf", "12", kRed, "0.4")
+#drawRate('SingleNeutrino_PU200_v2_t66/', "nn_omtf", "12", kGreen, "0.5")
 
 #drawRate('SingleNeutrino_PU200_mtd5_v3_t100/', "omtf", "12", kRed)
 
@@ -546,6 +547,8 @@ drawRate('SingleNeutrino_PU200_v3_t104/', "omtf", "12", kGreen+1) #good, GoldenP
 
 #drawRate('SingleNeutrino_PU250_v2_t41/', "nn_omtf", "12", kRed)
 
+drawRate('run3_ZeroBias_Run2018D_t115_HW/', "omtf", "12", kBlack)
+drawRate('run3_ZeroBias_Run2018D_t115_Phase1/', "omtf", "12", kRed)
 
 
 legend.Draw()

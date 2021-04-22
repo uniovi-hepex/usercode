@@ -111,6 +111,8 @@ public:
 private:
   std::string analysisType;
 
+  bool useMatcher = false;
+
   bool matchUsingPropagation = true;
 
   bool fillMatcherHists = false;
