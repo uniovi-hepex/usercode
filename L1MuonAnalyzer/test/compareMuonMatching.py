@@ -182,7 +182,7 @@ def readRateFile(version, algoName, ptCutGev):
 VersionAlgo = namedtuple("VersionAlgo", "version algoName ptCutGev")
 
 toCompareList = ( 
-    VersionAlgo("t68", "omtf_q12", 20) , 
+    VersionAlgo("t68", "omtf_q12", 10) , 
     #VersionAlgo("t65", "omtf_q8", 5), 
     #VersionAlgo("t65", "omtf_q12", 18), 
     
@@ -199,7 +199,7 @@ toCompareList = (
     #VersionAlgo("t67", "nn_omtf_q12_pTresh_0.5", 22),
     
     
-    #VersionAlgo("t100", "omtf_q12", 20),
+    VersionAlgo("t100", "omtf_q12", 9),
     #VersionAlgo("t104", "omtf_q12", 20),
     
     #VersionAlgo("t68", "nn_omtf_q12_pTresh_0.5", 22),
@@ -208,7 +208,7 @@ toCompareList = (
     
     #VersionAlgo("t66", "nn_omtf_q12_pTresh_0.5", 22), #no mathcin for nn 
     
-    VersionAlgo("t67", "nn_omtf_q12_pTresh_0.4", 22), #this is good nn 
+    VersionAlgo("t67", "nn_omtf_q12_pTresh_0.4", 10), #this is good nn 
     #VersionAlgo("t67", "nn_omtf_q12_pTresh_0.5", 22), #this is good nn 
     )
 

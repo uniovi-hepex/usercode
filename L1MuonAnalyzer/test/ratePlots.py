@@ -31,7 +31,8 @@ version = inputResults[inputResults.find("_t") +1 : ]
 #inputResults = 'SingleNeutrino_' + version 
 
 rootDirPostFix = ""
-if sys.argv.__len__ >= 2 :
+print("sys.argv.__len__", len(sys.argv) )
+if len(sys.argv) >= 3 :
     rootDirPostFix = sys.argv[2] 
 
 #histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_6_1_patch2/src/L1Trigger/L1TMuonBayes/test/expert/omtf/omtfAnalysis_newerSAmple_v21_1_10Files_withMatching.root' )

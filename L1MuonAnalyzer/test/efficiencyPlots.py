@@ -86,8 +86,8 @@ elif "t41" in version or "t66" in version :
 else :
     histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
 
-if "_t1" in version :
-    omtf_type = 2018
+#if "_t1" in version :
+#    omtf_type = 2018
         
 if "0x0006" in version  or "t35" in version or "t85" in version :
     omtf_type = 2018
@@ -233,7 +233,7 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
             ptCut = 20 #20 #+5
         elif omtf_type ==  2022 :   
             lineColor = 1
-            ptCut = 18 #20 #+5
+            ptCut = 20 #20 #+5
             
         makeEfficiencyPlots(ptCut, 25, lineColor)
         #makeEfficiencyPlots(0, lineColor)
@@ -245,7 +245,7 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
             ptCut = 22 #20 #+5    
         elif omtf_type ==  2022 :
             lineColor = 1
-            ptCut = 20 #22
+            ptCut = 22 #22
             
         makeEfficiencyPlots(ptCut, 30, lineColor)
         
@@ -256,7 +256,7 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
             ptCut = 26 #20 #+5    
         elif omtf_type ==  2022 :
             lineColor = 1
-            ptCut = 24 # 26
+            ptCut = 26 # 26
         
         makeEfficiencyPlots(ptCut, 34, lineColor)
             
@@ -268,8 +268,28 @@ for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
             
         makeEfficiencyPlots(ptCut, 45, lineColor)
         
-        ptCut = 10
+        if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
+            ptCut = 10
+        elif omtf_type ==  2018:
+            lineColor = 1
+            ptCut = 10 #20 #+5    
+        elif omtf_type ==  2022 :
+            lineColor = 1
+            ptCut = 10 # 26
+            
         makeEfficiencyPlots(ptCut, 12, lineColor)
+        
+        
+        if ptGenVsPtCand.GetName().find("nn_omtf") >= 0 :
+            ptCut = 5
+        elif omtf_type ==  2018:
+            lineColor = 1
+            ptCut = 5 #20 #+5    
+        elif omtf_type ==  2022 :
+            lineColor = 1
+            ptCut = 5# 26
+            
+        makeEfficiencyPlots(ptCut, 8, lineColor)
 
         ptGenVsPtCand.GetXaxis().SetRangeUser(0, 100)
         ptGenVsPtCand.GetYaxis().SetRangeUser(0, 100)
