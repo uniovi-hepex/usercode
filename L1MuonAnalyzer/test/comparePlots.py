@@ -414,7 +414,7 @@ doLogScale = False
 
 #drawEffs('SingleMu_t80/', "omtf_patsKB", "12", kCyan)
 
-drawEffs('SingleMu_0x0006_t79/', "omtf", "12", kBlack)
+#drawEffs('SingleMu_0x0006_t79/', "omtf", "12", kBlack)
  #drawEffs('SingleMu_t74/', "omtf_patsKB", "12", kGreen)
 #drawEffs('SingleMu_t76/', "omtf_patsKB", "12", kRed)
 #drawEffs('SingleMu_t77/', "omtf_patsKB", "12", kBlue)
@@ -441,11 +441,12 @@ doLogScale = False
 #drawEffs('SingleMu_t80/', "omtf_patsKB", "12", kRed)
 #drawEffs('SingleMu_t80_test/', "omtf_patsKB", "12", kBlue) #finalize8 !!!!!!!!!!!!!!!!!!
 #drawEffs('SingleMu_t103/', "omtf_patsKB", "12", kMagenta) #finalize8 !!!!!!!!!!!!!!!!!!!!
-drawEffs('SingleMu_t100/', "omtf", "12", kBlue)
+#drawEffs('SingleMu_t100/', "omtf", "12", kBlue)
 #drawEffs('SingleMu_t104/', "omtf", "12", kGreen+1)
 #drawEffs('SingleMu_t120/', "omtf", "12", kRed)
 #drawEffs('SingleMu_t125/', "omtf", "12", kGreen+1)
-drawEffs('SingleMu_t126/', "omtf", "12", kRed)
+#drawEffs('SingleMu_t126/', "omtf", "12", kRed)
+#drawEffs('SingleMu_t127/', "omtf", "12", kBlue)
 
 #  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 doLogScale = False
@@ -453,7 +454,7 @@ doLogScale = False
 #82 and 84 - the same config, but in the 84 fixed muon matching
 
 #drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t84/', "omtf", "12", kBlack)
-#drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t106/', "omtf", "12", kBlack) #no "high pt fix"
+drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t106/', "omtf", "12", kBlack) #no "high pt fix"
 
 #drawEffs('ZprimeToMuMu_PU140_v3_t82/', "omtf_patsKB", "12", kBlue) #before fixing the matching for the hight pt, but this fix was very small, the setup is the same as in the t84
 #drawEffs('ZprimeToMuMu_PU140_v3_t80/', "omtf_patsKB", "12", kCyan) #by mistake "no matching hit penatly" i finalise 9 was -16
@@ -467,7 +468,8 @@ doLogScale = False
 
 #drawEffs('ZprimeToMuMu_NoPU_v3_t100/', "omtf", "12", kRed)
 #drawEffs('ZprimeToMuMu_PU140_v3_t125/', "omtf", "12", kBlue)
-#drawEffs('ZprimeToMuMu_PU140_v3_t126/', "omtf", "12", kGreen+1)
+drawEffs('ZprimeToMuMu_PU140_v3_t126/', "omtf", "12", kBlue)
+drawEffs('ZprimeToMuMu_PU140_v3_t127/', "omtf", "12", kRed)
 
 c1.cd(1)
 legendEff1.Draw()
@@ -517,7 +519,7 @@ legend.SetMargin(0.2)
 #drawRate('SingleNeutrino_PU200_v2_t46/', "omtf", "12", kGreen+1) 
 #drawRate('SingleNeutrino_PU200_v2_t51/', "omtf", "12", kGreen+1)
 
-drawRate('SingleNeutrino_PU200_v2_t68/', "omtf", "12", kBlack)  #this one is good probably
+#drawRate('SingleNeutrino_PU200_v2_t68/', "omtf", "12", kBlack)  #this one is good probably
 
 #drawRate('SingleNeutrino_PU200_v2_t55/', "omtf", "12", kRed)
 
@@ -545,9 +547,9 @@ drawRate('SingleNeutrino_PU200_v2_t68/', "omtf", "12", kBlack)  #this one is goo
 #drawRate('SingleNeutrino_PU200_v3_t78/', "omtf", "12", kBlue)
 #drawRate('SingleNeutrino_PU200_v3_t80/', "omtf", "12", kCyan)
 #drawRate('SingleNeutrino_PU200_v3_t82/', "omtf", "12", kRed)
-drawRate('SingleNeutrino_PU200_v3_t100/', "omtf", "12", kRed)
+#drawRate('SingleNeutrino_PU200_v3_t100/', "omtf", "12", kRed)
 #drawRate('SingleNeutrino_PU200_v3_t104/', "omtf", "12", kGreen+1) #good, GoldenPatternResult::finalise9() pdfSum -= 16 (first job failed, for the good one there is no commit
-drawRate('SingleNeutrino_PU200_v3_t126/', "omtf", "12", kGreen+1)
+#drawRate('SingleNeutrino_PU200_v3_t126/', "omtf", "12", kGreen+1)
 
 #drawRate('SingleNeutrino_PU200_v2_t41/', "nn_omtf", "12", kBlue, "0.4")
 #drawRate('SingleNeutrino_PU200_v2_t44/', "nn_omtf", "12", kRed, "0.5")
@@ -565,7 +567,10 @@ drawRate('SingleNeutrino_PU200_v3_t126/', "omtf", "12", kGreen+1)
 #drawRate('SingleNeutrino_PU250_v2_t41/', "nn_omtf", "12", kRed)
 
 #drawRate('run3_ZeroBias_Run2018D_t115_HW/', "omtf", "12", kBlack)
-#drawRate('run3_ZeroBias_Run2018D_t115_Phase1/', "omtf", "12", kRed)
+drawRate('run3_ZeroBias_Run2018D_t115_Phase1/', "omtf", "12", kBlue)
+
+drawRate('run3_ZeroBias_Run2018D_t127_HW/', "omtf", "12", kBlack)
+drawRate('run3_ZeroBias_Run2018D_t127_Phase1/', "omtf", "12", kRed)
 
 
 legend.Draw()
