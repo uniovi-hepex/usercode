@@ -357,12 +357,13 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
             drawEff(c4, effFile, type, "12", "10", lineColor, None)
         
         
-#     c5.cd(1)
-#     if type == "omtf_patsKB" :
-#         drawEffVsEta(effFile, "omtf", quality, lineColor)
-#     else :    
-#         drawEffVsEta(effFile, type, quality, lineColor)
-#     c5.Update()
+    #c5.cd(2)
+    canvas_rate.cd(2)
+    if type == "omtf_patsKB" :
+        drawEffVsEta(effFile, "omtf", quality, lineColor)
+    else :    
+        drawEffVsEta(effFile, type, quality, lineColor)
+    c5.Update()
      
     first = False
 
@@ -371,7 +372,7 @@ doLogScale = False
 #c1.cd(1)
 #drawEffs('MuFlatPt_PU200_v2_t44/', "omtf", "12", kBlack)
 #drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack) #old mathcing
-#drawEffs('MuFlatPt_PU200_0x0006_v3_t100/', "omtf", "12", kBlack) #new, good matching
+drawEffs('MuFlatPt_PU200_0x0006_v3_t100/', "omtf", "12", kBlack) #new, good matching
 
 
 #drawEffs('MuFlatPt_PU200_v2_t51/', "omtf", "12", kGreen+1)
@@ -409,6 +410,7 @@ doLogScale = False
 
 #drawEffs('MuFlatPt_PU200_v2_t41/', "nn_omtf", "12", kRed, "0.5")
 
+drawEffs('MuFlatPt_PU200_v3_t128/', "omtf", "12", kRed)
 
 #drawEffs('SingleMu_t85_10f/', "omtf", "12", kGreen) # Arturs' pattern GPs_parametrised_v1_classProb3.xml
 
@@ -454,7 +456,7 @@ doLogScale = False
 #82 and 84 - the same config, but in the 84 fixed muon matching
 
 #drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t84/', "omtf", "12", kBlack)
-drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t106/', "omtf", "12", kBlack) #no "high pt fix"
+#drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t106/', "omtf", "12", kBlack) #no "high pt fix"
 
 #drawEffs('ZprimeToMuMu_PU140_v3_t82/', "omtf_patsKB", "12", kBlue) #before fixing the matching for the hight pt, but this fix was very small, the setup is the same as in the t84
 #drawEffs('ZprimeToMuMu_PU140_v3_t80/', "omtf_patsKB", "12", kCyan) #by mistake "no matching hit penatly" i finalise 9 was -16
@@ -468,8 +470,8 @@ drawEffs('ZprimeToMuMu_PU140_0x0006_v3_t106/', "omtf", "12", kBlack) #no "high p
 
 #drawEffs('ZprimeToMuMu_NoPU_v3_t100/', "omtf", "12", kRed)
 #drawEffs('ZprimeToMuMu_PU140_v3_t125/', "omtf", "12", kBlue)
-drawEffs('ZprimeToMuMu_PU140_v3_t126/', "omtf", "12", kBlue)
-drawEffs('ZprimeToMuMu_PU140_v3_t127/', "omtf", "12", kRed)
+#drawEffs('ZprimeToMuMu_PU140_v3_t126/', "omtf", "12", kBlue)
+#drawEffs('ZprimeToMuMu_PU140_v3_t127/', "omtf", "12", kRed)
 
 c1.cd(1)
 legendEff1.Draw()
@@ -567,7 +569,7 @@ legend.SetMargin(0.2)
 #drawRate('SingleNeutrino_PU250_v2_t41/', "nn_omtf", "12", kRed)
 
 #drawRate('run3_ZeroBias_Run2018D_t115_HW/', "omtf", "12", kBlack)
-drawRate('run3_ZeroBias_Run2018D_t115_Phase1/', "omtf", "12", kBlue)
+#drawRate('run3_ZeroBias_Run2018D_t115_Phase1/', "omtf", "12", kBlue)
 
 drawRate('run3_ZeroBias_Run2018D_t127_HW/', "omtf", "12", kBlack)
 drawRate('run3_ZeroBias_Run2018D_t127_Phase1/', "omtf", "12", kRed)
