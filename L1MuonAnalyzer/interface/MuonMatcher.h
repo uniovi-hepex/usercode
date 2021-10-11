@@ -83,6 +83,8 @@ public:
   double genPhi = 0;
 
   const SimTrack* simTrack = nullptr;
+  const SimVertex* simVertex = nullptr;
+
   const TrackingParticle* trackingParticle = nullptr;
 
 };
@@ -97,11 +99,15 @@ public:
 
   void saveHists();
 
-  FreeTrajectoryState simTrackToFts(const SimTrack& simTrack, const SimVertex& simVertex);
+  FreeTrajectoryState simTrackToFts(const SimTrack& simTrack, const edm::SimVertexContainer* simVertices);
 
   FreeTrajectoryState simTrackToFts(const TrackingParticle& trackingParticle);
 
   TrajectoryStateOnSurface atStation2(FreeTrajectoryState ftsStart, float eta) const;
+
+  ///returns TrajectoryStateOnSurface on the cylinder in the middle of the MB1
+  ///if the TrajectoryStateOnSurface is valid, and z is inside MB1 W-2 or W+2, sets isInW2MB1  to true
+  TrajectoryStateOnSurface atMB1(FreeTrajectoryState ftsStart, bool& isInW2MB1) const;
 
   TrajectoryStateOnSurface propagate(const SimTrack& simTrack, const edm::SimVertexContainer* simVertices);
 
@@ -115,7 +121,7 @@ public:
   std::vector<MatchingResult> cleanMatching(std::vector<MatchingResult> matchingResults, std::vector<const l1t::RegionalMuonCand*>& muonCands);
 
   std::vector<MatchingResult> match(std::vector<const l1t::RegionalMuonCand*>& muonCands, const edm::SimTrackContainer* simTracks, const edm::SimVertexContainer* simVertices,
-      std::function<bool(const SimTrack& )> const& simTrackFilter);
+      std::function<bool(const SimTrack& )> const& simTrackFilter, bool checkIsInW2MB1);
 
   std::vector<MatchingResult> match(std::vector<const l1t::RegionalMuonCand*>& muonCands, const TrackingParticleCollection* trackingParticles,
       std::function<bool(const TrackingParticle& )> const& simTrackFilter);
@@ -139,6 +145,8 @@ private:
   edm::ESHandle<Propagator> propagator;
 
   TH2F* deltaPhiPropCand = nullptr; //delta phi between propagated track and muon candidate, stores the likelihood
+  TH2F* deltaPhiPropCandMatched = nullptr; //delta phi between propagated track and matched muon candidate,
+
   TH2F* deltaPhiVertexProp = nullptr; //delta phi between phi at vertex and propagated track phi
 
   TH1D* deltaPhiPropCandMean = nullptr;

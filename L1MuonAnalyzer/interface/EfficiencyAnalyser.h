@@ -18,21 +18,22 @@ namespace L1MuAn {
 
 class EfficiencyAnalyser {
 public:
-  EfficiencyAnalyser();
+  EfficiencyAnalyser(bool useUpt);
   virtual ~EfficiencyAnalyser();
 
-  virtual void fill(double ptGen, double etaGen, double phiGen, L1MuonCand& l1MuonCand) = 0;
+  virtual void fill(double ptGen, double etaGen, double phiGen, double dxyGen, L1MuonCand& l1MuonCand) = 0;
 
   virtual void write() = 0;
-private:
 
+protected:
+  bool useUpt = false;
 };
 
 class PtGenVsPtCand : public EfficiencyAnalyser{
 public:
-  PtGenVsPtCand(TFileDirectory& subDir, std::string name, double etaFrom, double etaTo, int qualityCut, int nBins, double binsFrom, double binsTo);
+  PtGenVsPtCand(TFileDirectory& subDir, std::string name, double etaFrom, double etaTo, int qualityCut, int nBins, double binsFrom, double binsTo, bool useUpt = false);
 
-  virtual void fill(double ptGen, double etaGen, double phiGen, L1MuonCand& l1MuonCand);
+  virtual void fill(double ptGen, double etaGen, double phiGen, double dxyGen, L1MuonCand& l1MuonCand);
 
   virtual void write() {
     ptGenVsPtCand->Write();
@@ -49,9 +50,9 @@ private:
 
 class EfficiencyVsPhi : public EfficiencyAnalyser{
 public:
-  EfficiencyVsPhi(TFileDirectory& subDir, std::string name, double etaFrom, double etaTo, int qualityCut, double ptGenCut, double ptL1Cut, int nBins);
+  EfficiencyVsPhi(TFileDirectory& subDir, std::string name, double etaFrom, double etaTo, int qualityCut, double ptGenCut, double ptL1Cut, int nBins, bool useUpt = false);
 
-  virtual void fill(double ptGen, double etaGen, double phiGen, L1MuonCand& l1MuonCand);
+  virtual void fill(double ptGen, double etaGen, double phiGen, double dxyGen, L1MuonCand& l1MuonCand);
 
   virtual void write() {
     allCands->Write();
@@ -74,9 +75,9 @@ private:
 
 class EfficiencyVsEta : public EfficiencyAnalyser{
 public:
-  EfficiencyVsEta(TFileDirectory& subDir, std::string name, int qualityCut, double ptGenCut, double ptL1Cut, int nBins);
+  EfficiencyVsEta(TFileDirectory& subDir, std::string name, int qualityCut, double ptGenCut, double ptL1Cut, int nBins, bool useUpt = false);
 
-  virtual void fill(double ptGen, double etaGen, double phiGen, L1MuonCand& l1MuonCand);
+  virtual void fill(double ptGen, double etaGen, double phiGen, double dxyGen, L1MuonCand& l1MuonCand);
 
   virtual void write() {
     allCands->Write();
@@ -93,11 +94,33 @@ private:
   TH1* aceptedCands = nullptr;
 };
 
+class EfficiencyPtGenVsDxy : public EfficiencyAnalyser {
+public:
+  EfficiencyPtGenVsDxy(TFileDirectory& subDir, std::string name, int qualityCut, double ptL1Cut, int nBinsPt, int nBinsDxy, bool ifPtBelowCut, bool useUpt = false);
+
+  virtual ~EfficiencyPtGenVsDxy();
+
+  virtual void fill(double ptGen, double etaGen, double phiGen, double dxyGen, L1MuonCand& l1MuonCand);
+
+  virtual void write();
+private:
+  int qualityCut = 0;
+
+  double ptL1Cut = 0;
+
+  bool ifPtBelowCut  = false;
+
+  TH2* allCands = nullptr;
+  TH2* aceptedCands = nullptr;
+
+  TH2* efficiency = nullptr;
+};
+
 class LikelihoodDistribution : public EfficiencyAnalyser {
 public:
-  LikelihoodDistribution(TFileDirectory& subDir, std::string name, int qualityCut, double ptGenCut, double ptL1Cut, int nBins);
+  LikelihoodDistribution(TFileDirectory& subDir, std::string name, int qualityCut, double ptGenCut, double ptL1Cut, int nBins, bool useUpt = false);
 
-  virtual void fill(double ptGen, double etaGen, double phiGen, L1MuonCand& l1MuonCand);
+  virtual void fill(double ptGen, double etaGen, double phiGen, double dxyGen, L1MuonCand& l1MuonCand);
 
   virtual void write() {
     distribution->Write();

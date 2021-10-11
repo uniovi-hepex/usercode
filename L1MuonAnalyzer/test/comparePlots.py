@@ -5,11 +5,9 @@ from ROOT import TLegend
 from ROOT import kBlack, kBlue, kRed, kGreen, kMagenta, kCyan
 from array import array
 
-from libPyROOT import TDirectory
+from ROOT import TDirectory
 import os
 import sys
-from __builtin__ import True
-from matplotlib import legend
     
 
 
@@ -37,7 +35,8 @@ gStyle.SetOptTitle(0);
 
 # leg -> SetHeader("here is a beautiful header")
 
-plotsDir = '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/usercode/L1MuonAnalyzer/test/'
+#plotsDir = '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/usercode/L1MuonAnalyzer/test/'
+plotsDir = '/home/kbunkow/CMSSW/CMSSW_12_1_0_pre3/src/usercode/L1MuonAnalyzer/test/'
 
 first = True
 
@@ -57,11 +56,13 @@ def drawEff(canvas, effFile, type, quality, ptCut, lineColor, legend, pTresh = "
             #omtf_q12_eta_0.82_1.24_qualityCut_12_effOnPtCut_20_GeV_1
     else  :    
         if type == "nn_omtf" :
-            histName = type + "_q" + quality + "_pTresh_" + pTresh + "_efficiency_eta_0.82_1.24_qualityCut_" + quality + "_ptCut_" + ptCut + "_GeV"
+            histName = type + "_q" + quality + "_pTresh_" + pTresh + "_efficiency_eta_0_3_qualityCut_" + quality + "_ptCut_" + ptCut + "_GeV"
+        elif type == "omtf_extrp" :
+            histName = type + "_q" + quality + "_pTresh_" + pTresh + "_efficiency_eta_0.82_1.24_qualityCut_" + quality + "_ptCut_" + ptCut + "_GeV"    
         else :
             histName = type + "_q" + quality + "_efficiency_eta_0.82_1.24_qualityCut_" + quality + "_ptCut_" + ptCut + "_GeV"    
             #omtf_q12_efficiency_eta_0.82_1.24_qualityCut_12_ptCut_18_GeV
-        
+                    
     print (effFile)    
     print (histName) 
 
@@ -108,7 +109,7 @@ def drawEff(canvas, effFile, type, quality, ptCut, lineColor, legend, pTresh = "
             effHistCopy.Draw("AE")     
             canvas.cd(2).Modified()         
             canvas.cd(2).Update()
-            print "printig ", effHistCopy.GetName() 
+            print ("printig ", effHistCopy.GetName() ) 
             if doLogScale :
                 effHistCopy.GetPaintedGraph().GetXaxis().SetRangeUser(0, 25)
                 effHistCopy.GetPaintedGraph().GetYaxis().SetRangeUser(0.001, 1.05)
@@ -198,7 +199,7 @@ def drawRate(rateFileDir, type, quality, lineColor, pTresh = "0.5") :
         effHist = rateFile.Get(type + "_q" + quality + "_rate_qualityCut_" + quality + "_" + withTEff)
         
     print (rateFile) 
-    print "rateHist", effHist.GetName()  
+    print ("rateHist", effHist.GetName() )  
     
     effHist.SetLineColor(lineColor)
     #effHist.SetFillColor(lineColor);
@@ -306,7 +307,7 @@ def drawEffs(fileDir, type, quality, lineColor, pTresh = "0.5" ) :
     print ("first " + str(first) )
     effFile = TFile(plotsDir + fileDir + 'efficiencyPlots.root' )
     effFiles.append(effFile)
-    if type == "omtf" :
+    if type == "omtf" or type == "omtf_extrp":
         print (c1.GetName() )
         logScalePadNum = 0
         drawEff(c1, effFile, type, quality, "20", lineColor, legendEff1)
@@ -372,7 +373,7 @@ doLogScale = False
 #c1.cd(1)
 #drawEffs('MuFlatPt_PU200_v2_t44/', "omtf", "12", kBlack)
 #drawEffs('MuFlatPt_PU200_v2_t35/', "omtf", "12", kBlack) #old mathcing
-drawEffs('MuFlatPt_PU200_0x0006_v3_t100/', "omtf", "12", kBlack) #new, good matching
+#drawEffs('MuFlatPt_PU200_0x0006_v3_t100/', "omtf", "12", kBlack) #new, good matching
 
 
 #drawEffs('MuFlatPt_PU200_v2_t51/', "omtf", "12", kGreen+1)
@@ -410,13 +411,13 @@ drawEffs('MuFlatPt_PU200_0x0006_v3_t100/', "omtf", "12", kBlack) #new, good matc
 
 #drawEffs('MuFlatPt_PU200_v2_t41/', "nn_omtf", "12", kRed, "0.5")
 
-drawEffs('MuFlatPt_PU200_v3_t128/', "omtf", "12", kRed)
+#drawEffs('MuFlatPt_PU200_v3_t128/', "omtf", "12", kRed)
 
 #drawEffs('SingleMu_t85_10f/', "omtf", "12", kGreen) # Arturs' pattern GPs_parametrised_v1_classProb3.xml
 
 #drawEffs('SingleMu_t80/', "omtf_patsKB", "12", kCyan)
 
-#drawEffs('SingleMu_0x0006_t79/', "omtf", "12", kBlack)
+drawEffs('SingleMu_0x0006_t79/', "omtf", "12", kBlack)
  #drawEffs('SingleMu_t74/', "omtf_patsKB", "12", kGreen)
 #drawEffs('SingleMu_t76/', "omtf_patsKB", "12", kRed)
 #drawEffs('SingleMu_t77/', "omtf_patsKB", "12", kBlue)
@@ -448,7 +449,11 @@ doLogScale = False
 #drawEffs('SingleMu_t120/', "omtf", "12", kRed)
 #drawEffs('SingleMu_t125/', "omtf", "12", kGreen+1)
 #drawEffs('SingleMu_t126/', "omtf", "12", kRed)
-#drawEffs('SingleMu_t127/', "omtf", "12", kBlue)
+drawEffs('SingleMu_t127/', "omtf", "12", kBlue)
+
+
+#drawEffs('SingleMu_Extr_t10/', "omtf_extrp", "12", kRed)
+
 
 #  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 doLogScale = False
@@ -596,7 +601,7 @@ canvas_rate.Modified()
 canvas_rate.Update()
 
 
-if True :
+if False :
     fileName = makeUniqueFileName("/eos/user/k/kbunkow/public/omtf_nn_plots/", "eff_1_.png")
     print ("saving as " + fileName)
     c1.SaveAs(fileName)
@@ -616,6 +621,6 @@ if True :
 # c3.Modified()
 # c3.Update()
 
-raw_input("Press ENTER to exit")
+input("Press ENTER to exit")
 
 #execfile('ratePlots.py')

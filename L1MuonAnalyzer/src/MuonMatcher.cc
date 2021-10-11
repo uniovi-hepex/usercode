@@ -51,7 +51,8 @@ MuonMatcher::MuonMatcher(const edm::ParameterSet& edmCfg) {
   edm::Service<TFileService> fs;
   TFileDirectory subDir =  fs->mkdir("MuonMatcher");
 
-  deltaPhiPropCand   = subDir.make<TH2F>("deltaPhiPropCand",  "delta Phi propagated track - muonCand Vs Pt", 200, 0, 1000, 100, -0.5 -0.005, 0.5 -0.005); //delta phi between propagated track and muon candidate,
+  deltaPhiPropCand   =      subDir.make<TH2F>("deltaPhiPropCand",         "delta Phi propagated track - muonCand Vs Pt", 200, 0, 1000, 100, -0.5 -0.005, 0.5 -0.005); //delta phi between propagated track and muon candidate,
+  deltaPhiPropCandMatched = subDir.make<TH2F>("deltaPhiPropCandMatched",  "delta Phi matched propagated track - muonCand Vs Pt", 200, 0, 1000, 100, -0.5 -0.005, 0.5 -0.005); //delta phi between propagated track and muon candidate,
   deltaPhiVertexProp = subDir.make<TH2F>("deltaPhiVertexProp", "delta Phi vertex - propagated track Vs Pt", 200, 0, 1000, 100, -1, 1);; //delta phi between phi at vertex and propagated track phi)
 
   if(edmCfg.exists("matchUsingPropagation") )
@@ -117,6 +118,7 @@ void MuonMatcher::saveHists() {
     edm::LogImportant("l1MuonAnalyzerOmtf")<<__FUNCTION__<<": "<<__LINE__<<" out fileName "<<rootFileName<<" outfile->GetName() "<<outfile.GetName()<<endl;
     outfile.cd();
     deltaPhiPropCand->Write();
+    deltaPhiPropCandMatched->Write();
     deltaPhiVertexProp->Write();
 
     if(matchUsingPropagation) {
@@ -200,20 +202,68 @@ void MuonMatcher::saveHists() {
 
 TrajectoryStateOnSurface MuonMatcher::atStation2(FreeTrajectoryState ftsStart, float eta) const {
   ReferenceCountingPointer<Surface> rpc;
-  if (eta < -1.24)       rpc = ReferenceCountingPointer<Surface>(new  BoundDisk( GlobalPoint(0.,0.,-790.),  TkRotation<float>(), SimpleDiskBounds( 300., 810., -10., 10. ) ) );
-  else if (eta < 1.24)   rpc = ReferenceCountingPointer<Surface>(new  BoundCylinder( GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds( 500, 500, -900, 900 ) ) );
-  else                   rpc = ReferenceCountingPointer<Surface>(new  BoundDisk( GlobalPoint(0.,0.,790.),   TkRotation<float>(), SimpleDiskBounds( 300., 810., -10., 10. ) ) );
-//  if (eta < -1.04)       rpc = ReferenceCountingPointer<Surface>(new  BoundDisk( GlobalPoint(0.,0.,-790.), TkRotation<float>(), SimpleDiskBounds( 300., 710., -10., 10. ) ) );
-//  else if (eta < -0.72)  rpc = ReferenceCountingPointer<Surface>(new  BoundCylinder( GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds( 520, 520, -700, 700 ) ) );
-//  else if (eta < 0.72)   rpc = ReferenceCountingPointer<Surface>(new  BoundCylinder( GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds( 500, 500, -700, 700 ) ) );
-//  else if (eta < 1.04)   rpc = ReferenceCountingPointer<Surface>(new  BoundCylinder( GlobalPoint(0.,0.,0.), TkRotation<float>(), SimpleCylinderBounds( 520, 520, -700, 700 ) ) );
-//  else                      rpc = ReferenceCountingPointer<Surface>(new  BoundDisk( GlobalPoint(0.,0.,790.), TkRotation<float>(), SimpleDiskBounds( 300., 710., -10., 10. ) ) );
-  //theEs.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", propagator);
-  TrajectoryStateOnSurface trackAtRPC =  propagator->propagate( ftsStart, *rpc);
+  if (eta < -1.24)  //negative endcap, RE2
+    rpc = ReferenceCountingPointer<Surface>(
+        new BoundDisk(GlobalPoint(0., 0., -790.), TkRotation<float>(), SimpleDiskBounds(300., 810., -10., 10.)));
+  else if (eta < 1.24)  //barrel + overlap, 512.401cm is R of middle of the MB2
+    rpc = ReferenceCountingPointer<Surface>(new BoundCylinder(
+        GlobalPoint(0., 0., 0.), TkRotation<float>(), SimpleCylinderBounds(512.401, 512.401, -900, 900)));
+  else
+    rpc = ReferenceCountingPointer<Surface>(  //positive endcap, RE2
+        new BoundDisk(GlobalPoint(0., 0., 790.), TkRotation<float>(), SimpleDiskBounds(300., 810., -10., 10.)));
+
+  TrajectoryStateOnSurface trackAtRPC = propagator->propagate(ftsStart, *rpc);
   return trackAtRPC;
 }
 
-FreeTrajectoryState MuonMatcher::simTrackToFts(const SimTrack& simTrackPtr, const SimVertex& simVertex) {
+
+TrajectoryStateOnSurface MuonMatcher::atMB1(FreeTrajectoryState ftsStart, bool& isInW2MB1) const {
+  ReferenceCountingPointer<Surface> mb1;
+
+  float w2Mb1_zMin = 410;
+  float w2Mb1_zMax = 660;
+  mb1 = ReferenceCountingPointer<Surface>(new BoundCylinder(
+        GlobalPoint(0., 0., 0.), TkRotation<float>(), SimpleCylinderBounds(431.133, 431.133, w2Mb1_zMin, w2Mb1_zMax)));
+
+
+  TrajectoryStateOnSurface trackAtMb1 = propagator->propagate(ftsStart, *mb1);
+  if(!trackAtMb1.isValid()) {
+    isInW2MB1 = false;
+    LogTrace("l1MuonAnalyzerOmtf") <<"MuonMatcher::atMB1: "
+            <<" ftsStart.position x: "<<ftsStart.position().x()<<" y " <<ftsStart.position().y()<<" z "<<ftsStart.position().z()<<" rho "<<ftsStart.position().perp()
+            <<" ftsStart.momentum eta: "<<ftsStart.momentum().eta()<<" phi " <<ftsStart.momentum().phi()<<" propagation failed";
+  }
+  else {
+    float trackZ = trackAtMb1.globalPosition().z();
+    if( abs(trackZ) > w2Mb1_zMin && abs(trackZ) < w2Mb1_zMax)
+      isInW2MB1 = true;
+
+    LogTrace("l1MuonAnalyzerOmtf") <<"MuonMatcher::atMB1: "
+        <<" ftsStart.position x: "<<ftsStart.position().x()<<" y " <<ftsStart.position().y()<<" z "<<ftsStart.position().z()<<" rho "<<ftsStart.position().perp()
+        <<" ftsStart.momentum eta: "<<ftsStart.momentum().eta()<<" phi " <<ftsStart.momentum().phi()
+        <<" trackAtMb1 eta "<<std::setw(8)<<trackAtMb1.globalPosition().eta()<<" phi "<<trackAtMb1.globalPosition().phi()<<" z "<<trackAtMb1.globalPosition().z()
+        <<" isInW2MB1 "<<isInW2MB1<< std::endl;
+  }
+
+  return trackAtMb1;
+}
+
+FreeTrajectoryState MuonMatcher::simTrackToFts(const SimTrack& simTrackPtr, const edm::SimVertexContainer* simVertices) {
+  //first find the vertex
+  SimVertex simVertex;
+  int vtxInd = simTrackPtr.vertIndex();
+  if (vtxInd < 0){
+    std::cout<<"Track with no vertex, defaulting to (0,0,0)"<<std::endl;
+  }
+  else {
+    simVertex = simVertices->at(vtxInd);
+    if(((int)simVertex.vertexId()) != vtxInd) {
+      std::cout<<"simVertex.vertexId() != vtxInd !!!!!!!!!!!!!!!!!"<<std::endl;
+      edm::LogImportant("l1MuonAnalyzerOmtf") <<"simVertex.vertexId() != vtxInd. simVertex.vertexId() "<<simVertex.vertexId()<<" vtxInd "<<vtxInd<<" !!!!!!!!!!!!!!!!!";
+    }
+  }
+
+
   int charge = simTrackPtr.type() > 0 ? -1 : 1; //works for muons
 
   CLHEP::Hep3Vector p3T(simTrackPtr.momentum().x(), simTrackPtr.momentum().y(), simTrackPtr.momentum().z());
@@ -258,20 +308,8 @@ FreeTrajectoryState MuonMatcher::simTrackToFts(const TrackingParticle& trackingP
 }
 
 TrajectoryStateOnSurface MuonMatcher::propagate(const SimTrack& simTrack, const edm::SimVertexContainer* simVertices) {
-  SimVertex simVertex;
-  int vtxInd = simTrack.vertIndex();
-  if (vtxInd < 0){
-    std::cout<<"Track with no vertex, defaulting to (0,0,0)"<<std::endl;
-  }
-  else {
-    simVertex = simVertices->at(vtxInd);
-    if(((int)simVertex.vertexId()) != vtxInd) {
-      std::cout<<"simVertex.vertexId() != vtxInd !!!!!!!!!!!!!!!!!"<<std::endl;
-      edm::LogImportant("l1MuonAnalyzerOmtf") <<"simVertex.vertexId() != vtxInd. simVertex.vertexId() "<<simVertex.vertexId()<<" vtxInd "<<vtxInd<<" !!!!!!!!!!!!!!!!!";
-    }
-  }
 
-  FreeTrajectoryState ftsTrack = simTrackToFts(simTrack, simVertex);
+  FreeTrajectoryState ftsTrack = simTrackToFts(simTrack, simVertices);
 
   TrajectoryStateOnSurface tsof = atStation2(ftsTrack, simTrack.momentum().eta() ); //propagation
 
@@ -299,7 +337,8 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const S
   MatchingResult result(simTrack);
 
   double candGloablEta  = muonCand->hwEta() * 0.010875;
-  if( abs(simTrack.momentum().eta() - candGloablEta ) < 0.3 ) {
+  //if( abs(simTrack.momentum().eta() - candGloablEta ) < 0.3 ) TODO  in principle can be replaced by using atMB1 !!!!!!!!!!!!!!!!!!!!!!!! check!!!!!!!!!!!!!!!
+  {
     double candGlobalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi( muonCand->hwPhi(), muonCand->trackFinderType(), muonCand->processor() );
     candGlobalPhi = hwGmtPhiToGlobalPhi(candGlobalPhi );
 
@@ -323,6 +362,7 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const S
 
     result.muonCand = muonCand;
 
+    //TODO chose the right sigma
     double treshold = 6. * sigma;
     if(simTrack.momentum().pt() > 20)
       treshold = 7. * sigma;
@@ -332,7 +372,7 @@ MatchingResult MuonMatcher::match(const l1t::RegionalMuonCand* muonCand, const S
     if( abs(result.deltaPhi - mean) < treshold)
       result.result = MatchingResult::ResultType::matched;
 
-    LogTrace("l1MuonAnalyzerOmtf") <<"MuonMatcher::match: simTrack type "<<simTrack.type()<<" pt "<<std::setw(8)<<simTrack.momentum().pt()
+    LogTrace("l1MuonAnalyzerOmtf") <<"\nMuonMatcher::match: simTrack type "<<simTrack.type()<<" pt "<<std::setw(8)<<simTrack.momentum().pt()
         <<" eta "<<std::setw(8)<<simTrack.momentum().eta()<<" phi "<<std::setw(8)<<simTrack.momentum().phi()
         <<" propagation eta "<<std::setw(8)<<tsof.globalPosition().eta()<<" phi "<<tsof.globalPosition().phi()
         <<"\n             muonCand pt "<<std::setw(8)<<muonCand->hwPt()<<" candGloablEta "<<std::setw(8)<<candGloablEta<<" candGlobalPhi "<<std::setw(8)<<candGlobalPhi<<" hwQual "<<muonCand->hwQual()
@@ -468,29 +508,33 @@ std::vector<MatchingResult> MuonMatcher::cleanMatching(std::vector<MatchingResul
   }
 
 
-  LogTrace("l1MuonAnalyzerOmtf")<<":"<<__LINE__<<" MuonMatcher::match cleanedMatchingResults:"<<std::endl;
+  LogTrace("l1MuonAnalyzerOmtf")<<"\nMuonMatcher::match cleanedMatchingResults:"<<std::endl;
   for(auto& result : cleanedMatchingResults) {
     if(result.trackingParticle || result.simTrack)
-      LogTrace("l1MuonAnalyzerOmtf")<<":"<<__LINE__ <<" simTrack type "<<result.pdgId<<" pt "<<std::setw(8)<<result.genPt
-        <<" eta "<<std::setw(8)<<result.genEta<<" phi "<<std::setw(8)<<result.genPhi;
+      LogTrace("l1MuonAnalyzerOmtf")<<" simTrack type "<<result.pdgId<<" pt "<<std::setw(8)<<result.genPt
+        <<" eta "<<std::setw(8)<<result.genEta<<" phi "<<std::setw(8)<<result.genPhi<< std::endl;
     else
-      LogTrace("l1MuonAnalyzerOmtf")<<"no matched track ";
+      LogTrace("l1MuonAnalyzerOmtf")<<" no matched track";
 
         //<<" propagation eta "<<std::setw(8)<<tsof.globalPosition().eta()<<" phi "<<tsof.globalPosition().phi()
     if(result.muonCand)
-      LogTrace("l1MuonAnalyzerOmtf")<<" muonCand pt "<<std::setw(8)<<result.muonCand->hwPt()<<" hwQual "<<result.muonCand->hwQual()<<" hwEta "<<result.muonCand->hwEta()
+      LogTrace("l1MuonAnalyzerOmtf")<<" muonCand pt "<<std::setw(8)<<result.muonCand->hwPt()
+        <<std::setw(8)<<" upt "<<result.muonCand->hwPtUnconstrained()
+        <<" hwQual "<<result.muonCand->hwQual()<<" hwEta "<<result.muonCand->hwEta()
         <<" deltaEta "<<std::setw(8)<<result.deltaEta<<" deltaPhi "<<std::setw(8)<<result.deltaPhi<<" Likelihood "<<std::setw(8)<<result.matchingLikelihood <<" result "<<(short)result.result
         << std::endl;
     else
       LogTrace("l1MuonAnalyzerOmtf")<<" no muonCand "<<" result "<<(short)result.result<< std::endl;
+
+    LogTrace("l1MuonAnalyzerOmtf")<<std::endl;
   }
-  LogTrace("l1MuonAnalyzerOmtf")<<" "<<std::endl;
+  LogTrace("l1MuonAnalyzerOmtf")<<"\n"<<std::endl;
 
   return cleanedMatchingResults;
 }
 
 std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMuonCand*>& muonCands, const edm::SimTrackContainer* simTracks, const edm::SimVertexContainer* simVertices,
-    std::function<bool(const SimTrack& )> const& simTrackFilter)
+    std::function<bool(const SimTrack& )> const& simTrackFilter, bool checkIsInW2MB1)
 {
   std::vector<MatchingResult> matchingResults;
 
@@ -499,12 +543,22 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
     if(!simTrackFilter(simTrack))
       continue;
 
-    LogTrace("l1MuonAnalyzerOmtf") <<"MuonMatcher::match, simTrack type "<<std::setw(3)<<simTrack.type()<<" pt "<<std::setw(9)<<simTrack.momentum().pt()<<" eta "<<std::setw(9)<<simTrack.momentum().eta()<<" phi "<<std::setw(9)<<simTrack.momentum().phi()<<std::endl;
+    FreeTrajectoryState ftsStart = simTrackToFts(simTrack, simVertices);
+    if(checkIsInW2MB1) {
+      bool isInW2MB1 = false;
+
+      auto trackAtMb1 =  atMB1(ftsStart, isInW2MB1);
+
+      if(!isInW2MB1)
+        continue;
+    }
 
     bool matched = false;
 
-    TrajectoryStateOnSurface tsof = propagate(simTrack, simVertices);
+    TrajectoryStateOnSurface tsof = atStation2(ftsStart, simTrack.momentum().eta() ); //propagation
+
     if(!tsof.isValid()) {
+      LogTrace("l1MuonAnalyzerOmtf") <<"MuonMatcher::match: simTrack type "<<std::setw(3)<<simTrack.type()<<" pt "<<std::setw(9)<<simTrack.momentum().pt()<<" eta "<<std::setw(9)<<simTrack.momentum().eta()<<" phi "<<std::setw(9)<<simTrack.momentum().phi()<<std::endl;
       LogTrace("l1MuonAnalyzerOmtf") <<__FUNCTION__<<":"<<__LINE__<<" propagation failed"<<std::endl;
       MatchingResult result;
       result.result = MatchingResult::ResultType::propagationFailed;
@@ -529,6 +583,12 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
         continue;
 
       MatchingResult result = match(muonCand, simTrack, tsof);
+
+      int vtxInd = simTrack.vertIndex();
+      if (vtxInd >= 0) {
+        result.simVertex = &(simVertices->at(vtxInd));
+      }
+
       if(result.result == MatchingResult::ResultType::matched) {
         matchingResults.push_back(result);
         matched = true;
@@ -541,6 +601,11 @@ std::vector<MatchingResult> MuonMatcher::match(std::vector<const l1t::RegionalMu
       /*auto trackingParticle = new TrackingParticle();//work arroung -- theefficiency analysis works on the tracking particles
       trackingParticle->addG4Track(simTrack);
       result.trackingParticle = trackingParticle;*/
+
+      int vtxInd = simTrack.vertIndex();
+      if (vtxInd >= 0) {
+        result.simVertex = &(simVertices->at(vtxInd));
+      }
 
       matchingResults.push_back(result);
       LogTrace("l1MuonAnalyzerOmtf") <<__FUNCTION__<<":"<<__LINE__<<" no matching candidate found"<<std::endl;

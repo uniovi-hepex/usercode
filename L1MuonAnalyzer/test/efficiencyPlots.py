@@ -12,7 +12,7 @@ def rebin(hist, bins) :
     newHist.Sumw2(False)    
     for iBin in range(0, hist.GetNbinsX() +1) : 
         newHist.Fill(hist.GetBinCenter(iBin), hist.GetBinContent(iBin) )
-        #print hist.GetBinCenter(iBin), " ", hist.GetBinContent(iBin)
+        #print(hist.GetBinCenter(iBin), " ", hist.GetBinContent(iBin) )
     
     newHist.Sumw2(False)  
     return  newHist
@@ -20,7 +20,7 @@ def rebin(hist, bins) :
 
 def makeEfficiency(passed, total, title, lineColor):
     if TEfficiency.CheckConsistency(passed, total) :
-        print "makeEfficiency passed ", passed.GetName() 
+        print("makeEfficiency passed ", passed.GetName()) 
         efficiency = TEfficiency(passed, total)
         #title = std::regex_replace(title, std::regex("\\muCandGenEtaMuons"), "tagging efficiency");
         efficiency.SetTitle( title );
@@ -86,6 +86,11 @@ elif "t41" in version or "t66" in version :
 else :
     histFile = TFile( '/afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_11_x_x_l1tOfflinePhase2/CMSSW_11_1_3/src/L1Trigger/L1TMuonOverlapPhase1/test/crab/crab_omtf_nn_MC_analysis_' + inputResults + '/results/omtfAnalysis2.root' )
 
+
+#histFile = TFile( '/home/kbunkow/CMSSW/CMSSW_12_1_0_pre3/src/L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/omtfAnalysis2_eff_SingleMu_tt10_displ_test.root' ) # displaced
+histFile = TFile( '/home/kbunkow/CMSSW/CMSSW_12_1_0_pre3/src/L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/omtfAnalysis2_eff_SingleMu_tt10_test_50files.root' )
+
+
 #if "_t1" in version :
 #    omtf_type = 2018
         
@@ -142,7 +147,7 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
     #eff = rebin(accpetedVsPtGen, xBins)
     eff.SetName(eff.GetName().replace("ptGenVsPtCand", "efficiency").replace("allVsPtGen", "ptCut_").replace("_rebined_clone", "")   ) 
     #omtf_q12_ptGenVsPtCand_eta_0.82_1.24_qualityCut_12_allVsPtGen18_GeV_rebined_clone
-    print "eff.GetName()", eff.GetName()
+    print("eff.GetName()", eff.GetName() )
     eff.Draw("")
     #accpetedVsPtGen.Draw("same")
     efficiencies.append(eff)
@@ -210,7 +215,7 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
     
     #################### calulating efficiency on the plataou
     platCutBin = allVsPtGen.GetXaxis().FindBin(platCutGev)
-    allIntegrated = allVsPtGen.Integral(platCutBin, -1);
+    allIntegrated = allVsPtGen.Integral(platCutBin, -1) +1; # TODD check why sometimes is 0
     
     accpetedIntegrated = accpetedVsPtGen.Integral(platCutBin, -1);
     #print (ptGenVsPtCand.GetName() +  " " + str(accpetedIntegrated / allIntegrated) ) 
@@ -221,7 +226,7 @@ def makeEfficiencyPlots(ptCutGev, platCutGev, lineColor) :
         
 for iAlgo, obj in enumerate(efficiencyDir.GetListOfKeys() ) :
     ptGenVsPtCand = obj.ReadObj()
-    if isinstance(ptGenVsPtCand, TH2D):
+    if isinstance(ptGenVsPtCand, TH2D) and "ptGenVsPtCand" in ptGenVsPtCand.GetName() :
         #makeEfficiencyPlots(5)
         lineColor = 2
         ptCut = 22
@@ -354,5 +359,5 @@ canvasComapre.Write()
 #from ROOT import gROOT 
 gROOT.GetListOfCanvases().Draw()
 
-raw_input("Press ENTER to exit")
+input("Press ENTER to exit")
 #execfile('efficiencyPlots.py')

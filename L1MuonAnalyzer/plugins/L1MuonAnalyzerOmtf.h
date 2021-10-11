@@ -10,7 +10,6 @@
 
 ////////////////////
 // FRAMEWORK HEADERS
-#include "DataFormats/L1TMuon/interface/TkMuonBayesTrack.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -67,6 +66,7 @@
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 #include "usercode/L1MuonAnalyzer/interface/MuonMatcher.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/CandidateSimMuonMatcher.h"
 #include "usercode/L1MuonAnalyzer/interface/EfficiencyAnalyser.h"
 #include "usercode/L1MuonAnalyzer/interface/RateAnalyser.h"
 

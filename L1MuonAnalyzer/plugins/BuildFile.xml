@@ -14,7 +14,7 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<use ame="FWCore/PluginManager"/>
+<use name="FWCore/PluginManager"/>
 <use name="DataFormats/L1Trigger" />
 <use name="DataFormats/HepMCCandidate" />
 <use name="L1Trigger/L1TMuon" />

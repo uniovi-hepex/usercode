@@ -111,7 +111,7 @@ CandsMatchingAnalyser::CandsMatchingHists::CandsMatchingHists(TFileDirectory& pa
 void CandsMatchingAnalyser::CandsMatchingHists::fill(L1MuonCand& l1MuonCand, const TrackingParticle* matchedTrackingParticle,  double simVertexRho) {
   rateAn.fill(l1MuonCand);
 
-  ptGenVsPtCand.fill(matchedTrackingParticle->pt(), matchedTrackingParticle->eta(), matchedTrackingParticle->phi(), l1MuonCand);
+  ptGenVsPtCand.fill(matchedTrackingParticle->pt(), matchedTrackingParticle->eta(), matchedTrackingParticle->phi(), 0, l1MuonCand);
 
   if(l1MuonCand.hwQual >= qualityCut) {
     simVertexRhoVsPtGen->Fill(matchedTrackingParticle->pt(), simVertexRho);
@@ -184,7 +184,7 @@ void CandsMatchingAnalyser::fill(L1MuonCand& l1MuonCand, const TrackingParticle*
     notMatchedRateAn.fill(l1MuonCand);
   }
 
-  likelihoodDistribution.fill(0, 0, 0, l1MuonCand);
+  likelihoodDistribution.fill(0, 0, 0, 0, l1MuonCand);
 }
 
 /*void CandsMatchingAnalyser::fill(L1MuonCand& l1MuonCand, const SimTrack* matchedSimTrack, const edm::SimVertexContainer* simVertices) {
