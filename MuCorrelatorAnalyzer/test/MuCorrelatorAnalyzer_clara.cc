@@ -494,7 +494,6 @@ private:
 MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
 : parameterSet(conf), eventCount(0)
 {
-  inputMuCorr = consumes<l1t::TrackerMuonCollection>(edm::InputTag("L1TkMuon")); //
 
 
   //simTrackToken =  consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits")); //TODO which is correct?
@@ -519,7 +518,7 @@ MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
   TP_maxZ0         = parameterSet.getParameter< double >("TP_maxZ0");
   TP_maxRho        = parameterSet.getParameter< double >("TP_maxRho");
   L1TrackInputTag      = parameterSet.getParameter<edm::InputTag>("L1TrackInputTag");
-  //L1TkMuon      = parameterSet.getParameter<edm::InputTag>("L1TkMuon");
+  L1TkMuon      = parameterSet.getParameter<edm::InputTag>("L1TkMuon");
   MCTruthTrackInputTag = parameterSet.getParameter<edm::InputTag>("MCTruthTrackInputTag");
   L1Tk_minNStub    = parameterSet.getParameter< int >("L1Tk_minNStub");
 
@@ -545,6 +544,7 @@ MuCorrelatorAnalyzer::MuCorrelatorAnalyzer(const edm::ParameterSet& conf)
   //  MuTrackToken_ = consumes< std::vector< l1t::TrackerMuon > >(L1TkMuon);
   TrackingVertexToken_ = consumes< std::vector< TrackingVertex > >(TrackingVertexInputTag);
 
+  inputMuCorr = consumes<l1t::TrackerMuonCollection>(L1TkMuon); //
 
   if (!(MyProcess==13 || MyProcess==11 || MyProcess==211 || MyProcess==6 || MyProcess==15 || MyProcess==1)) {
     cout << "The specified MyProcess is invalid! Exiting..." << endl;
