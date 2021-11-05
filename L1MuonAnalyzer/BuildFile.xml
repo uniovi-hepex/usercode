@@ -25,7 +25,6 @@
 <use name="SimDataFormats/GeneratorProducts" />
 <use name="SimGeneral/HepPDTRecord" />
 <use name="L1Trigger/RPCTrigger" />
-<use name="L1Trigger/L1TMuonOverlapPhase1" />
 <use name="hepmc" />
 <use name="heppdt" />
 

@@ -11,7 +11,7 @@
 #include "usercode/L1MuonAnalyzer/plugins/L1MuonAnalyzerOmtf.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OmtfName.h"
+//#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OmtfName.h"
 
 namespace L1MuAn {
 
@@ -329,7 +329,7 @@ void L1MuonAnalyzerOmtf::analyze(const edm::Event& event, const edm::EventSetup&
           << finalCandidate.hwPhi() << "    eta " << std::setw(9) << (finalCandidate.hwEta() * 0.010875) << " phi "
           //<< std::setw(9) << globalPhi << " "
           << layerHitBits << " processor "
-          << OmtfName(finalCandidate.processor(), finalCandidate.trackFinderType())
+	//          << OmtfName(finalCandidate.processor(), finalCandidate.trackFinderType())
           << std::endl;
     }
   }

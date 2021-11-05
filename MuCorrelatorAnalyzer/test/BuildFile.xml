@@ -68,11 +68,9 @@
     <use   name="RecoTracker/TkSeedGenerator"/>
     <use   name="CommonTools/UtilAlgos"/>
     <use   name="DataFormats/Phase2TrackerDigi"/>
-	<use   name="L1Trigger/L1TMuonOverlapPhase1"/>
-	<use   name="L1Trigger/L1TkMuonBayes"/>
 
 <!-- <library   file="OmtfTTAnalyzer4.cc" name="OmtfTTAnalyzer"/> -->
-<library   file="MuCorrelatorAnalyzer8.cc" name="MuCorrelatorAnalyzer">
+<library   file="MuCorrelatorAnalyzer_clara.cc" name="MuCorrelatorAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
 
